@@ -1,0 +1,42 @@
+# macOS
+.DS_Store
+
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Firebase local files
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment files and credentials
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.mobileprovision
+service-account*.json
+
+# Firebase Apple configuration
+GoogleService-Info.plist
+GoogleService-Info-*.plist
+
+# Cursor local index
+.cursor/index/

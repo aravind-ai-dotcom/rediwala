@@ -1,0 +1,159 @@
+00-project-context.mdc
+---
+description: Core RediWala product and engineering context
+alwaysApply: true
+---
+
+# RediWala
+
+RediWala is a hyperlocal platform connecting mobile street vendors with
+nearby neighbourhood customers.
+
+The initial pilot is intended for Chennai, India.
+
+## Product Experiences
+
+RediWala has two distinct user experiences.
+
+### Vendor
+
+The vendor app allows a street vendor to:
+
+- Create and manage a profile
+- Specify products, services or recyclable materials collected
+- Go live while travelling through a neighbourhood
+- Broadcast location only during an active session
+- Receive customer interest or wait requests
+- Record sales
+- Record buy-back payments
+- View earnings and transaction history
+
+### Customer
+
+The customer app allows a customer to:
+
+- Create a private alert point
+- Follow preferred vendors
+- Maintain a wishlist
+- Receive proximity notifications
+- View a nearby vendor
+- Ask a vendor to wait
+- Manage alert preferences
+- Review transaction history
+
+## Application Structure
+
+The codebase will contain:
+
+- RediWalaVendor
+- RediWalaCustomer
+- Shared Swift code
+
+Development bundle identifiers:
+
+- com.rediwala.vendor.dev
+- com.rediwala.customer.dev
+
+Production bundle identifiers:
+
+- com.rediwala.vendor
+- com.rediwala.customer
+
+## Proximity Model
+
+Do not treat 500 metres as arrival.
+
+Default alert stages:
+
+- Nearby: approximately 500 metres
+- Approaching: approximately 150 metres
+- At my street: approximately 75 metres
+
+Distances must be configurable.
+
+The customer alert point may represent:
+
+- Home entrance
+- Apartment gate
+- Street corner
+- Community entrance
+- Preferred meeting point
+
+Customer alert-point coordinates are private.
+
+## Technology
+
+- Xcode 26.6
+- Swift 6.3 toolchain
+- SwiftUI
+- Swift concurrency
+- MVVM
+- Repository abstraction
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Realtime Database
+- Firebase Cloud Functions using TypeScript
+- Firebase Cloud Messaging
+- Firebase Storage
+- Core Location
+- MapKit
+
+## Architecture
+
+Use this dependency direction:
+
+SwiftUI View
+→ ViewModel
+→ Repository protocol
+→ Firebase or platform implementation
+
+Rules:
+
+- SwiftUI views contain presentation logic only.
+- ViewModels are annotated with @MainActor.
+- Firebase calls do not belong in views.
+- Firebase calls remain inside repositories or services.
+- Core Location remains inside a dedicated location provider.
+- Use dependency injection.
+- Use async and await.
+- Do not use force unwraps.
+- Do not silently ignore errors.
+- Build after each small implementation task.
+- Do not generate entire features in one prompt.
+
+## Privacy
+
+- Vendors must not receive customer alert-point coordinates.
+- Customer addresses must not be exposed through follower data.
+- Vendor location is published only during an active Go Live session.
+- Going offline must stop location collection and invalidate presence.
+- Logs must not contain phone numbers, full addresses, tokens, UPI identifiers
+  or precise private coordinates.
+
+## Environments
+
+Use separate Firebase projects:
+
+- rediwala-dev
+- rediwala-staging
+- rediwala-prod
+
+Development builds must never use production data.
+
+## Localization
+
+Initial languages:
+
+- English
+- Tamil
+
+Do not hard-code visible user-facing strings inside SwiftUI views.
+
+## Development Approach
+
+- Plan before generating code.
+- Work in small, testable increments.
+- Show proposed file changes before broad edits.
+- Do not add dependencies without approval.
+- Do not invent Apple or Firebase APIs.
+- Use APIs supported by the installed SDK versions.
