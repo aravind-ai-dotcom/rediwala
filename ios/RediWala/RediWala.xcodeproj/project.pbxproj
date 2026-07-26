@@ -1,0 +1,1061 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		243BE25524C80AD5B894198B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D0777AB06885B86E69F9D29A /* FirebaseAuth */; };
+		D4B57E078B1D8953438E59EF /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C793B90D9C6486471F16EA22 /* FirebaseCore */; };
+		E119E3387144A336018DD423 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */; };
+		F25C51F6301664B6009686C2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51F5301664B6009686C2 /* FirebaseAuth */; };
+		F25C51F8301664B6009686C2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51F7301664B6009686C2 /* FirebaseCore */; };
+		F25C51FD3016667E009686C2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51FC3016667E009686C2 /* FirebaseAuth */; };
+		F25C51FF3016667E009686C2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51FE3016667E009686C2 /* FirebaseCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F25C51D430165946009686C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2F53C5830164F2F003B52D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F25C51C630165946009686C2;
+			remoteInfo = RediWalaVendor;
+		};
+		F25C51DE30165946009686C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2F53C5830164F2F003B52D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F25C51C630165946009686C2;
+			remoteInfo = RediWalaVendor;
+		};
+		F2F53C6E30164F30003B52D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2F53C5830164F2F003B52D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2F53C5F30164F2F003B52D1;
+			remoteInfo = RediWala;
+		};
+		F2F53C7830164F30003B52D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F2F53C5830164F2F003B52D1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2F53C5F30164F2F003B52D1;
+			remoteInfo = RediWala;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "RediWalaVendor/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		F25C51C730165946009686C2 /* RediWalaVendor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RediWalaVendor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F25C51D330165946009686C2 /* RediWalaVendorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F25C51DD30165946009686C2 /* RediWalaVendorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F53C6030164F2F003B52D1 /* RediWalaCustomer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RediWalaCustomer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F53C6D30164F30003B52D1 /* RediWalaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F53C7730164F30003B52D1 /* RediWalaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F25C51C830165946009686C2 /* RediWalaVendor */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWalaVendor;
+			sourceTree = "<group>";
+		};
+		F25C51D630165946009686C2 /* RediWalaVendorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWalaVendorTests;
+			sourceTree = "<group>";
+		};
+		F25C51E030165946009686C2 /* RediWalaVendorUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWalaVendorUITests;
+			sourceTree = "<group>";
+		};
+		F2F53C6230164F2F003B52D1 /* RediWala */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWala;
+			sourceTree = "<group>";
+		};
+		F2F53C7030164F30003B52D1 /* RediWalaTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWalaTests;
+			sourceTree = "<group>";
+		};
+		F2F53C7A30164F30003B52D1 /* RediWalaUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RediWalaUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F25C51C430165946009686C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F25C51FF3016667E009686C2 /* FirebaseCore in Frameworks */,
+				F25C51FD3016667E009686C2 /* FirebaseAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51D030165946009686C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51DA30165946009686C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C5D30164F2F003B52D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F25C51F8301664B6009686C2 /* FirebaseCore in Frameworks */,
+				F25C51F6301664B6009686C2 /* FirebaseAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C6A30164F30003B52D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C7430164F30003B52D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4B57E078B1D8953438E59EF /* FirebaseCore in Frameworks */,
+				243BE25524C80AD5B894198B /* FirebaseAuth in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F25C51FB3016667E009686C2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F2F53C5730164F2F003B52D1 = {
+			isa = PBXGroup;
+			children = (
+				F2F53C6230164F2F003B52D1 /* RediWala */,
+				F2F53C7030164F30003B52D1 /* RediWalaTests */,
+				F2F53C7A30164F30003B52D1 /* RediWalaUITests */,
+				F25C51C830165946009686C2 /* RediWalaVendor */,
+				F25C51D630165946009686C2 /* RediWalaVendorTests */,
+				F25C51E030165946009686C2 /* RediWalaVendorUITests */,
+				F25C51FB3016667E009686C2 /* Frameworks */,
+				F2F53C6130164F2F003B52D1 /* Products */,
+				1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */,
+			);
+			sourceTree = "<group>";
+		};
+		F2F53C6130164F2F003B52D1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F2F53C6030164F2F003B52D1 /* RediWalaCustomer.app */,
+				F2F53C6D30164F30003B52D1 /* RediWalaTests.xctest */,
+				F2F53C7730164F30003B52D1 /* RediWalaUITests.xctest */,
+				F25C51C730165946009686C2 /* RediWalaVendor.app */,
+				F25C51D330165946009686C2 /* RediWalaVendorTests.xctest */,
+				F25C51DD30165946009686C2 /* RediWalaVendorUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F25C51C630165946009686C2 /* RediWalaVendor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F25C51E530165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendor" */;
+			buildPhases = (
+				F25C51C330165946009686C2 /* Sources */,
+				F25C51C430165946009686C2 /* Frameworks */,
+				F25C51C530165946009686C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F25C51C830165946009686C2 /* RediWalaVendor */,
+			);
+			name = RediWalaVendor;
+			packageProductDependencies = (
+				F25C51FC3016667E009686C2 /* FirebaseAuth */,
+				F25C51FE3016667E009686C2 /* FirebaseCore */,
+			);
+			productName = RediWalaVendor;
+			productReference = F25C51C730165946009686C2 /* RediWalaVendor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F25C51D230165946009686C2 /* RediWalaVendorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F25C51E830165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendorTests" */;
+			buildPhases = (
+				F25C51CF30165946009686C2 /* Sources */,
+				F25C51D030165946009686C2 /* Frameworks */,
+				F25C51D130165946009686C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F25C51D530165946009686C2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F25C51D630165946009686C2 /* RediWalaVendorTests */,
+			);
+			name = RediWalaVendorTests;
+			packageProductDependencies = (
+			);
+			productName = RediWalaVendorTests;
+			productReference = F25C51D330165946009686C2 /* RediWalaVendorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F25C51DC30165946009686C2 /* RediWalaVendorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F25C51EB30165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendorUITests" */;
+			buildPhases = (
+				F25C51D930165946009686C2 /* Sources */,
+				F25C51DA30165946009686C2 /* Frameworks */,
+				F25C51DB30165946009686C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F25C51DF30165946009686C2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F25C51E030165946009686C2 /* RediWalaVendorUITests */,
+			);
+			name = RediWalaVendorUITests;
+			packageProductDependencies = (
+			);
+			productName = RediWalaVendorUITests;
+			productReference = F25C51DD30165946009686C2 /* RediWalaVendorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		F2F53C5F30164F2F003B52D1 /* RediWalaCustomer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2F53C8130164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaCustomer" */;
+			buildPhases = (
+				F2F53C5C30164F2F003B52D1 /* Sources */,
+				F2F53C5D30164F2F003B52D1 /* Frameworks */,
+				F2F53C5E30164F2F003B52D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F2F53C6230164F2F003B52D1 /* RediWala */,
+			);
+			name = RediWalaCustomer;
+			packageProductDependencies = (
+				F25C51F5301664B6009686C2 /* FirebaseAuth */,
+				F25C51F7301664B6009686C2 /* FirebaseCore */,
+			);
+			productName = RediWala;
+			productReference = F2F53C6030164F2F003B52D1 /* RediWalaCustomer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F2F53C6C30164F30003B52D1 /* RediWalaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2F53C8430164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaTests" */;
+			buildPhases = (
+				F2F53C6930164F30003B52D1 /* Sources */,
+				F2F53C6A30164F30003B52D1 /* Frameworks */,
+				F2F53C6B30164F30003B52D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F2F53C6F30164F30003B52D1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F2F53C7030164F30003B52D1 /* RediWalaTests */,
+			);
+			name = RediWalaTests;
+			packageProductDependencies = (
+			);
+			productName = RediWalaTests;
+			productReference = F2F53C6D30164F30003B52D1 /* RediWalaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F2F53C7630164F30003B52D1 /* RediWalaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2F53C8730164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaUITests" */;
+			buildPhases = (
+				F2F53C7330164F30003B52D1 /* Sources */,
+				F2F53C7430164F30003B52D1 /* Frameworks */,
+				F2F53C7530164F30003B52D1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F2F53C7930164F30003B52D1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F2F53C7A30164F30003B52D1 /* RediWalaUITests */,
+			);
+			name = RediWalaUITests;
+			packageProductDependencies = (
+				C793B90D9C6486471F16EA22 /* FirebaseCore */,
+				D0777AB06885B86E69F9D29A /* FirebaseAuth */,
+			);
+			productName = RediWalaUITests;
+			productReference = F2F53C7730164F30003B52D1 /* RediWalaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F2F53C5830164F2F003B52D1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					F25C51C630165946009686C2 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					F25C51D230165946009686C2 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = F25C51C630165946009686C2;
+					};
+					F25C51DC30165946009686C2 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = F25C51C630165946009686C2;
+					};
+					F2F53C5F30164F2F003B52D1 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					F2F53C6C30164F30003B52D1 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = F2F53C5F30164F2F003B52D1;
+					};
+					F2F53C7630164F30003B52D1 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = F2F53C5F30164F2F003B52D1;
+					};
+				};
+			};
+			buildConfigurationList = F2F53C5B30164F2F003B52D1 /* Build configuration list for PBXProject "RediWala" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F2F53C5730164F2F003B52D1;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F2F53C6130164F2F003B52D1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F2F53C5F30164F2F003B52D1 /* RediWalaCustomer */,
+				F2F53C6C30164F30003B52D1 /* RediWalaTests */,
+				F2F53C7630164F30003B52D1 /* RediWalaUITests */,
+				F25C51C630165946009686C2 /* RediWalaVendor */,
+				F25C51D230165946009686C2 /* RediWalaVendorTests */,
+				F25C51DC30165946009686C2 /* RediWalaVendorUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F25C51C530165946009686C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51D130165946009686C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51DB30165946009686C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C5E30164F2F003B52D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C6B30164F30003B52D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C7530164F30003B52D1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E119E3387144A336018DD423 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F25C51C330165946009686C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51CF30165946009686C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F25C51D930165946009686C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C5C30164F2F003B52D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C6930164F30003B52D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F53C7330164F30003B52D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F25C51D530165946009686C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F25C51C630165946009686C2 /* RediWalaVendor */;
+			targetProxy = F25C51D430165946009686C2 /* PBXContainerItemProxy */;
+		};
+		F25C51DF30165946009686C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F25C51C630165946009686C2 /* RediWalaVendor */;
+			targetProxy = F25C51DE30165946009686C2 /* PBXContainerItemProxy */;
+		};
+		F2F53C6F30164F30003B52D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2F53C5F30164F2F003B52D1 /* RediWalaCustomer */;
+			targetProxy = F2F53C6E30164F30003B52D1 /* PBXContainerItemProxy */;
+		};
+		F2F53C7930164F30003B52D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2F53C5F30164F2F003B52D1 /* RediWalaCustomer */;
+			targetProxy = F2F53C7830164F30003B52D1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F25C51E630165946009686C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.vendor.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F25C51E730165946009686C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.vendor.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F25C51E930165946009686C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RediWalaVendor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RediWalaVendor";
+			};
+			name = Debug;
+		};
+		F25C51EA30165946009686C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RediWalaVendor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RediWalaVendor";
+			};
+			name = Release;
+		};
+		F25C51EC30165946009686C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RediWalaVendor;
+			};
+			name = Debug;
+		};
+		F25C51ED30165946009686C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RediWalaVendor;
+			};
+			name = Release;
+		};
+		F2F53C7F30164F30003B52D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F2F53C8030164F30003B52D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F2F53C8230164F30003B52D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = RediWala;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.customer.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F2F53C8330164F30003B52D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BXD2KTDA9P;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = RediWala;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.customer.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F2F53C8530164F30003B52D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RediWala.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RediWala";
+			};
+			name = Debug;
+		};
+		F2F53C8630164F30003B52D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RediWala.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RediWala";
+			};
+			name = Release;
+		};
+		F2F53C8830164F30003B52D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RediWala;
+			};
+			name = Debug;
+		};
+		F2F53C8930164F30003B52D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RediWala;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F25C51E530165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F25C51E630165946009686C2 /* Debug */,
+				F25C51E730165946009686C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F25C51E830165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F25C51E930165946009686C2 /* Debug */,
+				F25C51EA30165946009686C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F25C51EB30165946009686C2 /* Build configuration list for PBXNativeTarget "RediWalaVendorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F25C51EC30165946009686C2 /* Debug */,
+				F25C51ED30165946009686C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2F53C5B30164F2F003B52D1 /* Build configuration list for PBXProject "RediWala" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2F53C7F30164F30003B52D1 /* Debug */,
+				F2F53C8030164F30003B52D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2F53C8130164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaCustomer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2F53C8230164F30003B52D1 /* Debug */,
+				F2F53C8330164F30003B52D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2F53C8430164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2F53C8530164F30003B52D1 /* Debug */,
+				F2F53C8630164F30003B52D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2F53C8730164F30003B52D1 /* Build configuration list for PBXNativeTarget "RediWalaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2F53C8830164F30003B52D1 /* Debug */,
+				F2F53C8930164F30003B52D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C793B90D9C6486471F16EA22 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		D0777AB06885B86E69F9D29A /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F25C51F5301664B6009686C2 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F25C51F7301664B6009686C2 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		F25C51F9301664B6009686C2 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		F25C51FC3016667E009686C2 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F25C51FE3016667E009686C2 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		F25C52003016667E009686C2 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F2F53C5830164F2F003B52D1 /* Project object */;
+}
