@@ -7,8 +7,6 @@ struct LargeActionButton: View {
     var tint: Color = AppTheme.primary
     let action: () -> Void
 
-    @State private var isPressed = false
-
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
@@ -45,27 +43,22 @@ struct LargeActionButton: View {
             .background(AppTheme.card)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
             .shadow(color: .black.opacity(0.05), radius: 8, y: 3)
-            .scaleEffect(isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
         }
-        .buttonStyle(.plain)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
-        )
+        .buttonStyle(ScalePressButtonStyle())
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
     }
 }
 
 #Preview {
-    LargeActionButton(
-        titleKey: "settings.title",
-        subtitleKey: "settings.subtitle",
-        systemImage: "gearshape.fill"
-    ) {}
+    ScrollView {
+        LargeActionButton(
+            titleKey: "settings.title",
+            subtitleKey: "settings.subtitle",
+            systemImage: "gearshape.fill"
+        ) {}
         .padding()
-        .background(AppTheme.background)
-        .environment(\.locale, Locale(identifier: "en"))
+    }
+    .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }

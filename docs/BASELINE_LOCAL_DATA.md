@@ -154,6 +154,12 @@ Recorded during stabilization:
 
 ---
 
+## Related docs
+
+- `docs/FIREBASE_SCHEMA.md` — Realtime Database schema for the Chennai pilot seed (app still on local repo)
+- `docs/FIREBASE_DATA_INSPECTION.md` — Console inspection & reseed steps
+- `firebase/README.md` — Seed / validate commands
+
 ## Recommended next step after this baseline
 
-Implement `FirebaseSellerRepository` conforming to `SellerRepository`, inject it at app launch in place of `LocalSellerRepository`, and map Firestore documents to the existing `Seller` model **without rewriting discovery UI**.
+Implement a read-only `FirebaseSellerRepository` conforming to `SellerRepository`, map Realtime Database nodes to the existing `Seller` model, and inject it behind a flag — without rewriting discovery UI. Keep `LocalSellerRepository` as fallback until validation passes.

@@ -14,8 +14,6 @@ struct PrimaryButton: View {
     var prominent: Bool = false
     let action: () -> Void
 
-    @State private var isPressed = false
-
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
@@ -46,20 +44,10 @@ struct PrimaryButton: View {
                 radius: prominent ? 16 : 10,
                 y: prominent ? 8 : 4
             )
-            .scaleEffect(isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.28, dampingFraction: 0.7), value: isPressed)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ScalePressButtonStyle())
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.5)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    guard isEnabled else { return }
-                    isPressed = true
-                }
-                .onEnded { _ in isPressed = false }
-        )
         .accessibilityLabel(Text(LocalizedStringKey(titleKey)))
         .accessibilityAddTraits(.isButton)
     }
@@ -74,11 +62,13 @@ struct PrimaryButton: View {
 }
 
 #Preview {
-    VStack(spacing: 16) {
-        PrimaryButton(titleKey: "home.go_live", systemImage: "antenna.radiowaves.left.and.right", prominent: true) {}
-        PrimaryButton(titleKey: "live.stop", systemImage: "stop.fill", style: .danger) {}
+    ScrollView {
+        VStack(spacing: 16) {
+            PrimaryButton(titleKey: "home.go_live", systemImage: "antenna.radiowaves.left.and.right", prominent: true) {}
+            PrimaryButton(titleKey: "live.stop", systemImage: "stop.fill", style: .danger) {}
+        }
+        .padding()
     }
-    .padding()
     .background(AppTheme.background)
     .environment(\.locale, Locale(identifier: "en"))
 }

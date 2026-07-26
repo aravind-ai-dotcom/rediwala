@@ -10,26 +10,26 @@ struct CustomerRootView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Group {
-                switch selectedTab {
-                case .home:
-                    NavigationStack {
-                        CustomerHomeView(viewModel: homeViewModel)
-                    }
-                case .favorites:
-                    NavigationStack {
-                        FavoritesView()
-                    }
-                case .profile:
-                    NavigationStack {
-                        ProfileView()
-                    }
+        Group {
+            switch selectedTab {
+            case .home:
+                NavigationStack {
+                    CustomerHomeView(viewModel: homeViewModel)
+                }
+            case .favorites:
+                NavigationStack {
+                    FavoritesView()
+                }
+            case .profile:
+                NavigationStack {
+                    ProfileView()
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             BottomTabBar(selected: $selectedTab)
+                .background(AppTheme.card.ignoresSafeArea(edges: .bottom))
         }
         .background(AppTheme.background.ignoresSafeArea())
     }

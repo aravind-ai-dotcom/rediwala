@@ -1,0 +1,36 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "metadata": { ".read": "auth != null", ".write": false },
+    "cities": { ".read": "auth != null", ".write": false },
+    "neighborhoods": { ".read": "auth != null", ".write": false },
+    "categoryGroups": { ".read": "auth != null", ".write": false },
+    "categories": { ".read": "auth != null", ".write": false },
+    "vendors": { ".read": "auth != null", ".write": false },
+    "vendor_status": { ".read": "auth != null", ".write": false },
+    "vendor_locations": { ".read": "auth != null", ".write": false },
+    "vendor_routes": { ".read": "auth != null", ".write": false },
+    "vendor_announcements": { ".read": "auth != null", ".write": false },
+
+    "customers": {
+      "$customerId": {
+        ".read": "auth != null && auth.uid == $customerId",
+        ".write": false
+      }
+    },
+    "customer_favorites": {
+      "$customerId": {
+        ".read": "auth != null && auth.uid == $customerId",
+        ".write": false
+      }
+    },
+    "customer_settings": {
+      "$customerId": {
+        ".read": "auth != null && auth.uid == $customerId",
+        ".write": false
+      }
+    }
+  }
+}

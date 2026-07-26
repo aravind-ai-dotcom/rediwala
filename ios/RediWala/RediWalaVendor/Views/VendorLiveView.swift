@@ -12,30 +12,35 @@ struct VendorLiveView: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.sectionSpacing) {
-            StatusCard(titleKey: "status.live", isLive: true)
+        ScrollView {
+            VStack(spacing: AppTheme.sectionSpacing) {
+                StatusCard(titleKey: "status.live", isLive: true)
 
-            VStack(spacing: 12) {
-                liveStatRow(icon: "location.fill", titleKey: "live.location", value: liveViewModel.locationLabel)
-                liveStatRow(icon: "clock.fill", titleKey: "live.start_time", value: liveViewModel.startTimeLabel)
-                liveStatRow(
-                    icon: "person.2.fill",
-                    titleKey: "live.customers_today",
-                    value: "\(liveViewModel.customersToday)"
-                )
+                VStack(spacing: 12) {
+                    liveStatRow(icon: "location.fill", titleKey: "live.location", value: liveViewModel.locationLabel)
+                    liveStatRow(icon: "clock.fill", titleKey: "live.start_time", value: liveViewModel.startTimeLabel)
+                    liveStatRow(
+                        icon: "person.2.fill",
+                        titleKey: "live.customers_today",
+                        value: "\(liveViewModel.customersToday)"
+                    )
+                }
             }
-
-            Spacer(minLength: 0)
-
+            .padding(20)
+            .padding(.bottom, 8)
+            .frame(maxWidth: .infinity)
+        }
+        .safeAreaInset(edge: .bottom) {
             PrimaryButton(
                 titleKey: "live.stop",
                 systemImage: "stop.fill",
                 style: .danger,
                 action: onStop
             )
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(AppTheme.background.opacity(0.95))
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppTheme.background.ignoresSafeArea())
         .onAppear {
             homeViewModel.goLive()
@@ -61,6 +66,7 @@ struct VendorLiveView: View {
                     .foregroundStyle(AppTheme.textPrimary)
                     .lineLimit(3)
                     .minimumScaleFactor(0.8)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 0)

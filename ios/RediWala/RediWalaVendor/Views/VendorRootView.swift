@@ -19,32 +19,32 @@ struct VendorRootView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Group {
-                switch selectedTab {
-                case .home:
-                    VendorHomeView(
-                        viewModel: homeViewModel,
-                        onGoLive: { isShowingLive = true },
-                        onSelectTab: { selectedTab = $0 }
-                    )
-                case .inventory:
-                    VendorInventoryView()
-                case .earnings:
-                    VendorEarningsView()
-                case .profile:
-                    VendorProfileView(viewModel: profileViewModel)
-                        .onAppear {
-                            profileViewModel.updateLanguageKey(languageStore.selected.profileLabelKey)
-                        }
-                        .onChange(of: languageStore.selected) { _, newValue in
-                            profileViewModel.updateLanguageKey(newValue.profileLabelKey)
-                        }
-                }
+        Group {
+            switch selectedTab {
+            case .home:
+                VendorHomeView(
+                    viewModel: homeViewModel,
+                    onGoLive: { isShowingLive = true },
+                    onSelectTab: { selectedTab = $0 }
+                )
+            case .inventory:
+                VendorInventoryView()
+            case .earnings:
+                VendorEarningsView()
+            case .profile:
+                VendorProfileView(viewModel: profileViewModel)
+                    .onAppear {
+                        profileViewModel.updateLanguageKey(languageStore.selected.profileLabelKey)
+                    }
+                    .onChange(of: languageStore.selected) { _, newValue in
+                        profileViewModel.updateLanguageKey(newValue.profileLabelKey)
+                    }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             BottomTabBar(selected: $selectedTab)
+                .background(AppTheme.card.ignoresSafeArea(edges: .bottom))
         }
         .background(AppTheme.background.ignoresSafeArea())
         .fullScreenCover(isPresented: $isShowingLive) {

@@ -1,0 +1,8 @@
+# Local generated seed previews (may contain large synthetic JSON)
+generated/
+
+# Never commit real credentials
+serviceAccount.json
+service-account.json
+credentials/
+*.pem

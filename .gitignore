@@ -34,6 +34,11 @@ ui-debug.log
 *.p12
 *.mobileprovision
 service-account*.json
+**/serviceAccount.json
+**/service-account.json
+firebase/serviceAccount.json
+firebase/credentials/
+firebase/generated/
 
 # Firebase Apple configuration
 GoogleService-Info.plist

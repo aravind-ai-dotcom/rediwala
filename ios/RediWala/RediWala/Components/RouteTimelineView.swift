@@ -7,6 +7,7 @@ struct RouteTimelineView: View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(stops.enumerated()), id: \.element.id) { index, stop in
                 HStack(alignment: .top, spacing: 14) {
+                    // Fixed-height rail — avoid maxHeight: .infinity inside ScrollView.
                     VStack(spacing: 0) {
                         Circle()
                             .fill(dotColor(for: stop.status))
@@ -22,11 +23,10 @@ struct RouteTimelineView: View {
                         if index < stops.count - 1 {
                             Rectangle()
                                 .fill(AppTheme.textSecondary.opacity(0.25))
-                                .frame(width: 2)
-                                .frame(maxHeight: .infinity)
+                                .frame(width: 2, height: 56)
                         }
                     }
-                    .frame(width: 22)
+                    .frame(width: 22, alignment: .top)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(stop.timeLabel)
@@ -73,16 +73,10 @@ struct RouteTimelineView: View {
 }
 
 #Preview("My Day") {
-    RouteTimelineView(stops: SyntheticChennaiData.sellers[0].routeStops)
-        .padding()
-        .background(AppTheme.background)
-        .environment(\.locale, Locale(identifier: "en"))
-}
-
-#Preview("Tamil Dark") {
-    RouteTimelineView(stops: SyntheticChennaiData.sellers[0].routeStops)
-        .padding()
-        .preferredColorScheme(.dark)
-        .background(AppTheme.background)
-        .environment(\.locale, Locale(identifier: "ta"))
+    ScrollView {
+        RouteTimelineView(stops: SyntheticChennaiData.sellers[0].routeStops)
+            .padding()
+    }
+    .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }
