@@ -1,18 +1,23 @@
 import SwiftUI
 
 struct CustomerContentView: View {
+    @State private var showHome = false
+
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "location.circle.fill")
-                .font(.system(size: 52))
-
-            Text("RediWala")
-                .font(.largeTitle.bold())
-
-            Text("Customer App")
-                .foregroundStyle(.secondary)
+        Group {
+            if showHome {
+                CustomerHomeView()
+                    .transition(.opacity)
+            } else {
+                SplashView()
+                    .transition(.opacity)
+            }
         }
-        .padding()
+        .animation(.easeInOut(duration: 0.35), value: showHome)
+        .task {
+            try? await Task.sleep(for: .seconds(1.4))
+            showHome = true
+        }
     }
 }
 

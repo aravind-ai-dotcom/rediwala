@@ -7,32 +7,28 @@ struct ContentView: View {
         Group {
             switch authService.state {
             case .loading:
-                Text("Loading...")
-                    .font(.title2)
+                SplashView()
 
-            case .signedIn(let uid):
-                VStack(spacing: 12) {
-                    Text("Vendor Logged In")
-                        .font(.title2)
-                    Text(uid)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
+            case .signedIn:
+                VendorRootView()
 
             case .failed(let message):
-                VStack(spacing: 12) {
-                    Text("Sign-in failed")
-                        .font(.title2)
+                VStack(spacing: 24) {
+                    Text("🛺")
+                        .font(.system(size: 64))
+                    Text("REDIWALA")
+                        .font(.largeTitle.weight(.heavy))
+                        .foregroundStyle(AppTheme.primary)
                     Text(message)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(AppTheme.danger)
                         .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
                 }
-                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(AppTheme.background.ignoresSafeArea())
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

@@ -48,7 +48,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "RediWalaVendor/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; name = "GoogleService-Info.plist"; path = "RediWalaVendor/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F25C51C730165946009686C2 /* RediWalaVendor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RediWalaVendor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F25C51D330165946009686C2 /* RediWalaVendorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F25C51DD30165946009686C2 /* RediWalaVendorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -898,9 +898,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -920,9 +918,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -1035,11 +1031,6 @@
 			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
 		};
-		F25C51F9301664B6009686C2 /* FirebaseDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseDatabase;
-		};
 		F25C51FC3016667E009686C2 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -1049,11 +1040,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
-		};
-		F25C52003016667E009686C2 /* FirebaseDatabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseDatabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
