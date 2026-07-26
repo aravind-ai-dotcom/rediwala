@@ -3,14 +3,18 @@ import SwiftUI
 enum PrimaryButtonStyle {
     case primary
     case danger
+    case accent
 }
 
 struct PrimaryButton: View {
-    let title: String
+    let titleKey: String
     var systemImage: String? = nil
     var style: PrimaryButtonStyle = .primary
     var isEnabled: Bool = true
+    var prominent: Bool = false
     let action: () -> Void
+
+    @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
@@ -20,20 +24,43 @@ struct PrimaryButton: View {
                         .font(.title2.weight(.bold))
                         .symbolRenderingMode(.hierarchical)
                 }
-                Text(title)
+                Text(LocalizedStringKey(titleKey))
                     .font(.title2.weight(.bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.75)
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 64)
+            .frame(minHeight: prominent ? 72 : AppTheme.minTap)
             .foregroundStyle(.white)
-            .background(backgroundColor)
+            .background(
+                LinearGradient(
+                    colors: [backgroundColor, backgroundColor.opacity(0.88)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.buttonCorner, style: .continuous))
+            .shadow(
+                color: backgroundColor.opacity(isEnabled ? 0.35 : 0),
+                radius: prominent ? 16 : 10,
+                y: prominent ? 8 : 4
+            )
+            .scaleEffect(isPressed ? 0.97 : 1)
+            .animation(.spring(response: 0.28, dampingFraction: 0.7), value: isPressed)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
         .opacity(isEnabled ? 1 : 0.5)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    guard isEnabled else { return }
+                    isPressed = true
+                }
+                .onEnded { _ in isPressed = false }
+        )
+        .accessibilityLabel(Text(LocalizedStringKey(titleKey)))
         .accessibilityAddTraits(.isButton)
     }
 
@@ -41,15 +68,17 @@ struct PrimaryButton: View {
         switch style {
         case .primary: return AppTheme.primary
         case .danger: return AppTheme.danger
+        case .accent: return AppTheme.accent
         }
     }
 }
 
 #Preview {
     VStack(spacing: 16) {
-        PrimaryButton(title: "GO LIVE", systemImage: "antenna.radiowaves.left.and.right") {}
-        PrimaryButton(title: "STOP", systemImage: "stop.fill", style: .danger) {}
+        PrimaryButton(titleKey: "home.go_live", systemImage: "antenna.radiowaves.left.and.right", prominent: true) {}
+        PrimaryButton(titleKey: "live.stop", systemImage: "stop.fill", style: .danger) {}
     }
     .padding()
     .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ProfileRow: View {
-    let title: String
+    let titleKey: LocalizedStringKey
     let value: String
     let systemImage: String
 
@@ -15,12 +15,15 @@ struct ProfileRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+                Text(titleKey)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(AppTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
                 Text(value)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppTheme.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 0)
@@ -32,7 +35,8 @@ struct ProfileRow: View {
 }
 
 #Preview {
-    ProfileRow(title: "Phone", value: "+91 98765 43210", systemImage: "phone.fill")
+    ProfileRow(titleKey: "profile.row.phone", value: "+91 98765 43210", systemImage: "phone.fill")
         .padding()
         .background(AppTheme.background)
+        .environment(\.locale, Locale(identifier: "en"))
 }

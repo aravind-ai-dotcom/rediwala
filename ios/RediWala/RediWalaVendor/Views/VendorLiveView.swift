@@ -2,19 +2,25 @@ import SwiftUI
 
 struct VendorLiveView: View {
     @ObservedObject var homeViewModel: VendorHomeViewModel
-    @StateObject private var liveViewModel = VendorLiveViewModel()
+    @StateObject private var liveViewModel: VendorLiveViewModel
     var onStop: () -> Void
 
+    init(homeViewModel: VendorHomeViewModel, onStop: @escaping () -> Void) {
+        self.homeViewModel = homeViewModel
+        self.onStop = onStop
+        _liveViewModel = StateObject(wrappedValue: VendorLiveViewModel(area: homeViewModel.area))
+    }
+
     var body: some View {
-        VStack(spacing: 24) {
-            StatusCard(title: "LIVE", isLive: true)
+        VStack(spacing: AppTheme.sectionSpacing) {
+            StatusCard(titleKey: "status.live", isLive: true)
 
             VStack(spacing: 12) {
-                liveStatRow(icon: "location.fill", title: "Location", value: liveViewModel.locationLabel)
-                liveStatRow(icon: "clock.fill", title: "Start Time", value: liveViewModel.startTimeLabel)
+                liveStatRow(icon: "location.fill", titleKey: "live.location", value: liveViewModel.locationLabel)
+                liveStatRow(icon: "clock.fill", titleKey: "live.start_time", value: liveViewModel.startTimeLabel)
                 liveStatRow(
                     icon: "person.2.fill",
-                    title: "Customers Today",
+                    titleKey: "live.customers_today",
                     value: "\(liveViewModel.customersToday)"
                 )
             }
@@ -22,7 +28,7 @@ struct VendorLiveView: View {
             Spacer(minLength: 0)
 
             PrimaryButton(
-                title: "STOP",
+                titleKey: "live.stop",
                 systemImage: "stop.fill",
                 style: .danger,
                 action: onStop
@@ -37,7 +43,7 @@ struct VendorLiveView: View {
         }
     }
 
-    private func liveStatRow(icon: String, title: String, value: String) -> some View {
+    private func liveStatRow(icon: String, titleKey: String, value: String) -> some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title2.weight(.semibold))
@@ -47,13 +53,13 @@ struct VendorLiveView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+                Text(LocalizedStringKey(titleKey))
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(AppTheme.textSecondary)
                 Text(value)
                     .font(.title3.weight(.bold))
                     .foregroundStyle(AppTheme.textPrimary)
-                    .lineLimit(2)
+                    .lineLimit(3)
                     .minimumScaleFactor(0.8)
             }
 
@@ -68,4 +74,5 @@ struct VendorLiveView: View {
 
 #Preview {
     VendorLiveView(homeViewModel: VendorHomeViewModel(), onStop: {})
+        .environment(\.locale, Locale(identifier: "en"))
 }

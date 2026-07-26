@@ -9,20 +9,22 @@ struct SplashView: View {
                 .font(.system(size: 72))
                 .accessibilityHidden(true)
 
-            Text("REDIWALA")
+            Text("app.name")
                 .font(.largeTitle.weight(.heavy))
                 .foregroundStyle(AppTheme.primary)
                 .tracking(1.5)
 
-            Text("Fresh Street Markets")
+            Text("app.tagline")
                 .font(.title3.weight(.medium))
                 .foregroundStyle(AppTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
 
             ProgressView()
                 .controlSize(.large)
                 .tint(AppTheme.primary)
                 .padding(.top, 28)
-                .accessibilityLabel("Loading")
+                .accessibilityLabel(Text("accessibility.loading"))
 
             Spacer()
         }
@@ -33,4 +35,5 @@ struct SplashView: View {
 
 #Preview {
     SplashView()
+        .environment(\.locale, Locale(identifier: "en"))
 }

@@ -3,23 +3,44 @@ import Foundation
 
 @MainActor
 final class VendorHomeViewModel: ObservableObject {
-    @Published var vendorName: String = "Kumar"
+    @Published var vendorName: String
     @Published var status: VendorLiveStatus = .offline
-    @Published var summary: VendorDaySummary = .init(salesRupees: 0, customers: 0, hours: 0)
+    @Published var summary: VendorDaySummary
+    @Published var area: ChennaiArea
 
-    var greeting: String {
+    init(
+        vendorName: String? = nil,
+        summary: VendorDaySummary? = nil,
+        area: ChennaiArea? = nil
+    ) {
+        self.vendorName = vendorName
+            ?? String(localized: String.LocalizationValue(VendorMockData.defaultVendorName))
+        self.summary = summary ?? VendorMockData.emptyDaySummary
+        self.area = area ?? VendorMockData.defaultArea
+    }
+
+    var greetingKey: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "Good Morning"
-        case 12..<17: return "Good Afternoon"
-        default: return "Good Evening"
+        case 5..<12: return "greeting.morning"
+        case 12..<17: return "greeting.afternoon"
+        default: return "greeting.evening"
         }
     }
 
-    var statusTitle: String {
+    /// Display greeting with a light time-of-day accent for morning.
+    var greetingWithAccent: String {
+        let base = String(localized: String.LocalizationValue(greetingKey))
+        if greetingKey == "greeting.morning" {
+            return "\(base) ☀️"
+        }
+        return base
+    }
+
+    var statusTitleKey: String {
         switch status {
-        case .offline: return "OFFLINE"
-        case .live: return "LIVE"
+        case .offline: return "status.offline"
+        case .live: return "status.live"
         }
     }
 
@@ -29,5 +50,10 @@ final class VendorHomeViewModel: ObservableObject {
 
     func stopLive() {
         status = .offline
+    }
+
+    func applyOnboarding(_ state: VendorOnboardingState) {
+        vendorName = state.vendorName
+        area = state.area
     }
 }

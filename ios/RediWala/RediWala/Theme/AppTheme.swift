@@ -1,10 +1,11 @@
 import SwiftUI
 import UIKit
 
-/// Shared visual tokens for RediWala (light + dark).
+/// Shared visual tokens for RediWala Customer (light + dark).
 enum AppTheme {
     static let primary = Color(red: 34 / 255, green: 197 / 255, blue: 94 / 255) // #22C55E
     static let accent = Color(red: 249 / 255, green: 115 / 255, blue: 22 / 255)
+    static let info = Color(red: 59 / 255, green: 130 / 255, blue: 246 / 255)
     static let danger = Color(red: 239 / 255, green: 68 / 255, blue: 68 / 255)
 
     static let background = Color(uiColor: UIColor { traits in

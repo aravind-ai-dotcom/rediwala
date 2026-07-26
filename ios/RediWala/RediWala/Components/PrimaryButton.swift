@@ -1,9 +1,16 @@
 import SwiftUI
 
+enum PrimaryButtonStyle {
+    case primary
+    case accent
+    case danger
+}
+
 struct PrimaryButton: View {
-    let title: String
+    let titleKey: LocalizedStringKey
     var systemImage: String? = nil
-    var tint: Color = AppTheme.primary
+    var style: PrimaryButtonStyle = .primary
+    var isEnabled: Bool = true
     let action: () -> Void
 
     var body: some View {
@@ -12,24 +19,37 @@ struct PrimaryButton: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                         .font(.title2.weight(.bold))
+                        .symbolRenderingMode(.hierarchical)
                 }
-                Text(title)
+                Text(titleKey)
                     .font(.title2.weight(.bold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity)
             .frame(minHeight: 64)
             .foregroundStyle(.white)
-            .background(tint)
+            .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.buttonCorner, style: .continuous))
         }
         .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.5)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var backgroundColor: Color {
+        switch style {
+        case .primary: return AppTheme.primary
+        case .accent: return AppTheme.accent
+        case .danger: return AppTheme.danger
+        }
     }
 }
 
 #Preview {
-    PrimaryButton(title: "Explore", systemImage: "map.fill") {}
+    PrimaryButton(titleKey: "onboarding.language.continue", systemImage: "arrow.right") {}
         .padding()
         .background(AppTheme.background)
+        .environment(\.locale, Locale(identifier: "en"))
 }

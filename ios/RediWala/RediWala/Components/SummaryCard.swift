@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SummaryCard: View {
-    let title: String
+    let titleKey: LocalizedStringKey
     let value: String
     let systemImage: String
     var tint: Color = AppTheme.primary
@@ -18,12 +18,13 @@ struct SummaryCard: View {
             Text(value)
                 .font(.title.weight(.bold))
                 .foregroundStyle(AppTheme.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
-            Text(title)
+            Text(titleKey)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(AppTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -33,7 +34,8 @@ struct SummaryCard: View {
 }
 
 #Preview {
-    SummaryCard(title: "Nearby", value: "12", systemImage: "mappin.and.ellipse")
+    SummaryCard(titleKey: "home.nearbyVendors", value: "7", systemImage: "mappin.and.ellipse")
         .padding()
         .background(AppTheme.background)
+        .environment(\.locale, Locale(identifier: "en"))
 }

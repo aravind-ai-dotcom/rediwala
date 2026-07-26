@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StatusCard: View {
-    let title: String
+    let titleKey: LocalizedStringKey
     var isLive: Bool = false
 
     var body: some View {
@@ -14,9 +14,11 @@ struct StatusCard: View {
                     Circle().fill(isLive ? AppTheme.primary.opacity(0.15) : AppTheme.background)
                 )
 
-            Text(title)
+            Text(titleKey)
                 .font(.largeTitle.weight(.heavy))
                 .foregroundStyle(isLive ? AppTheme.primary : AppTheme.textPrimary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 28)
@@ -28,7 +30,8 @@ struct StatusCard: View {
 }
 
 #Preview {
-    StatusCard(title: "OFFLINE")
+    StatusCard(titleKey: "vendor.closed")
         .padding()
         .background(AppTheme.background)
+        .environment(\.locale, Locale(identifier: "en"))
 }

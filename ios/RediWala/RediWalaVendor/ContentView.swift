@@ -1,38 +1,48 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var authService: FirebaseAuthService
+    @EnvironmentObject private var languageStore: AppLanguageStore
+    @StateObject private var flowViewModel = VendorFlowViewModel()
 
     var body: some View {
         Group {
-            switch authService.state {
-            case .loading:
+            switch flowViewModel.step {
+            case .splash:
                 SplashView()
-
-            case .signedIn:
-                VendorRootView()
-
-            case .failed(let message):
-                VStack(spacing: 24) {
-                    Text("🛺")
-                        .font(.system(size: 64))
-                    Text("REDIWALA")
-                        .font(.largeTitle.weight(.heavy))
-                        .foregroundStyle(AppTheme.primary)
-                    Text(message)
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(AppTheme.danger)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
+            case .language:
+                LanguageSelectionView {
+                    flowViewModel.languageSelected()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(AppTheme.background.ignoresSafeArea())
+            case .welcome:
+                WelcomeView {
+                    flowViewModel.welcomeContinue()
+                }
+            case .vendorName:
+                VendorNameView(viewModel: flowViewModel.onboarding) {
+                    flowViewModel.nameContinue()
+                }
+            case .businessCategory:
+                BusinessCategoryView(viewModel: flowViewModel.onboarding) {
+                    flowViewModel.categoryContinue()
+                }
+            case .workingHours:
+                WorkingHoursView(viewModel: flowViewModel.onboarding) {
+                    flowViewModel.completeOnboarding()
+                }
+            case .main:
+                VendorRootView(onboardingState: flowViewModel.onboarding.buildState())
             }
+        }
+        .environment(\.locale, languageStore.locale)
+        .animation(.easeInOut(duration: 0.25), value: flowViewModel.step)
+        .onAppear {
+            flowViewModel.begin()
         }
     }
 }
 
 #Preview {
     ContentView()
-        .environmentObject(FirebaseAuthService())
+        .environmentObject(AppLanguageStore())
+        .environment(\.locale, Locale(identifier: "en"))
 }

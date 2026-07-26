@@ -1,33 +1,24 @@
 import SwiftUI
 
-enum CustomerTab: Hashable {
-    case home
-    case search
-    case orders
-    case profile
-}
-
-struct BottomNavigationBar: View {
-    @Binding var selected: CustomerTab
-
-    private let items: [(CustomerTab, String, String)] = [
-        (.home, "Home", "house.fill"),
-        (.search, "Search", "magnifyingglass"),
-        (.orders, "Orders", "bag.fill"),
-        (.profile, "Profile", "person.crop.circle.fill")
-    ]
+struct BottomTabBar: View {
+    @Binding var selected: VendorTab
 
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(items, id: \.0) { tab, title, icon in
+            ForEach(VendorTab.allCases, id: \.self) { tab in
                 Button {
-                    selected = tab
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selected = tab
+                    }
                 } label: {
                     VStack(spacing: 6) {
-                        Image(systemName: icon)
+                        Image(systemName: tab.systemImage)
                             .font(.system(size: 22, weight: .semibold))
-                        Text(title)
+                        Text(LocalizedStringKey(tab.titleKey))
                             .font(.caption.weight(.semibold))
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .minimumScaleFactor(0.75)
                     }
                     .foregroundStyle(selected == tab ? AppTheme.primary : AppTheme.textSecondary)
                     .frame(maxWidth: .infinity)
@@ -35,6 +26,8 @@ struct BottomNavigationBar: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(LocalizedStringKey(tab.titleKey)))
+                .accessibilityAddTraits(selected == tab ? .isSelected : [])
             }
         }
         .padding(.horizontal, 8)
@@ -50,5 +43,10 @@ struct BottomNavigationBar: View {
 }
 
 #Preview {
-    BottomNavigationBar(selected: .constant(.home))
+    VStack {
+        Spacer()
+        BottomTabBar(selected: .constant(.home))
+    }
+    .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }

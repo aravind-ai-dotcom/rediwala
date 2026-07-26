@@ -3,23 +3,106 @@ import Foundation
 
 @MainActor
 final class CustomerHomeViewModel: ObservableObject {
-    @Published var currentLocation: String = "Koramangala, Bengaluru"
+    enum BrowseMode: String, CaseIterable, Identifiable {
+        case list
+        case map
 
-    @Published var categories: [MarketCategory] = [
-        .init(id: "veg", title: "Vegetables", systemImage: "leaf.fill"),
-        .init(id: "fruit", title: "Fruits", systemImage: "carrot.fill"),
-        .init(id: "flower", title: "Flowers", systemImage: "camera.macro"),
-        .init(id: "milk", title: "Milk", systemImage: "cup.and.saucer.fill"),
-        .init(id: "fish", title: "Fish", systemImage: "fish.fill"),
-        .init(id: "bakery", title: "Bakery", systemImage: "birthday.cake.fill")
-    ]
+        var id: String { rawValue }
 
-    @Published var vendors: [NearbyVendor] = [
-        .init(id: "1", name: "Kumar Fresh", distance: "120 m", category: "Vegetables", isOpen: true),
-        .init(id: "2", name: "Anita Fruits", distance: "250 m", category: "Fruits", isOpen: true),
-        .init(id: "3", name: "Rose Cart", distance: "400 m", category: "Flowers", isOpen: false),
-        .init(id: "4", name: "Daily Dairy", distance: "600 m", category: "Milk", isOpen: true),
-        .init(id: "5", name: "Coastal Catch", distance: "800 m", category: "Fish", isOpen: true),
-        .init(id: "6", name: "Warm Loaf", distance: "1.1 km", category: "Bakery", isOpen: false)
-    ]
+        var titleKey: String {
+            switch self {
+            case .list: return "home.mode.list"
+            case .map: return "home.mode.map"
+            }
+        }
+
+        var systemImage: String {
+            switch self {
+            case .list: return "list.bullet"
+            case .map: return "map.fill"
+            }
+        }
+    }
+
+    @Published var selectedNeighborhood: PilotNeighborhood = .tNagar {
+        didSet {
+            mapViewModel.selectNeighborhood(selectedNeighborhood)
+        }
+    }
+    @Published var browseMode: BrowseMode = .list
+    @Published var sellers: [Seller] = []
+    @Published var isLoading = false
+    @Published private(set) var categoriesByGroup: [(group: CategoryGroup, categories: [MarketCategory])] = []
+
+    let repository: LocalSellerRepository
+    let mapViewModel: CustomerMapViewModel
+
+    private var cancellables = Set<AnyCancellable>()
+
+    var greetingKey: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "greeting.morning"
+        case 12..<17: return "greeting.afternoon"
+        default: return "greeting.evening"
+        }
+    }
+
+    var vendors: [Seller] { sellers }
+    var currentLocationKey: String { selectedNeighborhood.nameKey }
+    var categories: [MarketCategory] {
+        categoriesByGroup.flatMap(\.categories)
+    }
+
+    init(repository: LocalSellerRepository) {
+        self.repository = repository
+        self.mapViewModel = CustomerMapViewModel(repository: repository, neighborhood: .tNagar)
+        rebuildCategoryGroups()
+
+        repository.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        mapViewModel.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
+
+    func load() async {
+        isLoading = true
+        sellers = await repository.fetchNearbySellers()
+        await mapViewModel.load()
+        isLoading = false
+    }
+
+    func sellers(for category: SellerCategory) async -> [Seller] {
+        await repository.fetchSellers(category: category)
+    }
+
+    func vendors(for category: SellerCategory) -> [Seller] {
+        sellers.filter { $0.category == category }
+    }
+
+    func isFavorite(_ id: String) -> Bool {
+        repository.isFavorite(id: id)
+    }
+
+    func toggleFavorite(_ id: String) {
+        Task {
+            await repository.toggleFavorite(id: id)
+        }
+    }
+
+    private func rebuildCategoryGroups() {
+        categoriesByGroup = CategoryGroup.allCases
+            .sorted { $0.displayOrder < $1.displayOrder }
+            .map { group in
+                let cats = SellerCategory.categories(in: group).map(MarketCategory.init)
+                return (group, cats)
+            }
+    }
 }

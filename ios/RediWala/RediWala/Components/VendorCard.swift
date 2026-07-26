@@ -3,8 +3,9 @@ import SwiftUI
 struct VendorCard: View {
     let name: String
     let distance: String
-    let category: String
+    let categoryKey: LocalizedStringKey
     let isOpen: Bool
+    var rating: Double? = nil
 
     var body: some View {
         HStack(spacing: 16) {
@@ -22,24 +23,47 @@ struct VendorCard: View {
                 Text(name)
                     .font(.title3.weight(.bold))
                     .foregroundStyle(AppTheme.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 8) {
                     Label(distance, systemImage: "location.fill")
                     Text("·")
-                    Text(category)
+                    Text(categoryKey)
                 }
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(AppTheme.textSecondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
-                Text(isOpen ? "Open" : "Closed")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(isOpen ? AppTheme.primary : AppTheme.danger)
+                HStack(spacing: 10) {
+                    Text(isOpen ? "vendor.open" : "vendor.closed")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(isOpen ? AppTheme.primary : AppTheme.danger)
+
+                    if let rating {
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(AppTheme.accent)
+                            Text(String(format: "%.1f", rating))
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                    } else {
+                        Text("vendor.ratingPlaceholder")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                }
             }
 
             Spacer(minLength: 0)
+
+            Image(systemName: "chevron.right")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppTheme.textSecondary)
+                .accessibilityHidden(true)
         }
         .padding(16)
         .background(AppTheme.card)
@@ -50,7 +74,14 @@ struct VendorCard: View {
 }
 
 #Preview {
-    VendorCard(name: "Kumar Fresh", distance: "120 m", category: "Vegetables", isOpen: true)
-        .padding()
-        .background(AppTheme.background)
+    VendorCard(
+        name: "Murugan",
+        distance: "120 m",
+        categoryKey: "category.vegetables",
+        isOpen: true,
+        rating: 4.6
+    )
+    .padding()
+    .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }

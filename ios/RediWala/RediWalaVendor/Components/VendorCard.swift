@@ -1,10 +1,9 @@
 import SwiftUI
 
-/// Vendor list card for marketplace browsing.
 struct VendorCard: View {
-    let name: String
-    let distance: String
-    let category: String
+    let nameKey: String
+    let distanceKey: String
+    let categoryKey: String
     let isOpen: Bool
 
     var body: some View {
@@ -20,22 +19,27 @@ struct VendorCard: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(name)
+                Text(LocalizedStringKey(nameKey))
                     .font(.title3.weight(.bold))
                     .foregroundStyle(AppTheme.textPrimary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.85)
 
                 HStack(spacing: 8) {
-                    Label(distance, systemImage: "location.fill")
+                    Label {
+                        Text(LocalizedStringKey(distanceKey))
+                    } icon: {
+                        Image(systemName: "location.fill")
+                    }
                     Text("·")
-                    Text(category)
+                    Text(LocalizedStringKey(categoryKey))
                 }
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(AppTheme.textSecondary)
-                .lineLimit(1)
+                .lineLimit(2)
                 .minimumScaleFactor(0.8)
 
-                Text(isOpen ? "Open" : "Closed")
+                Text(LocalizedStringKey(isOpen ? "vendor.open" : "vendor.closed"))
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(isOpen ? AppTheme.primary : AppTheme.danger)
             }
@@ -51,7 +55,13 @@ struct VendorCard: View {
 }
 
 #Preview {
-    VendorCard(name: "Kumar Fresh", distance: "120 m", category: "Vegetables", isOpen: true)
-        .padding()
-        .background(AppTheme.background)
+    VendorCard(
+        nameKey: "vendor.name.murugan",
+        distanceKey: "distance.near_pondy",
+        categoryKey: "category.vegetables",
+        isOpen: true
+    )
+    .padding()
+    .background(AppTheme.background)
+    .environment(\.locale, Locale(identifier: "en"))
 }
