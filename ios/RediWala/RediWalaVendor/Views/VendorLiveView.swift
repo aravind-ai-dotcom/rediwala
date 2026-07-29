@@ -43,7 +43,6 @@ struct VendorLiveView: View {
         }
         .background(AppTheme.background.ignoresSafeArea())
         .onAppear {
-            homeViewModel.goLive()
             liveViewModel.beginSession()
         }
     }

@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var languageStore: AppLanguageStore
     @StateObject private var flowViewModel = VendorFlowViewModel()
+    @StateObject private var firebaseSession = VendorFirebaseSession.shared
 
     var body: some View {
         Group {
@@ -33,10 +34,14 @@ struct ContentView: View {
                 VendorRootView(onboardingState: flowViewModel.onboarding.buildState())
             }
         }
+        .environmentObject(firebaseSession)
         .environment(\.locale, languageStore.locale)
         .animation(.easeInOut(duration: 0.25), value: flowViewModel.step)
         .onAppear {
             flowViewModel.begin()
+        }
+        .task {
+            await firebaseSession.bootstrap()
         }
     }
 }

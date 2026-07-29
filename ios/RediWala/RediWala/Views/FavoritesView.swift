@@ -71,7 +71,7 @@ struct FavoritesView: View {
 }
 
 #Preview {
-    let repo = LocalSellerRepository()
+    let repo = FirebaseSellerRepository()
     return NavigationStack {
         FavoritesView()
     }

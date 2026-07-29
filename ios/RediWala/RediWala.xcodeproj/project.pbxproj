@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		243BE25524C80AD5B894198B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D0777AB06885B86E69F9D29A /* FirebaseAuth */; };
+		A1B2C3D4E5F6012345678AB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 69BBAC73465D39330AE4F00B /* FirebaseStorage */; };
+		A79FAEE1131EC3A6E4F4B8B8 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 3A8D5C0C8480FE9FB99F4AFF /* FirebaseDatabase */; };
+		B2C3D4E5F601234567890AB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 69BBAC73465D39330AE4F00B /* FirebaseStorage */; };
+		B8C1D2E3F4A5B6C7D8E9F0A1 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = C1D2E3F4A5B6C7D8E9F0A1B2 /* FirebaseDatabase */; };
 		D4B57E078B1D8953438E59EF /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C793B90D9C6486471F16EA22 /* FirebaseCore */; };
-		E119E3387144A336018DD423 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */; };
 		F25C51F6301664B6009686C2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51F5301664B6009686C2 /* FirebaseAuth */; };
 		F25C51F8301664B6009686C2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51F7301664B6009686C2 /* FirebaseCore */; };
 		F25C51FD3016667E009686C2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F25C51FC3016667E009686C2 /* FirebaseAuth */; };
@@ -48,7 +51,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; name = "GoogleService-Info.plist"; path = "RediWalaVendor/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F25C51C730165946009686C2 /* RediWalaVendor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RediWalaVendor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F25C51D330165946009686C2 /* RediWalaVendorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F25C51DD30165946009686C2 /* RediWalaVendorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RediWalaVendorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +99,8 @@
 			files = (
 				F25C51FF3016667E009686C2 /* FirebaseCore in Frameworks */,
 				F25C51FD3016667E009686C2 /* FirebaseAuth in Frameworks */,
+				B8C1D2E3F4A5B6C7D8E9F0A1 /* FirebaseDatabase in Frameworks */,
+				A1B2C3D4E5F6012345678AB /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +124,8 @@
 			files = (
 				F25C51F8301664B6009686C2 /* FirebaseCore in Frameworks */,
 				F25C51F6301664B6009686C2 /* FirebaseAuth in Frameworks */,
+				A79FAEE1131EC3A6E4F4B8B8 /* FirebaseDatabase in Frameworks */,
+				B2C3D4E5F601234567890AB /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +166,6 @@
 				F25C51E030165946009686C2 /* RediWalaVendorUITests */,
 				F25C51FB3016667E009686C2 /* Frameworks */,
 				F2F53C6130164F2F003B52D1 /* Products */,
-				1CC35A3A8A3467646065C361 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -199,6 +204,8 @@
 			packageProductDependencies = (
 				F25C51FC3016667E009686C2 /* FirebaseAuth */,
 				F25C51FE3016667E009686C2 /* FirebaseCore */,
+				C1D2E3F4A5B6C7D8E9F0A1B2 /* FirebaseDatabase */,
+				69BBAC73465D39330AE4F00B /* FirebaseStorage */,
 			);
 			productName = RediWalaVendor;
 			productReference = F25C51C730165946009686C2 /* RediWalaVendor.app */;
@@ -269,6 +276,8 @@
 			packageProductDependencies = (
 				F25C51F5301664B6009686C2 /* FirebaseAuth */,
 				F25C51F7301664B6009686C2 /* FirebaseCore */,
+				3A8D5C0C8480FE9FB99F4AFF /* FirebaseDatabase */,
+				69BBAC73465D39330AE4F00B /* FirebaseStorage */,
 			);
 			productName = RediWala;
 			productReference = F2F53C6030164F2F003B52D1 /* RediWalaCustomer.app */;
@@ -423,7 +432,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E119E3387144A336018DD423 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,6 +516,8 @@
 				DEVELOPMENT_TEAM = BXD2KTDA9P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record your daily sales message so nearby customers can hear today's update.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your vendor profile.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -544,6 +554,8 @@
 				DEVELOPMENT_TEAM = BXD2KTDA9P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Record your daily sales message so nearby customers can hear today's update.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your vendor profile.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -580,6 +592,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -602,6 +615,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -622,6 +636,7 @@
 				DEVELOPMENT_TEAM = BXD2KTDA9P;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -642,6 +657,7 @@
 				DEVELOPMENT_TEAM = BXD2KTDA9P;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rediwala.RediWalaVendorUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -1011,6 +1027,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3A8D5C0C8480FE9FB99F4AFF /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		69BBAC73465D39330AE4F00B /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		C1D2E3F4A5B6C7D8E9F0A1B2 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
 		C793B90D9C6486471F16EA22 /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F25C51F4301664B6009686C2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

@@ -13,6 +13,7 @@ struct SellerCard: View {
                     name: seller.name,
                     initials: seller.initials,
                     assetName: seller.profileImageAssetName,
+                    remoteURL: seller.photoURL,
                     size: 64,
                     tint: avatarTint
                 )

@@ -8,28 +8,66 @@
     "neighborhoods": { ".read": "auth != null", ".write": false },
     "categoryGroups": { ".read": "auth != null", ".write": false },
     "categories": { ".read": "auth != null", ".write": false },
-    "vendors": { ".read": "auth != null", ".write": false },
-    "vendor_status": { ".read": "auth != null", ".write": false },
-    "vendor_locations": { ".read": "auth != null", ".write": false },
-    "vendor_routes": { ".read": "auth != null", ".write": false },
-    "vendor_announcements": { ".read": "auth != null", ".write": false },
+
+    "vendors": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "vendor_status": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "vendor_locations": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "vendor_routes": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "vendor_announcements": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
 
     "customers": {
       "$customerId": {
         ".read": "auth != null && auth.uid == $customerId",
-        ".write": false
+        ".write": "auth != null && auth.uid == $customerId"
       }
     },
     "customer_favorites": {
       "$customerId": {
         ".read": "auth != null && auth.uid == $customerId",
-        ".write": false
+        ".write": "auth != null && auth.uid == $customerId"
       }
     },
     "customer_settings": {
       "$customerId": {
         ".read": "auth != null && auth.uid == $customerId",
-        ".write": false
+        ".write": "auth != null && auth.uid == $customerId"
+      }
+    },
+    "customer_interest": {
+      "$requestId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "vendor_transactions": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     }
   }

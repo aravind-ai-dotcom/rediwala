@@ -2,7 +2,15 @@ import Foundation
 
 /// Local synthetic Chennai pilot sellers for discovery UI.
 enum SyntheticChennaiData {
-    static let sellers: [Seller] = [
+    static let sellers: [Seller] = {
+        let curated = curatedSellers
+        let expanded = ExpandedChennaiVendors.sellers
+        // Prefer curated IDs; append expanded that don't collide.
+        let curatedIDs = Set(curated.map(\.id))
+        return curated + expanded.filter { !curatedIDs.contains($0.id) }
+    }()
+
+    private static let curatedSellers: [Seller] = [
         // Fresh & Daily
         make(
             id: "murugan",
@@ -24,7 +32,7 @@ enum SyntheticChennaiData {
             stops: [
                 stop("m1", "8:00 AM", "stop.mambalam_railway", .westMambalam, "landmark.mambalam_railway", 13.0385, 80.2225, .completed),
                 stop("m2", "10:30 AM", "stop.postal_colony", .westMambalam, "landmark.postal_colony", 13.0402, 80.2208, .current),
-                stop("m3", "1:00 PM", "stop.ashok_nagar", .westMambalam, "landmark.ashok_nagar", 13.0355, 80.2120, .upcoming)
+                stop("m3", "1:00 PM", "stop.arya_gowda", .westMambalam, "landmark.arya_gowda", 13.0378, 80.2195, .upcoming)
             ]
         ),
         make(
@@ -47,7 +55,7 @@ enum SyntheticChennaiData {
             stops: [
                 stop("l1", "6:00 AM", "stop.pondy_bazaar", .tNagar, "landmark.pondy_bazaar", 13.0419, 80.2338, .completed),
                 stop("l2", "9:30 AM", "stop.panagal_park", .tNagar, "landmark.panagal_park", 13.0435, 80.2320, .current),
-                stop("l3", "12:15 PM", "stop.kapaleeshwarar", .tNagar, "landmark.kapaleeshwarar_temple", 13.0338, 80.2702, .upcoming)
+                stop("l3", "12:15 PM", "stop.t_nagar_bus", .tNagar, "landmark.t_nagar_bus", 13.0405, 80.2370, .upcoming)
             ]
         ),
         make(
@@ -454,11 +462,18 @@ enum SyntheticChennaiData {
             languages: [.tamil, .english],
             hasAnnouncement: announcement,
             announcementDurationSeconds: duration,
+            announcementStoragePath: nil,
             routeStops: stops,
             workingHours: hours,
             descriptionKey: descriptionKey,
             phone: phone,
-            photoURL: nil
+            photoURL: nil,
+            serviceMode: category.defaultServiceMode,
+            progressLabel: nil,
+            apartmentComplex: nil,
+            streetName: nil,
+            todaysMessagePreview: announcement ? "Fresh stock today — come to the cart!" : nil,
+            etaLabel: isLive ? "Nearby now" : nil
         )
     }
 

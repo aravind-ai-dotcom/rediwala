@@ -22,15 +22,4 @@ final class VendorDetailViewModel: ObservableObject {
         seller = await repository.fetchSeller(id: sellerID)
         isLoading = false
     }
-
-    func isFavorite() -> Bool {
-        repository.isFavorite(id: sellerID)
-    }
-
-    func toggleFavorite() {
-        Task {
-            await repository.toggleFavorite(id: sellerID)
-            objectWillChange.send()
-        }
-    }
 }

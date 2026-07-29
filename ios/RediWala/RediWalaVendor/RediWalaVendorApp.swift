@@ -1,16 +1,24 @@
 import SwiftUI
 import FirebaseCore
+import UIKit
 
-@main
-struct RediWalaVendorApp: App {
-
-    @StateObject private var languageStore = AppLanguageStore()
-
-    init() {
+final class VendorAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
         }
+        return true
     }
+}
+
+@main
+struct RediWalaVendorApp: App {
+    @UIApplicationDelegateAdaptor(VendorAppDelegate.self) private var appDelegate
+
+    @StateObject private var languageStore = AppLanguageStore()
 
     var body: some Scene {
         WindowGroup {

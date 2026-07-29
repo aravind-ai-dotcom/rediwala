@@ -32,13 +32,27 @@ struct WelcomeView: View {
 
                 VStack(spacing: 12) {
                     ForEach(Array(features.enumerated()), id: \.offset) { _, feature in
-                        LargeActionButton(
-                            titleKey: feature.0,
-                            subtitleKey: feature.1,
-                            systemImage: feature.2,
-                            tint: feature.3
-                        ) {}
-                            .allowsHitTesting(false)
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .top, spacing: 14) {
+                                Image(systemName: feature.2)
+                                    .font(.system(size: 28, weight: .semibold))
+                                    .foregroundStyle(feature.3)
+                                    .frame(width: 44, height: 44)
+                                    .background(feature.3.opacity(0.12))
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(feature.0)
+                                        .font(.title3.weight(.bold))
+                                        .foregroundStyle(AppTheme.textPrimary)
+
+                                    Text(feature.1)
+                                        .font(.subheadline.weight(.medium))
+                                        .foregroundStyle(AppTheme.textSecondary)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
             }

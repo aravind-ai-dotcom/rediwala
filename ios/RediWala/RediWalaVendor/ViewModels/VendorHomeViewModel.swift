@@ -4,7 +4,6 @@ import Foundation
 @MainActor
 final class VendorHomeViewModel: ObservableObject {
     @Published var vendorName: String
-    @Published var status: VendorLiveStatus = .offline
     @Published var summary: VendorDaySummary
     @Published var area: ChennaiArea
 
@@ -37,23 +36,16 @@ final class VendorHomeViewModel: ObservableObject {
         return base
     }
 
-    var statusTitleKey: String {
-        switch status {
-        case .offline: return "status.offline"
-        case .live: return "status.live"
-        }
-    }
-
-    func goLive() {
-        status = .live
-    }
-
-    func stopLive() {
-        status = .offline
-    }
-
     func applyOnboarding(_ state: VendorOnboardingState) {
         vendorName = state.vendorName
         area = state.area
+    }
+
+    func refreshSummary(vendorID: String, liveHours: Double) {
+        summary = VendorDaySummary(
+            salesRupees: VendorBillingStore.todayTotal(vendorID: vendorID),
+            customers: VendorBillingStore.todayCustomerCount(vendorID: vendorID),
+            hours: liveHours
+        )
     }
 }

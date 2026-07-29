@@ -71,7 +71,7 @@ struct CategoryVendorsView: View {
 }
 
 #Preview {
-    let repo = LocalSellerRepository()
+    let repo = FirebaseSellerRepository()
     return NavigationStack {
         CategoryVendorsView(category: .vegetables)
     }

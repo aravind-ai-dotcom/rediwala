@@ -9,12 +9,13 @@ final class CustomerMapViewModel: ObservableObject {
     @Published var sellers: [Seller] = []
     @Published var selectedSellerID: String?
     @Published var cameraPosition: MapCameraPosition
+    @Published private(set) var hasCenteredOnce = false
 
     private let repository: SellerRepository
 
     init(
         repository: SellerRepository,
-        neighborhood: PilotNeighborhood = .tNagar
+        neighborhood: PilotNeighborhood = .westMambalam
     ) {
         self.repository = repository
         self.selectedNeighborhood = neighborhood
@@ -25,33 +26,40 @@ final class CustomerMapViewModel: ObservableObject {
         sellers.first { $0.id == selectedSellerID }
     }
 
-    func load() async {
-        sellers = await repository.fetchNearbySellers()
-        recenter()
+    func load(recenterIfNeeded: Bool = false) async {
+        sellers = await repository.fetchNearbySellers(near: selectedNeighborhood)
+        if recenterIfNeeded || !hasCenteredOnce {
+            recenter()
+            hasCenteredOnce = true
+        }
     }
 
-    func selectNeighborhood(_ neighborhood: PilotNeighborhood) {
+    func selectNeighborhood(_ neighborhood: PilotNeighborhood, recenter: Bool = false) {
+        let changed = selectedNeighborhood != neighborhood
         selectedNeighborhood = neighborhood
-        recenter()
+        Task { await load(recenterIfNeeded: recenter && changed) }
+        if recenter {
+            self.recenter()
+            hasCenteredOnce = true
+        }
     }
 
     func recenter() {
         cameraPosition = .region(Self.region(for: selectedNeighborhood))
     }
 
+    func focus(on seller: Seller) {
+        selectedSellerID = seller.id
+        cameraPosition = .region(
+            MKCoordinateRegion(
+                center: seller.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+            )
+        )
+    }
+
     func selectSeller(_ id: String?) {
         selectedSellerID = id
-    }
-
-    func isFavorite(_ id: String) -> Bool {
-        repository.isFavorite(id: id)
-    }
-
-    func toggleFavorite(_ id: String) {
-        Task {
-            await repository.toggleFavorite(id: id)
-            objectWillChange.send()
-        }
     }
 
     static func region(for neighborhood: PilotNeighborhood) -> MKCoordinateRegion {

@@ -3,23 +3,27 @@ import SwiftUI
 
 @main
 struct RediWalaCustomerApp: App {
+    @UIApplicationDelegateAdaptor(CustomerAppDelegate.self) private var appDelegate
     @StateObject private var languageStore = AppLanguageStore()
+    @StateObject private var authService = FirebaseAuthService()
+    @StateObject private var repository: FirebaseSellerRepository
     @StateObject private var favoritesViewModel: FavoritesViewModel
 
     init() {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
-        let repository = LocalSellerRepository()
+        let repository = FirebaseSellerRepository()
+        _repository = StateObject(wrappedValue: repository)
         _favoritesViewModel = StateObject(wrappedValue: FavoritesViewModel(repository: repository))
     }
 
     var body: some Scene {
         WindowGroup {
-            CustomerContentView(repository: favoritesViewModel.repository)
-                .environmentObject(languageStore)
-                .environmentObject(favoritesViewModel)
-                .environment(\.locale, languageStore.locale)
+            CustomerContentView(
+                repository: repository,
+                authService: authService
+            )
+            .environmentObject(languageStore)
+            .environmentObject(favoritesViewModel)
+            .environment(\.locale, languageStore.locale)
         }
     }
 }

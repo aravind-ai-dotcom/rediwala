@@ -4,8 +4,11 @@ import SwiftUI
 struct VendorDetailView: View {
     let vendorID: String
     @EnvironmentObject private var favorites: FavoritesViewModel
+    @ObservedObject private var followStore = CustomerVendorFollowStore.shared
     @State private var seller: Seller?
     @State private var isLoading = true
+    @State private var interestMessage: String?
+    @State private var isSubmittingInterest = false
 
     var body: some View {
         Group {
@@ -13,19 +16,19 @@ struct VendorDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         header(for: seller)
-                        aboutCard(for: seller)
-                        infoRows(for: seller)
+                        followActions(for: seller)
 
-                        if seller.hasAnnouncement {
-                            AnnouncementPlayerView(
-                                sellerName: seller.name,
-                                durationSeconds: seller.announcementDurationSeconds
-                            )
+                        if seller.hasAnnouncement || seller.todaysMessagePreview != nil {
+                            todaysMessageSection(for: seller)
                         }
 
+                        aboutCard(for: seller)
+                        infoRows(for: seller)
+                        progressCard(for: seller)
                         myDaySection(for: seller)
+                        interestSection(for: seller)
                         mapPreview(for: seller)
-                        actionPlaceholders
+                        detailActions(for: seller)
                     }
                     .padding(20)
                     .padding(.bottom, 28)
@@ -79,6 +82,7 @@ struct VendorDetailView: View {
                 name: seller.name,
                 initials: seller.initials,
                 assetName: seller.profileImageAssetName,
+                remoteURL: seller.photoURL,
                 size: 120,
                 tint: AppTheme.primary
             )
@@ -144,6 +148,143 @@ struct VendorDetailView: View {
         }
     }
 
+    private func followActions(for seller: Seller) -> some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Button {
+                    if followStore.isFollowing(seller.id) {
+                        followStore.unfollow(seller.id)
+                    } else {
+                        followStore.track(seller.id)
+                    }
+                } label: {
+                    Label {
+                        Text(followStore.isFollowing(seller.id) ? "vendor.unfollow" : "vendor.follow")
+                    } icon: {
+                        Image(systemName: followStore.isFollowing(seller.id) ? "person.badge.minus" : "person.badge.plus")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 48)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(AppTheme.primary)
+                .accessibilityLabel(Text(followStore.isFollowing(seller.id) ? "vendor.unfollow" : "vendor.follow"))
+
+                Button {
+                    followStore.isTracked(seller.id)
+                        ? followStore.follow(seller.id)
+                        : followStore.track(seller.id)
+                } label: {
+                    Label {
+                        Text(followStore.isTracked(seller.id) ? "vendor.untrack" : "vendor.track")
+                    } icon: {
+                        Image(systemName: followStore.isTracked(seller.id) ? "location.slash.fill" : "location.fill")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 48)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel(Text(followStore.isTracked(seller.id) ? "vendor.untrack" : "vendor.track"))
+            }
+
+            HStack(spacing: 10) {
+                Button {
+                    followStore.isMuted(seller.id) ? followStore.track(seller.id) : followStore.mute(seller.id)
+                } label: {
+                    Label {
+                        Text(followStore.isMuted(seller.id) ? "vendor.unmute" : "vendor.mute")
+                    } icon: {
+                        Image(systemName: followStore.isMuted(seller.id) ? "speaker.wave.2.fill" : "speaker.slash")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 44)
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    followStore.hide(seller.id)
+                } label: {
+                    Label {
+                        Text("vendor.hide")
+                    } icon: {
+                        Image(systemName: "eye.slash")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 44)
+                }
+                .buttonStyle(.bordered)
+
+                ShareLink(
+                    item: "\(seller.name) · RediWala — \(String(localized: String.LocalizationValue(seller.category.localizationKey))) near \(String(localized: String.LocalizationValue(seller.neighborhood.nameKey)))"
+                ) {
+                    Label {
+                        Text("vendor.share")
+                    } icon: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 44)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private func todaysMessageSection(for seller: Seller) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(titleKey: "home.todays_message", subtitleKey: "home.todays_message.subtitle")
+            if seller.hasAnnouncement {
+                AnnouncementPlayerView(
+                    sellerName: seller.name,
+                    durationSeconds: seller.announcementDurationSeconds,
+                    storagePath: seller.announcementStoragePath
+                )
+            } else if let preview = seller.todaysMessagePreview {
+                Text(preview)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+        }
+    }
+
+    private func progressCard(for seller: Seller) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("vendorDetail.progress")
+                .font(.title3.weight(.bold))
+            if let progress = seller.progressLabel {
+                Text(progress)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(AppTheme.primary)
+            }
+            if let eta = seller.etaLabel {
+                Text(eta)
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            Text(LocalizedStringKey(seller.serviceMode.titleKey))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+            if let apartment = seller.apartmentComplex {
+                Text(apartment)
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
     private func aboutCard(for seller: Seller) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("vendorDetail.about")
@@ -200,6 +341,74 @@ struct VendorDetailView: View {
         }
     }
 
+    private func interestSection(for seller: Seller) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(titleKey: "home.my_interests", subtitleKey: "home.my_interests.subtitle")
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                ForEach(CustomerInterestService.RequestType.allCases) { type in
+                    Button {
+                        submitInterest(type: type, seller: seller)
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: icon(for: type))
+                                .font(.title3)
+                            Text(LocalizedStringKey(type.titleKey))
+                                .font(.caption.weight(.semibold))
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 72)
+                        .padding(8)
+                        .background(AppTheme.primary.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isSubmittingInterest)
+                }
+            }
+
+            if let interestMessage {
+                Text(interestMessage)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(AppTheme.primary)
+            }
+        }
+    }
+
+    private func icon(for type: CustomerInterestService.RequestType) -> String {
+        switch type {
+        case .interested: return "hand.thumbsup.fill"
+        case .comeToMyArea: return "mappin.and.ellipse"
+        case .needToday: return "leaf.fill"
+        case .needProduct: return "cart.fill"
+        case .comeThisEvening: return "moon.stars.fill"
+        }
+    }
+
+    private func submitInterest(type: CustomerInterestService.RequestType, seller: Seller) {
+        guard let customerID = CustomerIdentityStore.loadUID() else {
+            interestMessage = String(localized: "interest.error.not_signed_in")
+            return
+        }
+        isSubmittingInterest = true
+        Task {
+            do {
+                try await CustomerInterestService.submit(
+                    customerID: customerID,
+                    vendorCategory: FirebaseIDMap.firebaseID(for: seller.category),
+                    neighborhood: seller.neighborhood,
+                    type: type,
+                    productHint: seller.category == .vegetables ? "Fresh vegetables" : nil,
+                    preferredTime: type == .comeThisEvening ? "6 PM – 8 PM" : nil
+                )
+                interestMessage = String(localized: "interest.success")
+            } catch {
+                interestMessage = String(localized: "interest.error.generic")
+            }
+            isSubmittingInterest = false
+        }
+    }
+
     private func mapPreview(for seller: Seller) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("seller.map_preview")
@@ -224,39 +433,56 @@ struct VendorDetailView: View {
         }
     }
 
-    private var actionPlaceholders: some View {
+    private func detailActions(for seller: Seller) -> some View {
         HStack(spacing: 12) {
-            placeholderButton(titleKey: "seller.directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill")
-            placeholderButton(titleKey: "seller.call", systemImage: "phone.fill")
+            Button {
+                openInMaps(seller)
+            } label: {
+                Label {
+                    Text("vendor.open_map")
+                } icon: {
+                    Image(systemName: "map.fill")
+                }
+                .font(.headline.weight(.bold))
+                .foregroundStyle(AppTheme.primary)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 52)
+                .background(AppTheme.primary.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("vendor.open_map"))
+
+            if let url = URL(string: "tel:\(seller.phone.filter(\.isNumber))") {
+                Link(destination: url) {
+                    Label {
+                        Text("seller.call")
+                    } icon: {
+                        Image(systemName: "phone.fill")
+                    }
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(AppTheme.primary)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 52)
+                    .background(AppTheme.primary.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .accessibilityLabel(Text("seller.call"))
+            }
         }
     }
 
-    private func placeholderButton(titleKey: String, systemImage: String) -> some View {
-        Button {} label: {
-            Label {
-                Text(LocalizedStringKey(titleKey))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            } icon: {
-                Image(systemName: systemImage)
-            }
-            .font(.headline.weight(.bold))
-            .foregroundStyle(AppTheme.primary)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 52)
-            .background(AppTheme.primary.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .disabled(true)
-        .opacity(0.85)
-        .accessibilityLabel(Text(LocalizedStringKey(titleKey)))
-        .accessibilityHint(Text("common.coming_soon_action"))
+    private func openInMaps(_ seller: Seller) {
+        let item = MKMapItem(placemark: MKPlacemark(coordinate: seller.coordinate))
+        item.name = seller.name
+        item.openInMaps(launchOptions: [
+            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking
+        ])
     }
 }
 
 #Preview("English") {
-    let repo = LocalSellerRepository()
+    let repo = FirebaseSellerRepository()
     return NavigationStack {
         VendorDetailView(vendorID: "murugan")
     }
@@ -265,7 +491,7 @@ struct VendorDetailView: View {
 }
 
 #Preview("Tamil Dark") {
-    let repo = LocalSellerRepository()
+    let repo = FirebaseSellerRepository()
     return NavigationStack {
         VendorDetailView(vendorID: "lakshmi")
     }

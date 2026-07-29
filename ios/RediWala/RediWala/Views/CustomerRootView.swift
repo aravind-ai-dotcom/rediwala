@@ -5,7 +5,7 @@ struct CustomerRootView: View {
     @StateObject private var homeViewModel: CustomerHomeViewModel
     @State private var selectedTab: CustomerTab = .home
 
-    init(repository: LocalSellerRepository) {
+    init(repository: FirebaseSellerRepository) {
         _homeViewModel = StateObject(wrappedValue: CustomerHomeViewModel(repository: repository))
     }
 
@@ -36,7 +36,7 @@ struct CustomerRootView: View {
 }
 
 #Preview {
-    let repo = LocalSellerRepository()
+    let repo = FirebaseSellerRepository()
     return CustomerRootView(repository: repo)
         .environmentObject(FavoritesViewModel(repository: repo))
         .environmentObject(AppLanguageStore())

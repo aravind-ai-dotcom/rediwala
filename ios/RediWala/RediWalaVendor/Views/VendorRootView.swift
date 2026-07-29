@@ -6,16 +6,18 @@ struct VendorRootView: View {
 
     @StateObject private var homeViewModel: VendorHomeViewModel
     @StateObject private var profileViewModel: VendorProfileViewModel
+    @StateObject private var liveSessionViewModel: VendorLiveSessionViewModel
     @State private var selectedTab: VendorTab = .home
-    @State private var isShowingLive = false
 
     init(onboardingState: VendorOnboardingState) {
         self.onboardingState = onboardingState
+        let vendorID = VendorIdentityStore.vendorID
         _homeViewModel = StateObject(wrappedValue: VendorHomeViewModel(
             vendorName: onboardingState.vendorName,
             area: onboardingState.area
         ))
-        _profileViewModel = StateObject(wrappedValue: VendorProfileViewModel(onboarding: onboardingState))
+        _profileViewModel = StateObject(wrappedValue: VendorProfileViewModel(onboarding: onboardingState, vendorID: vendorID))
+        _liveSessionViewModel = StateObject(wrappedValue: VendorLiveSessionViewModel(vendorId: vendorID))
     }
 
     var body: some View {
@@ -24,7 +26,7 @@ struct VendorRootView: View {
             case .home:
                 VendorHomeView(
                     viewModel: homeViewModel,
-                    onGoLive: { isShowingLive = true },
+                    liveSession: liveSessionViewModel,
                     onSelectTab: { selectedTab = $0 }
                 )
             case .inventory:
@@ -47,14 +49,13 @@ struct VendorRootView: View {
                 .background(AppTheme.card.ignoresSafeArea(edges: .bottom))
         }
         .background(AppTheme.background.ignoresSafeArea())
-        .fullScreenCover(isPresented: $isShowingLive) {
-            VendorLiveView(homeViewModel: homeViewModel) {
-                homeViewModel.stopLive()
-                isShowingLive = false
-            }
-        }
         .onAppear {
             homeViewModel.applyOnboarding(onboardingState)
+            liveSessionViewModel.updateOperatingArea(onboardingState.area)
+            liveSessionViewModel.setProfilePhotoPath(profileViewModel.profile.photoLocalPath)
+        }
+        .onChange(of: profileViewModel.profile.photoLocalPath) { _, newPath in
+            liveSessionViewModel.setProfilePhotoPath(newPath)
         }
     }
 }

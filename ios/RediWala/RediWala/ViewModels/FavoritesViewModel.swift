@@ -3,11 +3,11 @@ import Foundation
 
 @MainActor
 final class FavoritesViewModel: ObservableObject {
-    let repository: LocalSellerRepository
+    let repository: FirebaseSellerRepository
 
     private var cancellables = Set<AnyCancellable>()
 
-    init(repository: LocalSellerRepository) {
+    init(repository: FirebaseSellerRepository) {
         self.repository = repository
         repository.objectWillChange
             .sink { [weak self] _ in
@@ -34,7 +34,7 @@ final class FavoritesViewModel: ObservableObject {
         sellers.filter { favoriteIDs.contains($0.id) }
     }
 
-    func fetchFavorites() async -> [Seller] {
-        await repository.fetchFavoriteSellers()
+    func fetchFavorites(near neighborhood: PilotNeighborhood = .tNagar) async -> [Seller] {
+        await repository.fetchFavoriteSellers(near: neighborhood)
     }
 }

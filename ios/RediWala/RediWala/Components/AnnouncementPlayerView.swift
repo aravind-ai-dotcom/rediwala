@@ -3,11 +3,13 @@ import SwiftUI
 struct AnnouncementPlayerView: View {
     @StateObject private var player: AnnouncementPlayerViewModel
 
-    init(sellerName: String, durationSeconds: Int) {
+    init(sellerName: String, durationSeconds: Int, storagePath: String? = nil) {
         _player = StateObject(
             wrappedValue: AnnouncementPlayerViewModel(
                 sellerName: sellerName,
-                durationSeconds: durationSeconds
+                durationSeconds: durationSeconds,
+                storagePath: storagePath,
+                isSampleContent: storagePath == nil
             )
         )
     }

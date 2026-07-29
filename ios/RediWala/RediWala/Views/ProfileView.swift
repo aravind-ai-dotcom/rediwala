@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @EnvironmentObject private var favorites: FavoritesViewModel
     @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject private var languageStore: AppLanguageStore
+
+    private var displayName: String {
+        viewModel.persistentProfile?.displayName
+            ?? String(localized: String.LocalizationValue(viewModel.profile.nameKey))
+    }
 
     var body: some View {
         ScrollView {
@@ -10,8 +16,9 @@ struct ProfileView: View {
                 VStack(spacing: 12) {
                     ZStack {
                         SellerAvatarView(
-                            name: String(localized: String.LocalizationValue(viewModel.profile.nameKey)),
+                            name: displayName,
                             initials: "RW",
+                            remoteURL: viewModel.profile.photoURL,
                             size: 96
                         )
 
@@ -29,7 +36,7 @@ struct ProfileView: View {
                     .accessibilityLabel(Text("profile.add_photo"))
                     .accessibilityHint(Text("profile.add_photo.hint"))
 
-                    Text(LocalizedStringKey(viewModel.profile.nameKey))
+                    Text(displayName)
                         .font(.largeTitle.weight(.heavy))
                         .foregroundStyle(AppTheme.textPrimary)
                         .multilineTextAlignment(.center)
@@ -83,6 +90,9 @@ struct ProfileView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle(Text("tab.profile"))
         .navigationBarTitleDisplayMode(.large)
+        .task {
+            await viewModel.load(customerID: favorites.repository.customerIDForProfile)
+        }
     }
 }
 
@@ -90,6 +100,7 @@ struct ProfileView: View {
     NavigationStack {
         ProfileView()
     }
+    .environmentObject(FavoritesViewModel(repository: FirebaseSellerRepository()))
     .environmentObject(AppLanguageStore())
     .environment(\.locale, Locale(identifier: "en"))
 }

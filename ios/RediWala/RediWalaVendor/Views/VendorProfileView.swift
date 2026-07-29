@@ -1,26 +1,17 @@
 import SwiftUI
+import PhotosUI
 
 struct VendorProfileView: View {
     @ObservedObject var viewModel: VendorProfileViewModel
+    @State private var selectedPhotoItem: PhotosPickerItem?
 
     var body: some View {
         ScrollView {
             VStack(spacing: AppTheme.sectionSpacing) {
                 VStack(spacing: 12) {
                     ZStack {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 88))
-                            .foregroundStyle(AppTheme.primary)
-                            .accessibilityHidden(true)
-
-                        Text("profile.add_photo")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(AppTheme.primary.opacity(0.92))
-                            .clipShape(Capsule())
-                            .offset(y: 36)
+                        profilePhotoView
+                        photoBadge
                     }
                     .frame(height: 100)
                     .accessibilityElement(children: .combine)
@@ -58,6 +49,35 @@ struct VendorProfileView: View {
                     )
                 }
 
+                if viewModel.isUploadingPhoto {
+                    ProgressView(value: viewModel.photoUploadProgress) {
+                        Text("Uploading photo…")
+                            .font(.caption.weight(.semibold))
+                    }
+                }
+                if let error = viewModel.photoErrorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(AppTheme.danger)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                HStack(spacing: 10) {
+                    let photoButtonTitle = viewModel.profile.photoLocalPath == nil ? "Select Photo" : "Replace Photo"
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                        Label(photoButtonTitle, systemImage: "photo.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(AppTheme.primary)
+
+                    Button("Remove", role: .destructive) {
+                        viewModel.removePhoto()
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(viewModel.profile.photoLocalPath == nil)
+                }
+
                 LargeActionButton(
                     titleKey: "settings.title",
                     subtitleKey: "settings.subtitle",
@@ -74,6 +94,38 @@ struct VendorProfileView: View {
         .sheet(isPresented: $viewModel.isShowingSettings) {
             VendorSettingsView()
         }
+        .task(id: selectedPhotoItem) {
+            guard selectedPhotoItem != nil else { return }
+            await viewModel.applySelectedPhotoItem(selectedPhotoItem)
+        }
+    }
+
+    @ViewBuilder
+    private var profilePhotoView: some View {
+        if let path = viewModel.profile.photoLocalPath,
+           let uiImage = UIImage(contentsOfFile: path) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 96, height: 96)
+                .clipShape(Circle())
+        } else {
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 88))
+                .foregroundStyle(AppTheme.primary)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var photoBadge: some View {
+        Text("profile.add_photo")
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(AppTheme.primary.opacity(0.92))
+            .clipShape(Capsule())
+            .offset(y: 36)
     }
 }
 

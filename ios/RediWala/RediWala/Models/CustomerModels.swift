@@ -27,13 +27,24 @@ enum PilotNeighborhood: String, CaseIterable, Identifiable, Codable {
     case tNagar
     case westMambalam
     case thiruvanmiyur
+    case adyar
+    case velachery
+    case besantNagar
+    case annaNagar
+    case kodambakkam
+    case ashokNagar
+    case mylapore
+    case triplicane
+    case saidapet
+    case ecr
+    case omr
 
     var id: String { rawValue }
 
     var nameKey: String { "neighborhood.\(rawValue)" }
     var tamilNameKey: String { "neighborhood.\(rawValue).ta_label" }
 
-    /// Chennai pilot coordinates (WGS84).
+    /// Real Chennai neighborhood centers (WGS84).
     var coordinate: CLLocationCoordinate2D {
         switch self {
         case .tNagar:
@@ -42,10 +53,51 @@ enum PilotNeighborhood: String, CaseIterable, Identifiable, Codable {
             return CLLocationCoordinate2D(latitude: 13.0382, longitude: 80.2219)
         case .thiruvanmiyur:
             return CLLocationCoordinate2D(latitude: 12.9850, longitude: 80.2590)
+        case .adyar:
+            return CLLocationCoordinate2D(latitude: 13.0067, longitude: 80.2576)
+        case .velachery:
+            return CLLocationCoordinate2D(latitude: 12.9750, longitude: 80.2207)
+        case .besantNagar:
+            return CLLocationCoordinate2D(latitude: 13.0001, longitude: 80.2668)
+        case .annaNagar:
+            return CLLocationCoordinate2D(latitude: 13.0850, longitude: 80.2101)
+        case .kodambakkam:
+            return CLLocationCoordinate2D(latitude: 13.0519, longitude: 80.2240)
+        case .ashokNagar:
+            return CLLocationCoordinate2D(latitude: 13.0335, longitude: 80.2120)
+        case .mylapore:
+            return CLLocationCoordinate2D(latitude: 13.0338, longitude: 80.2680)
+        case .triplicane:
+            return CLLocationCoordinate2D(latitude: 13.0580, longitude: 80.2750)
+        case .saidapet:
+            return CLLocationCoordinate2D(latitude: 13.0210, longitude: 80.2230)
+        case .ecr:
+            return CLLocationCoordinate2D(latitude: 12.9141, longitude: 80.2512)
+        case .omr:
+            return CLLocationCoordinate2D(latitude: 12.9100, longitude: 80.2270)
         }
     }
 
-    var spanDelta: Double { 0.018 }
+    var spanDelta: Double { 0.012 }
+
+    var landmarkKey: String {
+        switch self {
+        case .tNagar: return "landmark.pondy_bazaar"
+        case .westMambalam: return "landmark.mambalam_railway"
+        case .thiruvanmiyur: return "landmark.thiruvanmiyur_mrts"
+        case .adyar: return "landmark.adyar_bridge"
+        case .velachery: return "landmark.velachery_metro"
+        case .besantNagar: return "landmark.besant_nagar_beach"
+        case .annaNagar: return "landmark.anna_nagar_tower"
+        case .kodambakkam: return "landmark.kodambakkam_market"
+        case .ashokNagar: return "landmark.ashok_nagar"
+        case .mylapore: return "landmark.kapaleeshwarar_temple"
+        case .triplicane: return "landmark.triplicane"
+        case .saidapet: return "landmark.saidapet"
+        case .ecr: return "landmark.ecr_junction"
+        case .omr: return "landmark.omr"
+        }
+    }
 }
 
 // MARK: - Category Groups & Categories
@@ -55,6 +107,7 @@ enum CategoryGroup: String, CaseIterable, Identifiable, Codable {
     case neighborhoodServices
     case recyclingBuyers
     case streetTreats
+    case homeDelivery
 
     var id: String { rawValue }
 
@@ -64,8 +117,9 @@ enum CategoryGroup: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .freshDaily: return 0
         case .neighborhoodServices: return 1
-        case .recyclingBuyers: return 2
-        case .streetTreats: return 3
+        case .homeDelivery: return 2
+        case .recyclingBuyers: return 3
+        case .streetTreats: return 4
         }
     }
 
@@ -73,6 +127,7 @@ enum CategoryGroup: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .freshDaily: return .primary
         case .neighborhoodServices: return .info
+        case .homeDelivery: return .accent
         case .recyclingBuyers: return .accent
         case .streetTreats: return .accent
         }
@@ -98,6 +153,16 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
     case cobbler
     case tailor
     case sofaRepair
+    case ironing
+    case laundry
+    case cableBill
+    case householdRepair
+    case electricalRepair
+    case mobileMechanic
+    // Home Delivery
+    case waterCan
+    case gasCylinder
+    case medicalDelivery
     // Recycling Buyers
     case oldNewspapers
     case plastic
@@ -107,6 +172,10 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
     case kulfi
     case roastedCorn
     case peanuts
+    case foodTruck
+    case iceCream
+    case juices
+    case tenderCoconut
 
     var id: String { rawValue }
 
@@ -117,11 +186,14 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .vegetables, .fruits, .flowers, .milk, .fish, .bakery:
             return .freshDaily
-        case .knifeSharpening, .cobbler, .tailor, .sofaRepair:
+        case .knifeSharpening, .cobbler, .tailor, .sofaRepair, .ironing, .laundry,
+                .cableBill, .householdRepair, .electricalRepair, .mobileMechanic:
             return .neighborhoodServices
+        case .waterCan, .gasCylinder, .medicalDelivery:
+            return .homeDelivery
         case .oldNewspapers, .plastic, .cardboard, .metalScrap:
             return .recyclingBuyers
-        case .kulfi, .roastedCorn, .peanuts:
+        case .kulfi, .roastedCorn, .peanuts, .foodTruck, .iceCream, .juices, .tenderCoconut:
             return .streetTreats
         }
     }
@@ -138,6 +210,15 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
         case .cobbler: return "hammer.fill"
         case .tailor: return "scissors"
         case .sofaRepair: return "sofa.fill"
+        case .ironing: return "flame.fill"
+        case .laundry: return "washer.fill"
+        case .cableBill: return "tv.fill"
+        case .householdRepair: return "wrench.and.screwdriver.fill"
+        case .electricalRepair: return "bolt.fill"
+        case .mobileMechanic: return "car.fill"
+        case .waterCan: return "drop.fill"
+        case .gasCylinder: return "flame.circle.fill"
+        case .medicalDelivery: return "cross.case.fill"
         case .oldNewspapers: return "newspaper.fill"
         case .plastic: return "arrow.3.trianglepath"
         case .cardboard: return "shippingbox.fill"
@@ -145,35 +226,27 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
         case .kulfi: return "snowflake"
         case .roastedCorn: return "flame.fill"
         case .peanuts: return "circle.grid.3x3.fill"
+        case .foodTruck: return "box.truck.fill"
+        case .iceCream: return "snowflake"
+        case .juices: return "cup.and.saucer.fill"
+        case .tenderCoconut: return "circle.fill"
         }
     }
 
     var displayOrder: Int {
-        switch self {
-        case .vegetables: return 0
-        case .fruits: return 1
-        case .flowers: return 2
-        case .milk: return 3
-        case .fish: return 4
-        case .bakery: return 5
-        case .knifeSharpening: return 6
-        case .cobbler: return 7
-        case .tailor: return 8
-        case .sofaRepair: return 9
-        case .oldNewspapers: return 10
-        case .plastic: return 11
-        case .cardboard: return 12
-        case .metalScrap: return 13
-        case .kulfi: return 14
-        case .roastedCorn: return 15
-        case .peanuts: return 16
-        }
+        Self.allCases.firstIndex(of: self) ?? 0
     }
 
-    var isComingSoon: Bool {
+    var isComingSoon: Bool { false }
+
+    var defaultServiceMode: CustomerServiceMode {
         switch self {
-        case .tailor, .sofaRepair: return true
-        default: return false
+        case .foodTruck, .iceCream, .juices, .kulfi, .medicalDelivery:
+            return .stationary
+        case .cableBill, .laundry, .ironing, .waterCan, .gasCylinder, .milk:
+            return .scheduled
+        default:
+            return .mobile
         }
     }
 
@@ -244,14 +317,39 @@ struct Seller: Identifiable, Equatable {
     let languages: [AppLanguage]
     let hasAnnouncement: Bool
     let announcementDurationSeconds: Int
+    /// Firebase Storage path for today's announcement audio, when available.
+    var announcementStoragePath: String?
     let routeStops: [RouteStop]
     let workingHours: String
     let descriptionKey: String
     let phone: String
     /// Reserved for a future remote photo URL (Firebase Storage / CDN).
     var photoURL: String?
+    /// How this vendor operates today.
+    var serviceMode: CustomerServiceMode
+    /// Human progress text, e.g. "Currently serving Block C".
+    var progressLabel: String?
+    /// Optional apartment / street context.
+    var apartmentComplex: String?
+    var streetName: String?
+    /// Short preview of today's spoken message.
+    var todaysMessagePreview: String?
+    /// Estimated arrival text for the customer.
+    var etaLabel: String?
+    /// Server-side presence expiry. When past, treat as Offline even if `isLive` is true.
+    var presenceExpiresAt: Date? = nil
+
+    /// Live and not past presence expiry (prevents ghost vendors).
+    var isEffectivelyLive: Bool {
+        guard isLive else { return false }
+        if let expires = presenceExpiresAt, expires < Date() { return false }
+        return true
+    }
 
     var categoryGroup: CategoryGroup { category.parentGroup }
+    var behaviorProfile: ServiceBehaviorProfile {
+        ServiceBehaviorProfile.profile(for: category, mode: serviceMode)
+    }
 
     var initials: String {
         let parts = name.split(separator: " ")
@@ -278,6 +376,50 @@ struct Seller: Identifiable, Equatable {
             return String(format: "%d:%02d", minutes, seconds)
         }
         return String(format: "0:%02d", seconds)
+    }
+
+    var displayBusinessName: String {
+        businessName ?? name
+    }
+
+    func with(
+        isLive: Bool? = nil,
+        distanceMeters: Int? = nil,
+        announcementStoragePath: String? = nil,
+        photoURL: String? = nil,
+        presenceExpiresAt: Date? = nil
+    ) -> Seller {
+        Seller(
+            id: id,
+            name: name,
+            businessName: businessName,
+            category: category,
+            profileImageAssetName: profileImageAssetName,
+            neighborhood: neighborhood,
+            landmarkKey: landmarkKey,
+            latitude: latitude,
+            longitude: longitude,
+            isLive: isLive ?? self.isLive,
+            distanceMeters: distanceMeters ?? self.distanceMeters,
+            directionKey: directionKey,
+            rating: rating,
+            languages: languages,
+            hasAnnouncement: hasAnnouncement,
+            announcementDurationSeconds: announcementDurationSeconds,
+            announcementStoragePath: announcementStoragePath ?? self.announcementStoragePath,
+            routeStops: routeStops,
+            workingHours: workingHours,
+            descriptionKey: descriptionKey,
+            phone: phone,
+            photoURL: photoURL ?? self.photoURL,
+            serviceMode: serviceMode,
+            progressLabel: progressLabel,
+            apartmentComplex: apartmentComplex,
+            streetName: streetName,
+            todaysMessagePreview: todaysMessagePreview,
+            etaLabel: etaLabel,
+            presenceExpiresAt: presenceExpiresAt ?? self.presenceExpiresAt
+        )
     }
 }
 

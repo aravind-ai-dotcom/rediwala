@@ -49,6 +49,7 @@ final class VendorFlowViewModel: ObservableObject {
 
     func completeOnboarding() {
         let state = onboarding.buildState()
+        VendorIdentityStore.vendorID = VendorIdentityStore.resolveVendorID(displayName: state.vendorName)
         saveOnboarding(state)
         step = .main
     }
