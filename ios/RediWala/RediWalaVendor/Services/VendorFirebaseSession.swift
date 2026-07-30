@@ -51,6 +51,7 @@ final class VendorFirebaseSession: ObservableObject {
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
         }
+        Database.database(url: databaseURL).goOnline()
     }
 
     /// Restore email session if present; otherwise wait at login.
@@ -101,6 +102,8 @@ final class VendorFirebaseSession: ObservableObject {
             #else
             let result = try await auth.signIn(withEmail: trimmedEmail, password: password)
             #endif
+            _ = try? await result.user.getIDToken()
+            database.goOnline()
             let profile = try await DemoUserProfileService.shared.requireRole(.vendor, for: result.user.uid)
             applyVendorIdentity(from: profile)
             userProfile = profile

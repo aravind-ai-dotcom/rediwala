@@ -6,12 +6,17 @@ struct SellerAvatarView: View {
     let initials: String
     var assetName: String? = nil
     var remoteURL: String? = nil
+    var localPath: String? = nil
     var size: CGFloat = 56
     var tint: Color = AppTheme.primary
 
     var body: some View {
         Group {
-            if let remoteURL,
+            if let localPath, let uiImage = UIImage(contentsOfFile: localPath) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+            } else if let remoteURL,
                let url = URL(string: remoteURL) {
                 AsyncImage(url: url) { phase in
                     switch phase {

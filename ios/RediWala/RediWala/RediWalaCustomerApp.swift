@@ -29,7 +29,11 @@ struct RediWalaCustomerApp: App {
             .environmentObject(languageStore)
             .environmentObject(favoritesViewModel)
             .environmentObject(authService)
+            .environmentObject(GeoContext.shared)
             .environment(\.locale, languageStore.locale)
+            .onAppear {
+                DeviceGeoSource.shared.startIfNeeded(for: GeoContext.shared.mode)
+            }
         }
     }
 }

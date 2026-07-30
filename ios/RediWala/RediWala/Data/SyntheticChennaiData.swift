@@ -40,9 +40,9 @@ enum SyntheticChennaiData {
             name: "Lakshmi",
             businessName: "Lakshmi Flowers",
             category: .flowers,
-            neighborhood: .tNagar,
-            landmarkKey: "landmark.pondy_bazaar",
-            lat: 13.0426, lon: 80.2335,
+            neighborhood: .westMambalam,
+            landmarkKey: "landmark.arya_gowda",
+            lat: 13.0380, lon: 80.2234,
             isLive: true,
             meters: 95,
             direction: "direction.east",
@@ -53,9 +53,9 @@ enum SyntheticChennaiData {
             descriptionKey: "seller.about.lakshmi",
             phone: "+91 98402 34567",
             stops: [
-                stop("l1", "6:00 AM", "stop.pondy_bazaar", .tNagar, "landmark.pondy_bazaar", 13.0419, 80.2338, .completed),
-                stop("l2", "9:30 AM", "stop.panagal_park", .tNagar, "landmark.panagal_park", 13.0435, 80.2320, .current),
-                stop("l3", "12:15 PM", "stop.t_nagar_bus", .tNagar, "landmark.t_nagar_bus", 13.0405, 80.2370, .upcoming)
+                stop("l1", "6:00 AM", "stop.postal_colony", .westMambalam, "landmark.postal_colony", 13.0402, 80.2208, .completed),
+                stop("l2", "9:30 AM", "stop.arya_gowda", .westMambalam, "landmark.arya_gowda", 13.0378, 80.2195, .current),
+                stop("l3", "12:15 PM", "stop.postal_colony", .westMambalam, "landmark.postal_colony", 13.0374, 80.2226, .upcoming)
             ]
         ),
         make(
@@ -77,7 +77,7 @@ enum SyntheticChennaiData {
             phone: "+91 98407 89012",
             stops: [
                 stop("s1", "7:00 AM", "stop.thiruvanmiyur_mrts", .thiruvanmiyur, "landmark.thiruvanmiyur_mrts", 12.9855, 80.2594, .current),
-                stop("s2", "11:00 AM", "stop.besant_nagar", .thiruvanmiyur, "landmark.besant_nagar_beach", 12.9988, 80.2710, .upcoming),
+                stop("s2", "11:00 AM", "stop.thiruvanmiyur_mrts", .thiruvanmiyur, "landmark.thiruvanmiyur_mrts", 12.9860, 80.2582, .upcoming),
                 stop("s3", "3:30 PM", "stop.lattice_bridge", .thiruvanmiyur, "landmark.lattice_bridge", 12.9910, 80.2550, .upcoming)
             ]
         ),
@@ -101,7 +101,7 @@ enum SyntheticChennaiData {
             stops: [
                 stop("r1", "5:15 AM", "stop.postal_colony", .westMambalam, "landmark.postal_colony", 13.0402, 80.2208, .completed),
                 stop("r2", "6:45 AM", "stop.mambalam_railway", .westMambalam, "landmark.mambalam_railway", 13.0385, 80.2225, .completed),
-                stop("r3", "8:00 AM", "stop.t_nagar_bus", .tNagar, "landmark.t_nagar_bus", 13.0405, 80.2370, .upcoming)
+                stop("r3", "8:00 AM", "stop.mambalam_railway", .westMambalam, "landmark.mambalam_railway", 13.0379, 80.2251, .upcoming)
             ]
         ),
         make(
@@ -170,7 +170,7 @@ enum SyntheticChennaiData {
             stops: [
                 stop("sv1", "8:30 AM", "stop.postal_colony", .westMambalam, "landmark.postal_colony", 13.0402, 80.2208, .current),
                 stop("sv2", "11:30 AM", "stop.mambalam_railway", .westMambalam, "landmark.mambalam_railway", 13.0385, 80.2225, .upcoming),
-                stop("sv3", "3:00 PM", "stop.pondy_bazaar", .tNagar, "landmark.pondy_bazaar", 13.0419, 80.2338, .upcoming)
+                stop("sv3", "3:00 PM", "stop.arya_gowda", .westMambalam, "landmark.arya_gowda", 13.0378, 80.2195, .upcoming)
             ]
         ),
         make(
@@ -382,8 +382,8 @@ enum SyntheticChennaiData {
             businessName: "Murugan Fruit Cart",
             category: .fruits,
             neighborhood: .tNagar,
-            landmarkKey: "landmark.kapaleeshwarar_temple",
-            lat: 13.0345, lon: 80.2695,
+            landmarkKey: "landmark.panagal_park",
+            lat: 13.0428, lon: 80.2326,
             isLive: false,
             meters: 720,
             direction: "direction.southeast",
@@ -394,7 +394,7 @@ enum SyntheticChennaiData {
             descriptionKey: "seller.about.murugan_fruits",
             phone: "+91 98416 99001",
             stops: [
-                stop("mf1", "6:30 AM", "stop.kapaleeshwarar", .tNagar, "landmark.kapaleeshwarar_temple", 13.0338, 80.2702, .upcoming),
+                stop("mf1", "6:30 AM", "stop.panagal_park", .tNagar, "landmark.panagal_park", 13.0435, 80.2320, .upcoming),
                 stop("mf2", "10:00 AM", "stop.pondy_bazaar", .tNagar, "landmark.pondy_bazaar", 13.0419, 80.2338, .upcoming)
             ]
         ),

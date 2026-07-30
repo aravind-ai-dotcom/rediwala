@@ -100,6 +100,9 @@ final class FirebaseAuthService: ObservableObject {
             #else
             let result = try await auth.signIn(withEmail: trimmedEmail, password: password)
             #endif
+            // Auth can succeed before the RTDB socket is up; warm connection + token first.
+            _ = try? await result.user.getIDToken()
+            _ = FirebaseDatabaseConfig.database
             let profile = try await DemoUserProfileService.shared.requireRole(.customer, for: result.user.uid)
             userProfile = profile
             CustomerIdentityStore.save(uid: result.user.uid)

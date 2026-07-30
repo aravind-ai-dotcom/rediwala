@@ -54,14 +54,16 @@ struct CustomerMapView: View {
         let base = viewModel.sellers
             .filter { $0.neighborhood == viewModel.selectedNeighborhood }
             .filter { !followStore.isHidden($0.id) }
+        let needCats = needsStore.matchingCategories
+        let needScoped = needCats.isEmpty ? base : base.filter { needCats.contains($0.category) }
         switch filter {
         case .all:
             return base
         case .myVendors:
             let ids = Set(followStore.myVendorIDs)
-            let mine = base.filter { ids.contains($0.id) }
+            let mine = needScoped.filter { ids.contains($0.id) }
             if mine.isEmpty {
-                return base
+                return needScoped
                     .filter(\.isEffectivelyLive)
                     .sorted { $0.distanceMeters < $1.distanceMeters }
                     .prefix(8)
@@ -69,14 +71,13 @@ struct CustomerMapView: View {
             }
             return mine
         case .live:
-            return base.filter(\.isEffectivelyLive)
+            return needScoped.filter(\.isEffectivelyLive)
         case .nearby:
-            return base.sorted { $0.distanceMeters < $1.distanceMeters }.prefix(12).map { $0 }
+            return needScoped.sorted { $0.distanceMeters < $1.distanceMeters }.prefix(12).map { $0 }
         case .todaysNeeds:
-            let cats = needsStore.matchingCategories
-            return base.filter { cats.contains($0.category) }
+            return needScoped
         case .favorites:
-            return base.filter { favorites.isFavorite($0.id) }
+            return needScoped.filter { favorites.isFavorite($0.id) }
         }
     }
 
@@ -87,7 +88,7 @@ struct CustomerMapView: View {
                     Annotation(seller.name, coordinate: seller.coordinate, anchor: .bottom) {
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                viewModel.selectSeller(seller.id)
+                                viewModel.focus(on: seller)
                             }
                         } label: {
                             mapPin(for: seller)

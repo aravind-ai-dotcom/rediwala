@@ -9,6 +9,16 @@ enum AuthFriendlyError {
         let code = authErrorCode(from: ns)
         let base: String
 
+        if FirebaseRTDBConnectivity.isOfflineError(error) {
+            #if DEBUG
+            let detail = " [\(ns.domain) \(ns.code)] \(ns.localizedDescription)"
+            print("Auth error\(detail)")
+            return String(localized: "auth.error.offline") + detail
+            #else
+            return String(localized: "auth.error.offline")
+            #endif
+        }
+
         switch code {
         case .wrongPassword, .invalidCredential, .invalidEmail:
             if let email, isDemoEmail(email) {
@@ -111,8 +121,15 @@ enum DemoAuthBootstrap {
         expectedRole: DemoUserRole,
         database: DatabaseReference
     ) async throws {
-        let snapshot = try await database.child("users").child(uid).getData()
-        if snapshot.exists() { return }
+        do {
+            let snapshot = try await FirebaseRTDBConnectivity.getData(
+                at: database.child("users").child(uid),
+                database: VendorFirebaseSession.shared.database
+            )
+            if snapshot.exists() { return }
+        } catch {
+            if !FirebaseRTDBConnectivity.isOfflineError(error) { throw error }
+        }
         try await ensureRoleProfile(uid: uid, email: email, expectedRole: expectedRole, database: database)
     }
 

@@ -1,4 +1,5 @@
 import Combine
+import CoreLocation
 import Foundation
 
 @MainActor
@@ -26,7 +27,7 @@ final class CustomerHomeViewModel: ObservableObject {
 
     @Published var selectedNeighborhood: PilotNeighborhood = CustomerNeighborhoodStore.shared.homeNeighborhood {
         didSet {
-            CustomerNeighborhoodStore.shared.select(selectedNeighborhood)
+            geo.selectPilotNeighborhood(selectedNeighborhood, recenter: true)
             mapViewModel.selectNeighborhood(selectedNeighborhood, recenter: true)
             Task { await load() }
         }
@@ -35,13 +36,17 @@ final class CustomerHomeViewModel: ObservableObject {
     @Published var sellers: [Seller] = []
     @Published var isLoading = false
     @Published var showNeedsEditor = false
+    @Published private(set) var demandSnapshot: NeighborhoodDemandSnapshot?
+    @Published private(set) var opportunities: [OpportunityInsight] = []
 
     let repository: FirebaseSellerRepository
     let mapViewModel: CustomerMapViewModel
     let needsStore = CustomerNeedsStore.shared
     let followStore = CustomerVendorFollowStore.shared
+    let geo = GeoContext.shared
 
     private var cancellables = Set<AnyCancellable>()
+    private let opportunityEngine = OpportunityEngine()
 
     var greetingKey: String {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -56,18 +61,18 @@ final class CustomerHomeViewModel: ObservableObject {
     var bestMatches: [Seller] {
         let needCats = needsStore.matchingCategories
         guard !needCats.isEmpty else { return [] }
-        let pool = visibleSellers.filter { needCats.contains($0.category) }
+        let pool = relevantSellersForToday.filter { needCats.contains($0.category) }
         return ranked(pool).prefix(8).map { $0 }
     }
 
     var nearbyRightNow: [Seller] {
-        visibleSellers
+        relevantSellersForToday
             .filter(\.isEffectivelyLive)
             .sorted { $0.distanceMeters < $1.distanceMeters }
     }
 
     var expectedSoon: [Seller] {
-        visibleSellers
+        relevantSellersForToday
             .filter { !$0.isEffectivelyLive }
             .sorted { $0.distanceMeters < $1.distanceMeters }
             .prefix(6)
@@ -76,15 +81,23 @@ final class CustomerHomeViewModel: ObservableObject {
 
     var myVendors: [Seller] {
         let ids = Set(followStore.myVendorIDs)
-        let followed = sellers.filter { ids.contains($0.id) && !followStore.isHidden($0.id) }
+        let followed = relevantSellersForToday.filter { ids.contains($0.id) && !followStore.isHidden($0.id) }
         if !followed.isEmpty { return ranked(followed) }
         return Array(nearbyRightNow.prefix(3))
     }
 
     private var visibleSellers: [Seller] {
-        sellers.filter {
-            $0.neighborhood == selectedNeighborhood && !followStore.isHidden($0.id)
-        }
+        let scope = geo.queryScope()
+        return GeoScopedQuery.filter(
+            sellers: sellers.filter { !followStore.isHidden($0.id) },
+            scope: scope
+        )
+    }
+
+    private var relevantSellersForToday: [Seller] {
+        let needCats = needsStore.matchingCategories
+        guard !needCats.isEmpty else { return visibleSellers }
+        return visibleSellers.filter { needCats.contains($0.category) }
     }
 
     init(repository: FirebaseSellerRepository) {
@@ -107,47 +120,63 @@ final class CustomerHomeViewModel: ObservableObject {
         mapViewModel.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
+        geo.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
     }
 
     func load() async {
         isLoading = true
-        sellers = await repository.fetchNearbySellers(near: selectedNeighborhood)
+        let near = geo.neighborhood.asPilotNeighborhood()
+        if selectedNeighborhood != near {
+            selectedNeighborhood = near
+        }
+        sellers = await repository.fetchNearbySellers(near: near, scope: geo.queryScope())
         await mapViewModel.load(recenterIfNeeded: false)
+        refreshDemandIntelligence()
         isLoading = false
     }
 
     func openMap() {
         browseMode = .map
+        geo.returnToNeighborhood()
         mapViewModel.selectNeighborhood(selectedNeighborhood, recenter: true)
     }
 
     func returnHomeArea() {
+        geo.returnToNeighborhood()
         mapViewModel.recenter()
+    }
+
+    private func refreshDemandIntelligence() {
+        let liveCategories = nearbyRightNow.map { FirebaseIDMap.firebaseID(for: $0.category) }
+        let snapshot = DemandIntelligenceEngine.snapshot(
+            for: geo.neighborhood,
+            liveVendorCategories: liveCategories,
+            activeVendorCount: nearbyRightNow.count
+        )
+        demandSnapshot = snapshot
+        opportunities = opportunityEngine.evaluate(snapshot: snapshot)
     }
 
     private func ranked(_ pool: [Seller]) -> [Seller] {
         let favorites = repository.favoriteIDs
-        let weekday = Calendar.current.component(.weekday, from: Date())
-        let bias: Set<SellerCategory> = {
-            switch weekday {
-            case 1, 7: return [.flowers, .iceCream, .kulfi, .juices]
-            case 2, 4: return [.milk, .bakery]
-            default: return [.vegetables, .fish, .knifeSharpening]
-            }
-        }()
+        let economy = Set(geo.neighborhood.suggestedCategories)
 
         return pool.sorted { a, b in
             let aScore =
                 (a.isEffectivelyLive ? 120 : 0) +
                 Int(a.rating * 10) +
-                (bias.contains(a.category) ? 12 : 0) +
+                (economy.contains(FirebaseIDMap.firebaseID(for: a.category)) ? 18 : 0) +
                 (favorites.contains(a.id) ? 30 : 0) +
+                (followStore.myVendorIDs.contains(a.id) ? 20 : 0) +
                 max(0, 40 - a.distanceMeters / 50)
             let bScore =
                 (b.isEffectivelyLive ? 120 : 0) +
                 Int(b.rating * 10) +
-                (bias.contains(b.category) ? 12 : 0) +
+                (economy.contains(FirebaseIDMap.firebaseID(for: b.category)) ? 18 : 0) +
                 (favorites.contains(b.id) ? 30 : 0) +
+                (followStore.myVendorIDs.contains(b.id) ? 20 : 0) +
                 max(0, 40 - b.distanceMeters / 50)
             if aScore != bScore { return aScore > bScore }
             return a.distanceMeters < b.distanceMeters

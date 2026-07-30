@@ -12,6 +12,8 @@ final class CustomerMapViewModel: ObservableObject {
     @Published private(set) var hasCenteredOnce = false
 
     private let repository: SellerRepository
+    private let geo = GeoContext.shared
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         repository: SellerRepository,
@@ -19,7 +21,14 @@ final class CustomerMapViewModel: ObservableObject {
     ) {
         self.repository = repository
         self.selectedNeighborhood = neighborhood
-        self.cameraPosition = .region(Self.region(for: neighborhood))
+        self.cameraPosition = geo.cameraPosition
+        geo.objectWillChange
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.cameraPosition = self.geo.cameraPosition
+                self.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     var selectedSeller: Seller? {
@@ -27,7 +36,11 @@ final class CustomerMapViewModel: ObservableObject {
     }
 
     func load(recenterIfNeeded: Bool = false) async {
-        sellers = await repository.fetchNearbySellers(near: selectedNeighborhood)
+        let scope = geo.queryScope()
+        sellers = await repository.fetchNearbySellers(
+            near: selectedNeighborhood,
+            scope: scope
+        )
         if recenterIfNeeded || !hasCenteredOnce {
             recenter()
             hasCenteredOnce = true
@@ -37,6 +50,7 @@ final class CustomerMapViewModel: ObservableObject {
     func selectNeighborhood(_ neighborhood: PilotNeighborhood, recenter: Bool = false) {
         let changed = selectedNeighborhood != neighborhood
         selectedNeighborhood = neighborhood
+        geo.selectPilotNeighborhood(neighborhood, recenter: recenter)
         Task { await load(recenterIfNeeded: recenter && changed) }
         if recenter {
             self.recenter()
@@ -45,17 +59,14 @@ final class CustomerMapViewModel: ObservableObject {
     }
 
     func recenter() {
-        cameraPosition = .region(Self.region(for: selectedNeighborhood))
+        geo.returnToNeighborhood()
+        cameraPosition = geo.cameraPosition
     }
 
     func focus(on seller: Seller) {
         selectedSellerID = seller.id
-        cameraPosition = .region(
-            MKCoordinateRegion(
-                center: seller.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
-            )
-        )
+        geo.zoomToVendor(latitude: seller.latitude, longitude: seller.longitude)
+        cameraPosition = geo.cameraPosition
     }
 
     func selectSeller(_ id: String?) {
@@ -63,7 +74,11 @@ final class CustomerMapViewModel: ObservableObject {
     }
 
     static func region(for neighborhood: PilotNeighborhood) -> MKCoordinateRegion {
-        MKCoordinateRegion(
+        let id = FirebaseIDMap.firebaseID(for: neighborhood)
+        if let definition = NeighborhoodCatalog.neighborhood(id: id) {
+            return definition.mapRegion
+        }
+        return MKCoordinateRegion(
             center: neighborhood.coordinate,
             span: MKCoordinateSpan(
                 latitudeDelta: neighborhood.spanDelta,

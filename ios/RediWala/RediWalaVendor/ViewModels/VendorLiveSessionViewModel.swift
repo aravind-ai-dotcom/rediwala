@@ -29,6 +29,8 @@ final class VendorLiveSessionViewModel: ObservableObject {
     @Published var announcement: VendorAnnouncementDraft?
     @Published var selectedAudioOutputName: String = "Device Speaker"
     @Published var profilePhotoLocalPath: String?
+    @Published var inventoryReady = false
+    @Published var operatingHoursConfirmed = false
 
     private var livePrepareTask: Task<Void, Never>?
     private var stopTask: Task<Void, Never>?
@@ -85,6 +87,7 @@ final class VendorLiveSessionViewModel: ObservableObject {
 
     var canStartLive: Bool {
         guard firebaseSession.isReady else { return false }
+        guard isPreparationChecklistComplete else { return false }
         switch state {
         case .offline, .failed:
             return true
@@ -125,6 +128,18 @@ final class VendorLiveSessionViewModel: ObservableObject {
     var minutesUntilPresenceExpiry: Int? {
         guard let presenceExpiresAt else { return nil }
         return max(0, Int(presenceExpiresAt.timeIntervalSinceNow / 60))
+    }
+
+    var hasRoutePrepared: Bool {
+        routeStops.contains { !$0.isCompleted }
+    }
+
+    var hasAnnouncementPrepared: Bool {
+        announcement != nil
+    }
+
+    var isPreparationChecklistComplete: Bool {
+        hasRoutePrepared && inventoryReady && hasAnnouncementPrepared && operatingHoursConfirmed
     }
 
     private static let shortTime: DateFormatter = {
@@ -225,6 +240,10 @@ final class VendorLiveSessionViewModel: ObservableObject {
 
     func updateAnnouncement(_ draft: VendorAnnouncementDraft?) {
         announcement = draft
+        if draft != nil {
+            // Recording an announcement completes the preparation checkpoint.
+            objectWillChange.send()
+        }
         persistAnnouncement()
         scheduleBroadcastIfNeeded()
         guard let draft else { return }
@@ -245,6 +264,14 @@ final class VendorLiveSessionViewModel: ObservableObject {
 
     func setProfilePhotoPath(_ path: String?) {
         profilePhotoLocalPath = path
+    }
+
+    func markInventoryReady(_ value: Bool) {
+        inventoryReady = value
+    }
+
+    func markOperatingHoursConfirmed(_ value: Bool) {
+        operatingHoursConfirmed = value
     }
 
     func planMyRoute() {
@@ -352,6 +379,7 @@ final class VendorLiveSessionViewModel: ObservableObject {
 
     func updateOperatingArea(_ area: ChennaiArea) {
         selectedOperatingArea = area
+        VendorGeoContext.shared.selectArea(area, recenter: true)
         routeStops = VendorServiceModeDemoData.defaultStops(for: area)
         geocodeOperatingArea()
         geocodeRouteStops()

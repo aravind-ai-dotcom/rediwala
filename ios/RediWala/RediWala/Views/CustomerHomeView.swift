@@ -326,25 +326,44 @@ struct ExpectedSoonRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(seller.routeStops.first(where: { $0.status == .upcoming })?.timeLabel
-                      ?? "—")
+            VStack(spacing: 0) {
+                Circle()
+                    .fill(AppTheme.info)
+                    .frame(width: 8, height: 8)
+                Rectangle()
+                    .fill(AppTheme.info.opacity(0.25))
+                    .frame(width: 2, height: 30)
+            }
+            .padding(.top, 2)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(seller.routeStops.first(where: { $0.status == .upcoming })?.timeLabel ?? "—")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(AppTheme.info)
-                Text(LocalizedStringKey(seller.category.localizationKey))
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(AppTheme.textPrimary)
-                Text(seller.progressLabel ?? String(localized: "home.expected_within"))
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.textSecondary)
-                    .lineLimit(2)
+                HStack(spacing: 4) {
+                    Text(LocalizedStringKey(seller.category.localizationKey))
+                    Text("·")
+                    Text(seller.name)
+                }
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppTheme.textPrimary)
+                if let stop = seller.routeStops.first(where: { $0.status == .upcoming }) {
+                    Text(LocalizedStringKey(stop.titleKey))
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .lineLimit(1)
+                } else {
+                    Text(seller.progressLabel ?? String(localized: "home.expected_within"))
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .lineLimit(1)
+                }
             }
+
             Spacer(minLength: 0)
-            Image(systemName: seller.category.systemImage)
-                .foregroundStyle(AppTheme.info)
-                .frame(width: 36, height: 36)
-                .background(AppTheme.info.opacity(0.12))
-                .clipShape(Circle())
+            Text(seller.formattedDistance)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(AppTheme.textSecondary)
         }
         .padding(12)
         .background(AppTheme.card)

@@ -28,13 +28,16 @@ enum CustomerInterestService {
     ) async throws {
         FirebaseDatabaseConfig.configureIfNeeded()
         let requestID = UUID().uuidString
-        let approximate = jitteredCoordinate(neighborhood.coordinate)
+        // Always derive approximate coords from GeoContext — never device GPS here.
+        let center = GeoContext.shared.coordinate
+        let approximate = jitteredCoordinate(center)
 
         let payload: [String: Any] = [
             "requestId": requestID,
             "customerId": customerID,
             "vendorCategory": vendorCategory,
-            "neighborhoodId": FirebaseIDMap.firebaseID(for: neighborhood),
+            "neighborhoodId": GeoContext.shared.neighborhood.id,
+            "cityId": GeoContext.shared.city.id,
             "latitude": approximate.latitude,
             "longitude": approximate.longitude,
             "requestType": type.rawValue,

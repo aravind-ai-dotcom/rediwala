@@ -1,44 +1,19 @@
-import FirebaseCore
 import FirebaseDatabase
 import Foundation
 
-/// Chennai pilot RTDB lives in asia-southeast1; the plist omits `DATABASE_URL`.
-enum FirebaseDatabaseConfig {
-    static let databaseURL = "https://rediwala-development-default-rtdb.asia-southeast1.firebasedatabase.app"
-
-    static func configureIfNeeded() {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
-        // Open the RTDB socket early so post-Auth profile reads are not "client offline".
-        Database.database(url: databaseURL).goOnline()
-    }
-
-    static var database: Database {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
-        let db = Database.database(url: databaseURL)
-        db.goOnline()
-        return db
-    }
-
-    static var root: DatabaseReference {
-        database.reference()
-    }
-
-    /// One-shot reads fail with "client offline" when the WebSocket is not up yet
-    /// (common right after Auth sign-in). Retry with a short connection wait.
+/// Shared RTDB read helpers for Vendor app — retries through the post-Auth offline window.
+enum FirebaseRTDBConnectivity {
     static func getData(
         at reference: DatabaseReference,
+        database: Database,
         attempts: Int = 6
     ) async throws -> DataSnapshot {
-        _ = database
+        database.goOnline()
         var lastError: Error?
         for attempt in 0..<attempts {
             do {
                 if attempt > 0 {
-                    try await waitForConnection(timeoutSeconds: 2.5)
+                    try await waitForConnection(database: database, timeoutSeconds: 2.5)
                 }
                 return try await reference.getData()
             } catch {
@@ -61,14 +36,13 @@ enum FirebaseDatabaseConfig {
         if message.contains("client offline") || message.contains("network error") {
             return true
         }
-        // FIRDatabaseErrorCode.networkError == 1
         if ns.domain == "com.firebase.core" || ns.domain.contains("FirebaseDatabase") {
             return ns.code == 1
         }
         return false
     }
 
-    private static func waitForConnection(timeoutSeconds: Double) async throws {
+    private static func waitForConnection(database: Database, timeoutSeconds: Double) async throws {
         let connectedRef = database.reference(withPath: ".info/connected")
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             final class State: @unchecked Sendable {

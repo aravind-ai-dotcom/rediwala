@@ -53,11 +53,13 @@ final class VendorMapViewModel: ObservableObject {
     private var routeRefreshTask: Task<Void, Never>?
 
     func configure(area: ChennaiArea) {
+        VendorGeoContext.shared.selectArea(area, recenter: false)
         Task {
             let coord = await VendorGeocodingService.shared.coordinate(for: area)
             geocodedAreaCoordinate = coord
             if !followVendor {
                 recenter(on: coord.mapCoordinate, span: area.neighborhoodMapSpan, animated: false)
+                VendorGeoContext.shared.zoomToVendor(coordinate: coord.mapCoordinate, span: area.neighborhoodMapSpan)
             }
         }
     }
@@ -68,10 +70,14 @@ final class VendorMapViewModel: ObservableObject {
             let line = await VendorRouteDirectionService.shared.polyline(for: stops)
             guard !Task.isCancelled else { return }
             routePolyline = line
+            if let first = stops.first {
+                VendorGeoContext.shared.zoomToRoute(center: first.coordinate.mapCoordinate)
+            }
         }
     }
 
     func recenter(on coordinate: CLLocationCoordinate2D, span: Double = 0.008, animated: Bool = true) {
+        VendorGeoContext.shared.zoomToVendor(coordinate: coordinate, span: span)
         let region = MapCameraPosition.region(
             MKCoordinateRegion(
                 center: coordinate,

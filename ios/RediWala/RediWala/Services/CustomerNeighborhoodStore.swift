@@ -37,6 +37,12 @@ final class CustomerNeighborhoodStore: ObservableObject {
         homeNeighborhood = neighborhood
     }
 
+    /// Used by GeoContext to mirror state without recursive geo updates.
+    func applyFromGeoContext(_ neighborhood: PilotNeighborhood) {
+        guard homeNeighborhood != neighborhood else { return }
+        homeNeighborhood = neighborhood
+    }
+
     private func persist() {
         UserDefaults.standard.set(homeNeighborhood.rawValue, forKey: key)
     }

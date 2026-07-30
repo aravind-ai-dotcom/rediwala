@@ -30,6 +30,7 @@ struct NeighborhoodSelectionView: View {
                     ForEach(CustomerNeighborhoodStore.onboardingChoices) { hood in
                         Button {
                             neighborhoodStore.select(hood)
+                            GeoContext.shared.selectPilotNeighborhood(hood, recenter: true)
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {

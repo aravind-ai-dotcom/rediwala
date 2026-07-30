@@ -1,10 +1,19 @@
 import SwiftUI
+import PhotosUI
+import UIKit
 
 struct VendorNameView: View {
     @ObservedObject var viewModel: VendorOnboardingViewModel
     var onContinue: () -> Void
 
     @FocusState private var isNameFocused: Bool
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var previewImage: UIImage?
+
+    private var draftVendorID: String {
+        let name = viewModel.trimmedName.lowercased().replacingOccurrences(of: " ", with: "_")
+        return name.isEmpty ? "onboarding_draft" : name
+    }
 
     var body: some View {
         ScrollView {
@@ -48,26 +57,39 @@ struct VendorNameView: View {
                 }
                 .accessibilityLabel(Text("onboarding.name.placeholder"))
 
-                // Visible profile photo placeholder — no camera access this sprint.
-                HStack(spacing: 14) {
-                    Image(systemName: "person.crop.circle.badge.plus")
-                        .font(.system(size: 44))
-                        .foregroundStyle(AppTheme.primary)
+                PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                    HStack(spacing: 14) {
+                        if let previewImage {
+                            Image(uiImage: previewImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 56, height: 56)
+                                .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                                .font(.system(size: 44))
+                                .foregroundStyle(AppTheme.primary)
+                        }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("onboarding.photo.title")
-                            .font(.headline.weight(.bold))
-                            .foregroundStyle(AppTheme.textPrimary)
-                        Text("onboarding.photo.subtitle")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("onboarding.photo.title")
+                                .font(.headline.weight(.bold))
+                                .foregroundStyle(AppTheme.textPrimary)
+                            Text("Add Photo")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(AppTheme.primary)
+                            Text("onboarding.photo.subtitle")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(AppTheme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(AppTheme.card)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+                .buttonStyle(.plain)
                 .accessibilityElement(children: .combine)
             }
             .padding(20)
@@ -90,6 +112,18 @@ struct VendorNameView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .onAppear {
             isNameFocused = true
+            if let path = VendorProfilePhotoStore.loadPath(for: draftVendorID),
+               let image = UIImage(contentsOfFile: path) {
+                previewImage = image
+            }
+        }
+        .task(id: selectedPhotoItem) {
+            guard let selectedPhotoItem else { return }
+            if let data = try? await selectedPhotoItem.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                previewImage = image
+                _ = VendorProfilePhotoStore.save(image, for: draftVendorID)
+            }
         }
     }
 }

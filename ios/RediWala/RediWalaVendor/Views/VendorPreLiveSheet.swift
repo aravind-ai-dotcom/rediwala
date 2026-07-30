@@ -14,6 +14,7 @@ struct VendorPreLiveSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     header
+                    preparationChecklist
                     modeSection
                     messageStatus
                     actionSection
@@ -96,6 +97,75 @@ struct VendorPreLiveSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
+    private var preparationChecklist: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Today's Preparation")
+                .font(.headline.weight(.bold))
+
+            checklistRow(
+                title: "Today's Route",
+                subtitle: liveSession.hasRoutePrepared ? "Route is set for your neighborhood loop." : "Plan or add stops before going live.",
+                done: liveSession.hasRoutePrepared
+            )
+            checklistToggleRow(
+                title: "Inventory / Services Ready",
+                subtitle: "Confirm today's products/services are ready.",
+                isOn: liveSession.inventoryReady,
+                onToggle: liveSession.markInventoryReady
+            )
+            checklistRow(
+                title: "Announcement Ready",
+                subtitle: liveSession.hasAnnouncementPrepared ? "Recorded announcement available." : "Record announcement before going live.",
+                done: liveSession.hasAnnouncementPrepared
+            )
+            checklistToggleRow(
+                title: "Operating Hours Confirmed",
+                subtitle: "Confirm today's working window is correct.",
+                isOn: liveSession.operatingHoursConfirmed,
+                onToggle: liveSession.markOperatingHoursConfirmed
+            )
+        }
+        .padding(12)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func checklistRow(title: String, subtitle: String, done: Bool) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(done ? AppTheme.primary : AppTheme.textSecondary)
+                .font(.title3)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            Spacer()
+        }
+    }
+
+    private func checklistToggleRow(
+        title: String,
+        subtitle: String,
+        isOn: Bool,
+        onToggle: @escaping (Bool) -> Void
+    ) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Toggle(isOn: Binding(get: { isOn }, set: onToggle)) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+            }
+            .toggleStyle(.switch)
+        }
+    }
+
     private var actionSection: some View {
         VStack(spacing: 12) {
             if liveSession.state == .preparing {
@@ -123,12 +193,14 @@ struct VendorPreLiveSheet: View {
                 titleKey: liveSession.announcement == nil ? "Record Message, Then Go Live" : "Record New Message, Then Go Live",
                 systemImage: "mic.fill",
                 style: .accent,
-                isEnabled: liveSession.canStartLive
+                isEnabled: liveSession.hasRoutePrepared && liveSession.inventoryReady && liveSession.operatingHoursConfirmed
             ) {
                 onRecordThenGoLive()
             }
 
-            Text("Customers nearby will see you as LIVE.")
+            Text(liveSession.isPreparationChecklistComplete
+                 ? "Customers nearby will see you as LIVE."
+                 : "Complete the checklist to enable Go Live.")
                 .font(.caption)
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)

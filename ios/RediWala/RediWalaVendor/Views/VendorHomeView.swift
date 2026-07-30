@@ -70,20 +70,20 @@ struct VendorHomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
 
+                todaysRouteSection
+                preparationSection
+                opportunitiesSection
+                announcementSection
+
                 if liveSession.state == .live || liveSession.state == .preparing || liveSession.state == .stopping {
                     liveDashboardSection
                 } else {
                     goLiveCard
                 }
 
-                todaysRouteSection
-                opportunitiesSection
-
                 if liveSession.state == .live {
                     billCustomerCard
                 }
-
-                announcementSection
                 summarySection
                 quickActionsSection
             }
@@ -317,6 +317,56 @@ struct VendorHomeView: View {
             Text("Pick how you work, then go live. Message is optional.")
                 .font(.subheadline)
                 .foregroundStyle(AppTheme.textSecondary)
+        }
+    }
+
+    private var preparationSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(titleKey: "Today's Preparation")
+            checklistRow(done: liveSession.hasRoutePrepared, title: "Today's Route", subtitle: "Set neighborhood loop stops")
+            checklistToggle(
+                title: "Inventory / Services Ready",
+                subtitle: "Confirm products or services are ready",
+                value: liveSession.inventoryReady,
+                action: liveSession.markInventoryReady
+            )
+            checklistRow(done: liveSession.hasAnnouncementPrepared, title: "Announcement Ready", subtitle: "Record today's message")
+            checklistToggle(
+                title: "Operating Hours Confirmed",
+                subtitle: "Confirm today's working window",
+                value: liveSession.operatingHoursConfirmed,
+                action: liveSession.markOperatingHoursConfirmed
+            )
+        }
+        .padding(14)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func checklistRow(done: Bool, title: String, subtitle: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(done ? AppTheme.primary : AppTheme.textSecondary)
+                .font(.title3)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.subheadline.weight(.semibold))
+                Text(subtitle).font(.caption).foregroundStyle(AppTheme.textSecondary)
+            }
+            Spacer()
+        }
+    }
+
+    private func checklistToggle(
+        title: String,
+        subtitle: String,
+        value: Bool,
+        action: @escaping (Bool) -> Void
+    ) -> some View {
+        Toggle(isOn: Binding(get: { value }, set: action)) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.subheadline.weight(.semibold))
+                Text(subtitle).font(.caption).foregroundStyle(AppTheme.textSecondary)
+            }
         }
     }
 

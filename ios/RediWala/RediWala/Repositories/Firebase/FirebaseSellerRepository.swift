@@ -65,12 +65,19 @@ final class FirebaseSellerRepository: ObservableObject, SellerRepository, Favori
     }
 
     func fetchNearbySellers(near neighborhood: PilotNeighborhood) async -> [Seller] {
+        await fetchNearbySellers(near: neighborhood, scope: GeoContext.shared.queryScope())
+    }
+
+    func fetchNearbySellers(near neighborhood: PilotNeighborhood, scope: GeoQueryScope) async -> [Seller] {
         if sellersByID.isEmpty {
             await reload()
         }
-        let source = sellersByID.isEmpty ? await fallback.fetchNearbySellers(near: neighborhood) : Array(sellersByID.values)
-        return source
+        let source = sellersByID.isEmpty
+            ? await fallback.fetchNearbySellers(near: neighborhood)
+            : Array(sellersByID.values)
+        let adjustedList = source
             .map { adjusted($0, near: neighborhood) }
+        return GeoScopedQuery.filter(sellers: adjustedList, scope: scope)
             .sorted { $0.distanceMeters < $1.distanceMeters }
     }
 
