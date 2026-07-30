@@ -29,6 +29,7 @@ enum AppLanguage: String, CaseIterable, Identifiable, Codable {
 
 enum VendorFlowStep: Equatable {
     case splash
+    case login
     case language
     case welcome
     case vendorName

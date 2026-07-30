@@ -20,14 +20,27 @@ final class VendorFlowViewModel: ObservableObject {
 
     func begin() {
         step = .splash
-        Task {
-            try? await Task.sleep(for: .seconds(1.6))
-            advanceFromSplash()
+    }
+
+    func finishSplash(isSignedIn: Bool, profileCompleted: Bool) {
+        if isSignedIn {
+            step = profileCompleted || UserDefaults.standard.bool(forKey: onboardingStorageKey) ? .main : .language
+        } else {
+            step = .login
         }
     }
 
-    func advanceFromSplash() {
-        step = UserDefaults.standard.bool(forKey: onboardingStorageKey) ? .main : .language
+    func didSignIn(profileCompleted: Bool) {
+        if profileCompleted {
+            UserDefaults.standard.set(true, forKey: onboardingStorageKey)
+            step = .main
+        } else {
+            step = .language
+        }
+    }
+
+    func didSignOut() {
+        step = .login
     }
 
     func languageSelected() {
@@ -49,14 +62,15 @@ final class VendorFlowViewModel: ObservableObject {
 
     func completeOnboarding() {
         let state = onboarding.buildState()
-        VendorIdentityStore.vendorID = VendorIdentityStore.resolveVendorID(displayName: state.vendorName)
+        if let match = DemoAuthCatalog.vendors.first(where: {
+            $0.displayName.lowercased().contains(state.vendorName.lowercased()) || state.vendorName.lowercased().contains("murugan")
+        })?.vendorId {
+            VendorIdentityStore.vendorID = match
+        } else {
+            VendorIdentityStore.vendorID = VendorIdentityStore.resolveVendorID(displayName: state.vendorName)
+        }
         saveOnboarding(state)
         step = .main
-    }
-
-    func resetOnboardingForPreview() {
-        UserDefaults.standard.removeObject(forKey: onboardingStorageKey)
-        step = .language
     }
 
     private func saveOnboarding(_ state: VendorOnboardingState) {

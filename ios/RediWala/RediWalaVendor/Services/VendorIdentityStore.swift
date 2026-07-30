@@ -5,8 +5,8 @@ enum VendorIdentityStore {
     private static let vendorIDKey = "vendor.firebase.id"
     private static let service = "com.rediwala.vendor"
 
-    /// Demo pilot vendor ID aligned with Firebase seed data (`vendor_001` = Murugan).
-    static let demoVendorID = "vendor_001"
+    /// Demo pilot vendor ID aligned with Firebase seed / synthetic Murugan.
+    static let demoVendorID = "murugan"
 
     static var vendorID: String {
         get { load(key: vendorIDKey) ?? demoVendorID }
@@ -15,10 +15,21 @@ enum VendorIdentityStore {
 
     static func resolveVendorID(displayName: String) -> String {
         let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if trimmed == "murugan" || trimmed.isEmpty {
-            return demoVendorID
-        }
+        if trimmed.contains("murugan") { return "murugan" }
+        if trimmed.contains("lakshmi") && trimmed.contains("flower") { return "lakshmi" }
+        if trimmed.contains("siva") || trimmed.contains("iron") { return "siva_ironing" }
+        if trimmed.contains("babu") || trimmed.contains("laundry") { return "babu_laundry" }
+        if trimmed.contains("kumar") || trimmed.contains("cable") { return "kumar_cable" }
         return demoVendorID
+    }
+
+    static func clear() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: vendorIDKey,
+            kSecAttrService as String: service
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 
     private static func load(key: String) -> String? {

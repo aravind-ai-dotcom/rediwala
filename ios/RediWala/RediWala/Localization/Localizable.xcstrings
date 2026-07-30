@@ -125,6 +125,364 @@
         }
       }
     },
+    "auth.customer.subtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to see today’s neighborhood vendors."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இன்றைய அருகிலுள்ள விற்பனையாளர்களைப் பார்க்க உள்நுழையவும்."
+          }
+        }
+      }
+    },
+    "auth.demo_accounts" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demo Accounts"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "டெமோ கணக்குகள்"
+          }
+        }
+      }
+    },
+    "auth.email" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மின்னஞ்சல்"
+          }
+        }
+      }
+    },
+    "auth.error.customer_in_vendor_app" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account belongs to a Customer. Please use the RediWala Customer app."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இந்த கணக்கு வாடிக்கையாளருக்குரியது. RediWala Customer செயலியைப் பயன்படுத்தவும்."
+          }
+        }
+      }
+    },
+    "auth.error.disabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account has been disabled."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இந்த கணக்கு முடக்கப்பட்டுள்ளது."
+          }
+        }
+      }
+    },
+    "auth.error.generic" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to sign in right now. Please try again."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இப்போது உள்நுழைய முடியவில்லை. மீண்டும் முயலவும்."
+          }
+        }
+      }
+    },
+    "auth.error.invalid_credentials" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email or password is incorrect."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மின்னஞ்சல் அல்லது கடவுச்சொல் தவறானது."
+          }
+        }
+      }
+    },
+    "auth.error.missing_profile" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account is not set up for RediWala yet."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இந்த கணக்கு RediWala-க்கு அமைக்கப்படவில்லை."
+          }
+        }
+      }
+    },
+    "auth.error.not_signed_in" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please sign in to continue."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தொடர உள்நுழையவும்."
+          }
+        }
+      }
+    },
+    "auth.error.offline" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You appear to be offline. Check your connection."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "நீங்கள் ஆஃப்லைனில் உள்ளீர்கள். இணைப்பை சரிபார்க்கவும்."
+          }
+        }
+      }
+    },
+    "auth.error.permission" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You do not have permission for this action."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இந்த செயலுக்கு அனுமதி இல்லை."
+          }
+        }
+      }
+    },
+    "auth.error.too_many" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many attempts. Please wait and try again."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அதிக முயற்சிகள். சிறிது காத்திருந்து மீண்டும் முயலவும்."
+          }
+        }
+      }
+    },
+    "auth.error.user_not_found" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No account found for that email."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அந்த மின்னஞ்சலுக்கு கணக்கு இல்லை."
+          }
+        }
+      }
+    },
+    "auth.error.vendor_in_customer_app" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account belongs to a Vendor. Please use the RediWala Vendor app."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இந்த கணக்கு விற்பனையாளருக்குரியது. RediWala Vendor செயலியைப் பயன்படுத்தவும்."
+          }
+        }
+      }
+    },
+    "auth.forgot_password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgot password (coming soon)"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கடவுச்சொல் மறந்துவிட்டதா (விரைவில்)"
+          }
+        }
+      }
+    },
+    "auth.password" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கடவுச்சொல்"
+          }
+        }
+      }
+    },
+    "auth.sign_in" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உள்நுழை"
+          }
+        }
+      }
+    },
+    "auth.sign_out" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வெளியேறு"
+          }
+        }
+      }
+    },
+    "auth.use_demo_account" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Demo Account"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "டெமோ கணக்கைப் பயன்படுத்து"
+          }
+        }
+      }
+    },
+    "auth.vendor.headline" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage today’s neighborhood service"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இன்றைய சுற்றுப்புற சேவையை நிர்வகிக்கவும்"
+          }
+        }
+      }
+    },
+    "auth.vendor.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with your vendor demo account."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் விற்பனையாளர் டெமோ கணக்கில் உள்நுழையவும்."
+          }
+        }
+      }
+    },
+    "auth.welcome_back" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மீண்டும் வரவேற்கிறோம்"
+          }
+        }
+      }
+    },
     "category.bakery" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4913,6 +5271,10 @@
           }
         }
       }
+    },
+    "RediWala" : {
+      "comment" : "The name of the app.",
+      "isCommentAutoGenerated" : true
     },
     "route.status.completed" : {
       "extractionState" : "stale",

@@ -3,6 +3,7 @@ import PhotosUI
 
 struct VendorProfileView: View {
     @ObservedObject var viewModel: VendorProfileViewModel
+    @EnvironmentObject private var firebaseSession: VendorFirebaseSession
     @State private var selectedPhotoItem: PhotosPickerItem?
 
     var body: some View {
@@ -86,6 +87,19 @@ struct VendorProfileView: View {
                 ) {
                     viewModel.isShowingSettings = true
                 }
+
+                Button {
+                    firebaseSession.signOut()
+                } label: {
+                    Text("auth.sign_out")
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(AppTheme.danger)
+                        .frame(maxWidth: .infinity)
+                        .padding(16)
+                        .background(AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
             .padding(20)
             .padding(.bottom, 12)

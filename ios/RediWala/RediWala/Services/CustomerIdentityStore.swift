@@ -10,4 +10,8 @@ enum CustomerIdentityStore {
     static func save(uid: String) {
         KeychainStore.set(uid, forKey: uidKey, service: "com.rediwala.customer")
     }
+
+    static func clear() {
+        KeychainStore.delete(forKey: uidKey, service: "com.rediwala.customer")
+    }
 }

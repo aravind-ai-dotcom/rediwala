@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var favorites: FavoritesViewModel
+    @EnvironmentObject private var authService: FirebaseAuthService
     @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject private var languageStore: AppLanguageStore
 
@@ -83,6 +84,34 @@ struct ProfileView: View {
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
                 }
                 .buttonStyle(.plain)
+
+                Button {
+                    authService.signOut()
+                } label: {
+                    Text("auth.sign_out")
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(AppTheme.danger)
+                        .frame(maxWidth: .infinity)
+                        .padding(16)
+                        .background(AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                #if DEBUG
+                NavigationLink {
+                    DemoControlView()
+                } label: {
+                    Text("Demo Control")
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(AppTheme.info)
+                        .frame(maxWidth: .infinity)
+                        .padding(16)
+                        .background(AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                #endif
             }
             .padding(20)
             .padding(.bottom, 12)

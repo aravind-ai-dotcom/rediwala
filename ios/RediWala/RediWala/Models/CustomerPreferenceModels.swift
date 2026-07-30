@@ -193,6 +193,12 @@ final class CustomerNeedsStore: ObservableObject {
         persistCompleted()
     }
 
+    func replaceToday(with needs: [CustomerNeedItem]) {
+        selected = Set(needs)
+        completed = []
+        persistCompleted()
+    }
+
     func reuseYesterday() {
         guard let raw = UserDefaults.standard.array(forKey: yesterdayKey) as? [String] else { return }
         selected = Set(raw.compactMap(CustomerNeedItem.init(rawValue:)))
@@ -263,11 +269,23 @@ final class CustomerVendorFollowStore: ObservableObject {
            let decoded = try? JSONDecoder().decode([String: VendorFollowRecord].self, from: data) {
             records = decoded
         }
-        if records.isEmpty {
-            for id in ["murugan", "lakshmi", "veg_tNagar_0"] {
-                track(id)
-            }
+    }
+
+    func replaceFollows(followed: [String], saved: [String] = []) {
+        var next: [String: VendorFollowRecord] = [:]
+        for id in followed {
+            next[id] = VendorFollowRecord(vendorID: id, state: .tracked, isFavorite: true, updatedAt: Date())
         }
+        for id in saved where next[id] == nil {
+            next[id] = VendorFollowRecord(vendorID: id, state: .following, isFavorite: true, updatedAt: Date())
+        }
+        records = next
+        persist()
+    }
+
+    func clearAll() {
+        records = [:]
+        persist()
     }
 
     func state(for vendorID: String) -> VendorFollowState {

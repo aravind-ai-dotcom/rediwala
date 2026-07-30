@@ -23,6 +23,7 @@ struct RediWalaCustomerApp: App {
             )
             .environmentObject(languageStore)
             .environmentObject(favoritesViewModel)
+            .environmentObject(authService)
             .environment(\.locale, languageStore.locale)
         }
     }

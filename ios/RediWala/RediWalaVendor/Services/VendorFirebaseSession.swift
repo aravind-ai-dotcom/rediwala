@@ -4,7 +4,7 @@ import FirebaseCore
 import FirebaseDatabase
 import Foundation
 
-/// Ensures Firebase is configured, authenticated, and pointed at the correct RTDB instance.
+/// Ensures Firebase is configured, authenticated (email/password), and pointed at the correct RTDB instance.
 @MainActor
 final class VendorFirebaseSession: ObservableObject {
     static let shared = VendorFirebaseSession()
@@ -12,13 +12,14 @@ final class VendorFirebaseSession: ObservableObject {
     enum Readiness: Equatable {
         case idle
         case loading
+        case signedOut
         case ready(uid: String)
         case failed(message: String)
     }
 
     @Published private(set) var readiness: Readiness = .idle
+    @Published private(set) var userProfile: DemoUserProfile?
 
-    /// Chennai pilot RTDB (asia-southeast1). Required because GoogleService-Info.plist has no DATABASE_URL.
     static let databaseURL = "https://rediwala-development-default-rtdb.asia-southeast1.firebasedatabase.app"
 
     private lazy var auth = Auth.auth()
@@ -50,37 +51,85 @@ final class VendorFirebaseSession: ObservableObject {
         }
     }
 
-    /// Call once at app launch before any RTDB access.
+    /// Restore email session if present; otherwise wait at login.
     func bootstrap() async {
         readiness = .loading
         Self.configureIfNeeded()
 
-        if let user = auth.currentUser {
-            readiness = .ready(uid: user.uid)
+        guard let user = auth.currentUser, user.isAnonymous == false else {
+            if auth.currentUser?.isAnonymous == true {
+                try? auth.signOut()
+            }
+            readiness = .signedOut
+            userProfile = nil
             return
         }
 
         do {
-            let result = try await auth.signInAnonymously()
-            readiness = .ready(uid: result.user.uid)
+            let profile = try await DemoUserProfileService.shared.requireRole(.vendor, for: user.uid)
+            applyVendorIdentity(from: profile)
+            userProfile = profile
+            readiness = .ready(uid: user.uid)
         } catch {
-            readiness = .failed(message: error.localizedDescription)
+            try? auth.signOut()
+            userProfile = nil
+            readiness = .signedOut
         }
     }
 
-    /// Throws if anonymous auth is not available. All vendor writes must call this first.
+    func signIn(email: String, password: String) async -> Bool {
+        readiness = .loading
+        Self.configureIfNeeded()
+
+        if auth.currentUser?.isAnonymous == true {
+            try? auth.signOut()
+        }
+
+        do {
+            let result = try await auth.signIn(
+                withEmail: email.trimmingCharacters(in: .whitespacesAndNewlines),
+                password: password
+            )
+            let profile = try await DemoUserProfileService.shared.requireRole(.vendor, for: result.user.uid)
+            applyVendorIdentity(from: profile)
+            userProfile = profile
+            readiness = .ready(uid: result.user.uid)
+            return true
+        } catch let error as DemoAuthProfileError {
+            try? auth.signOut()
+            userProfile = nil
+            readiness = .failed(message: error.localizedDescription)
+            return false
+        } catch {
+            userProfile = nil
+            readiness = .failed(message: AuthFriendlyError.message(for: error))
+            return false
+        }
+    }
+
+    func signOut() {
+        try? auth.signOut()
+        userProfile = nil
+        VendorLiveSessionStore.clear()
+        VendorIdentityStore.clear()
+        readiness = .signedOut
+    }
+
     func ensureReadyForWrites() async throws {
         if case .ready = readiness { return }
-        if auth.currentUser != nil {
-            readiness = .ready(uid: auth.currentUser!.uid)
+        if let user = auth.currentUser, user.isAnonymous == false {
+            readiness = .ready(uid: user.uid)
             return
         }
-        await bootstrap()
-        if case .ready = readiness { return }
-        if case .failed(let message) = readiness {
-            throw VendorFirebaseError.notAuthenticated(message)
+        throw VendorFirebaseError.notAuthenticated(String(localized: "auth.error.not_signed_in"))
+    }
+
+    private func applyVendorIdentity(from profile: DemoUserProfile) {
+        if let vendorId = profile.vendorId, !vendorId.isEmpty {
+            VendorIdentityStore.vendorID = vendorId
+        } else if let match = DemoAuthCatalog.vendors.first(where: { $0.email == profile.email })?.vendorId {
+            VendorIdentityStore.vendorID = match
         }
-        throw VendorFirebaseError.notAuthenticated("Firebase sign-in is still in progress.")
     }
 }
 
@@ -94,7 +143,7 @@ enum VendorFirebaseError: LocalizedError {
         case .notAuthenticated(let message):
             return message
         case .permissionDenied:
-            return "Firebase denied this write. Confirm anonymous auth is enabled and database rules are deployed."
+            return String(localized: "auth.error.permission")
         case .writeFailed(let message):
             return message
         }

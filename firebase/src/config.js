@@ -21,9 +21,13 @@ export const SEED_ROOT_KEYS = Object.freeze([
   "vendor_locations",
   "vendor_routes",
   "vendor_announcements",
+  "vendorLiveSessions",
   "customers",
   "customer_favorites",
   "customer_settings",
+  "customerRequests",
+  "users",
+  "demo_control",
 ]);
 
 /**

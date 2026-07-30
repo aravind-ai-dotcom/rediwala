@@ -4,6 +4,7 @@ import SwiftUI
 
 enum CustomerFlowPhase: Equatable {
     case splash
+    case login
     case language
     case welcome
     case neighborhood
@@ -12,20 +13,28 @@ enum CustomerFlowPhase: Equatable {
 
 @MainActor
 final class CustomerFlowViewModel: ObservableObject {
-    @Published private(set) var phase: CustomerFlowPhase
+    @Published private(set) var phase: CustomerFlowPhase = .splash
 
-    init() {
-        self.phase = CustomerOnboardingStore.hasCompleted ? .main : .splash
-    }
-
-    func finishSplash() {
+    func finishSplash(isSignedIn: Bool, profileCompleted: Bool) {
         guard phase == .splash else { return }
         withAnimation(.easeInOut(duration: 0.35)) {
-            if CustomerOnboardingStore.hasChosenLanguage {
-                phase = .welcome
+            if isSignedIn {
+                phase = destinationAfterAuth(profileCompleted: profileCompleted)
             } else {
-                phase = .language
+                phase = .login
             }
+        }
+    }
+
+    func didSignIn(profileCompleted: Bool) {
+        withAnimation(.easeInOut(duration: 0.35)) {
+            phase = destinationAfterAuth(profileCompleted: profileCompleted)
+        }
+    }
+
+    func didSignOut() {
+        withAnimation(.easeInOut(duration: 0.35)) {
+            phase = .login
         }
     }
 
@@ -47,5 +56,15 @@ final class CustomerFlowViewModel: ObservableObject {
             CustomerOnboardingStore.markCompleted()
             phase = .main
         }
+    }
+
+    private func destinationAfterAuth(profileCompleted: Bool) -> CustomerFlowPhase {
+        if profileCompleted || CustomerOnboardingStore.hasCompleted {
+            return .main
+        }
+        if CustomerOnboardingStore.hasChosenLanguage {
+            return .welcome
+        }
+        return .language
     }
 }

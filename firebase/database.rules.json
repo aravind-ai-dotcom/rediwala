@@ -8,35 +8,50 @@
     "neighborhoods": { ".read": "auth != null", ".write": false },
     "categoryGroups": { ".read": "auth != null", ".write": false },
     "categories": { ".read": "auth != null", ".write": false },
+    "demo_control": { ".read": "auth != null", ".write": "auth != null" },
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['uid', 'role', 'email']) && (newData.child('role').val() == 'customer' || newData.child('role').val() == 'vendor')"
+      }
+    },
 
     "vendors": {
       "$vendorId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!data.exists() || data.child('ownerUid').val() == auth.uid || !data.child('ownerUid').exists())"
       }
     },
     "vendor_status": {
       "$vendorId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_locations": {
       "$vendorId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_routes": {
       "$vendorId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_announcements": {
       "$vendorId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
+      }
+    },
+    "vendorLiveSessions": {
+      "$vendorId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
 
@@ -61,13 +76,19 @@
     "customer_interest": {
       "$requestId": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!data.exists() || data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)"
+      }
+    },
+    "customerRequests": {
+      "$requestId": {
+        ".read": "auth != null && (data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)",
+        ".write": "auth != null && (!data.exists() || data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)"
       }
     },
     "vendor_transactions": {
       "$vendorId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
+        ".read": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid)",
+        ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid)"
       }
     }
   }

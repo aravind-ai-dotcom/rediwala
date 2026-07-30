@@ -10,6 +10,8 @@
     "dry": "node seed.js --dry-run",
     "reset": "node seed.js --reset",
     "seed:reset": "node seed.js --reset",
+    "seed:demo-auth": "node seed-demo-auth.js",
+    "seed:demo-auth:dry": "node seed-demo-auth.js --dry-run",
     "validate": "node validate.js --local",
     "validate:remote": "node validate.js --remote"
   },
