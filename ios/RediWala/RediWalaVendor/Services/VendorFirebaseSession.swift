@@ -24,7 +24,9 @@ final class VendorFirebaseSession: ObservableObject {
 
     private lazy var auth = Auth.auth()
 
-    private init() {}
+    private init() {
+        Self.configureIfNeeded()
+    }
 
     var database: Database {
         Self.configureIfNeeded()
@@ -85,11 +87,20 @@ final class VendorFirebaseSession: ObservableObject {
             try? auth.signOut()
         }
 
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
         do {
-            let result = try await auth.signIn(
-                withEmail: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                password: password
+            #if DEBUG
+            let result = try await DemoAuthBootstrap.signInOrCreate(
+                email: trimmedEmail,
+                password: password,
+                expectedRole: .vendor,
+                auth: auth,
+                database: root
             )
+            #else
+            let result = try await auth.signIn(withEmail: trimmedEmail, password: password)
+            #endif
             let profile = try await DemoUserProfileService.shared.requireRole(.vendor, for: result.user.uid)
             applyVendorIdentity(from: profile)
             userProfile = profile
@@ -102,7 +113,7 @@ final class VendorFirebaseSession: ObservableObject {
             return false
         } catch {
             userProfile = nil
-            readiness = .failed(message: AuthFriendlyError.message(for: error))
+            readiness = .failed(message: AuthFriendlyError.message(for: error, email: trimmedEmail))
             return false
         }
     }

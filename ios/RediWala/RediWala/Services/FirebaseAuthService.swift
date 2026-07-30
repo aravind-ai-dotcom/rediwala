@@ -20,6 +20,7 @@ final class FirebaseAuthService: ObservableObject {
     private var handle: AuthStateDidChangeListenerHandle?
 
     init() {
+        FirebaseDatabaseConfig.configureIfNeeded()
         handle = auth.addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
                 guard let self else { return }
@@ -78,13 +79,27 @@ final class FirebaseAuthService: ObservableObject {
         state = .loading
         defer { isAuthenticating = false }
 
+        FirebaseDatabaseConfig.configureIfNeeded()
+
         // Replace any anonymous session before email sign-in.
         if auth.currentUser?.isAnonymous == true {
             try? auth.signOut()
         }
 
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
         do {
-            let result = try await auth.signIn(withEmail: email.trimmingCharacters(in: .whitespacesAndNewlines), password: password)
+            #if DEBUG
+            let result = try await DemoAuthBootstrap.signInOrCreate(
+                email: trimmedEmail,
+                password: password,
+                expectedRole: .customer,
+                auth: auth,
+                database: FirebaseDatabaseConfig.root
+            )
+            #else
+            let result = try await auth.signIn(withEmail: trimmedEmail, password: password)
+            #endif
             let profile = try await DemoUserProfileService.shared.requireRole(.customer, for: result.user.uid)
             userProfile = profile
             CustomerIdentityStore.save(uid: result.user.uid)
@@ -99,7 +114,7 @@ final class FirebaseAuthService: ObservableObject {
             return false
         } catch {
             userProfile = nil
-            state = .failed(message: AuthFriendlyError.message(for: error))
+            state = .failed(message: AuthFriendlyError.message(for: error, email: trimmedEmail))
             return false
         }
     }

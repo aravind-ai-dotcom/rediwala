@@ -7,9 +7,7 @@ final class VendorAppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
+        VendorFirebaseSession.configureIfNeeded()
         return true
     }
 }
@@ -18,7 +16,13 @@ final class VendorAppDelegate: NSObject, UIApplicationDelegate {
 struct RediWalaVendorApp: App {
     @UIApplicationDelegateAdaptor(VendorAppDelegate.self) private var appDelegate
 
-    @StateObject private var languageStore = AppLanguageStore()
+    @StateObject private var languageStore: AppLanguageStore
+
+    init() {
+        // Configure before any Auth/Database access from ContentView / session singleton.
+        VendorFirebaseSession.configureIfNeeded()
+        _languageStore = StateObject(wrappedValue: AppLanguageStore())
+    }
 
     var body: some Scene {
         WindowGroup {

@@ -51,24 +51,3 @@ enum DemoAuthCatalog {
         #endif
     }
 }
-
-enum AuthFriendlyError {
-    static func message(for error: Error) -> String {
-        let ns = error as NSError
-        let code = AuthErrorCode(rawValue: ns.code)
-        switch code {
-        case .wrongPassword, .invalidCredential, .invalidEmail:
-            return String(localized: "auth.error.invalid_credentials")
-        case .userNotFound:
-            return String(localized: "auth.error.user_not_found")
-        case .userDisabled:
-            return String(localized: "auth.error.disabled")
-        case .networkError:
-            return String(localized: "auth.error.offline")
-        case .tooManyRequests:
-            return String(localized: "auth.error.too_many")
-        default:
-            return String(localized: "auth.error.generic")
-        }
-    }
-}
