@@ -11,7 +11,7 @@ struct VendorMyDayView: View {
             List {
                 Section("route.today.title") {
                     row("route.current_time", value: Self.timeFormatter.string(from: Date()))
-                    row("route.neighborhood", value: String(localized: String.LocalizationValue(liveSession.selectedOperatingArea.labelKey)))
+                    row("route.neighborhood", value: liveSession.selectedOperatingArea.localizedName)
                     row("route.live_duration", value: liveSession.liveDurationText)
                 }
 
@@ -29,7 +29,7 @@ struct VendorMyDayView: View {
                     TextField("route.place_name", text: $newStopTitle)
                     Picker("route.area", selection: $newStopArea) {
                         ForEach(ChennaiArea.allCases) { area in
-                            Text(LocalizedStringKey(area.labelKey)).tag(area)
+                            Text(area.localizedName).tag(area)
                         }
                     }
                     Button("route.add") {

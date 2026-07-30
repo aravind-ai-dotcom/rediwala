@@ -150,7 +150,7 @@ enum VendorDemandClusterEngine {
             return DemandCluster(
                 id: "cluster_\(key)",
                 neighborhoodId: neighborhoodId,
-                neighborhoodName: String(localized: String.LocalizationValue(area.labelKey)),
+                neighborhoodName: area.localizedName,
                 coordinate: CodableCoordinate(latitude: avgLat, longitude: avgLng),
                 customerCount: count,
                 level: DemandLevel.from(customerCount: count),

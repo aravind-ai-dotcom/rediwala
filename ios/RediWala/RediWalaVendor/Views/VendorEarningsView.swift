@@ -7,7 +7,7 @@ struct VendorEarningsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                 SectionHeader(
-                    titleKey: "earnings.title",
+                    titleKey: "tab.business",
                     subtitleKey: "earnings.subtitle"
                 )
 

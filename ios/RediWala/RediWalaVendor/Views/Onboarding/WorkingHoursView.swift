@@ -55,7 +55,7 @@ struct WorkingHoursView: View {
                     viewModel.selectedArea = area
                 } label: {
                     HStack {
-                        Text(LocalizedStringKey(area.labelKey))
+                        Text(area.localizedName)
                             .font(.body.weight(.semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                             .lineLimit(2)

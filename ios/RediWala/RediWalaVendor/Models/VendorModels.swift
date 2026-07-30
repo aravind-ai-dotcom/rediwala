@@ -76,6 +76,43 @@ nonisolated enum ChennaiArea: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// English source of truth — never expose `labelKey` when catalog is incomplete.
+    var englishName: String {
+        switch self {
+        case .tNagar: return "T. Nagar"
+        case .westMambalam: return "West Mambalam"
+        case .thiruvanmiyur: return "Thiruvanmiyur"
+        case .adyar: return "Adyar"
+        case .velachery: return "Velachery"
+        case .besantNagar: return "Besant Nagar"
+        case .annaNagar: return "Anna Nagar"
+        case .ecr: return "ECR"
+        case .kodambakkam: return "Kodambakkam"
+        }
+    }
+
+    var localizedName: String {
+        LocalizedText.resolve(labelKey, fallback: englishName)
+    }
+
+    var landmarkEnglishName: String {
+        switch self {
+        case .tNagar: return "Pondy Bazaar"
+        case .westMambalam: return "Mambalam Railway"
+        case .thiruvanmiyur: return "Thiruvanmiyur MRTS"
+        case .adyar: return "Adyar Bridge"
+        case .velachery: return "Velachery Metro"
+        case .besantNagar: return "Elliot's Beach"
+        case .annaNagar: return "Anna Nagar Tower"
+        case .ecr: return "ECR Junction"
+        case .kodambakkam: return "Kodambakkam Market"
+        }
+    }
+
+    var localizedLandmark: String {
+        LocalizedText.resolve(landmarkKey, fallback: landmarkEnglishName)
+    }
+
     var landmarkKey: String {
         switch self {
         case .tNagar: return "landmark.pondy_bazaar"
@@ -259,18 +296,18 @@ enum VendorTab: Hashable, CaseIterable {
 
     var titleKey: String {
         switch self {
-        case .home: return "tab.my_business"
+        case .home: return "tab.home"
         case .inventory: return "tab.inventory"
-        case .earnings: return "tab.earnings"
+        case .earnings: return "tab.business"
         case .profile: return "tab.profile"
         }
     }
 
     var systemImage: String {
         switch self {
-        case .home: return "storefront.fill"
+        case .home: return "map.fill"
         case .inventory: return "basket.fill"
-        case .earnings: return "indianrupeesign.circle.fill"
+        case .earnings: return "chart.bar.fill"
         case .profile: return "person.crop.circle.fill"
         }
     }
@@ -278,12 +315,33 @@ enum VendorTab: Hashable, CaseIterable {
 
 // MARK: - Inventory & Earnings
 
+enum VendorOfferingKind: String, Codable, CaseIterable, Identifiable {
+    case product
+    case service
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .product: return "Product"
+        case .service: return "Service"
+        }
+    }
+}
+
 struct VendorInventoryItem: Identifiable, Equatable {
     let id: String
     let nameKey: String
+    let displayName: String
     let priceRupees: Int
     let unitKey: String
+    let unitLabel: String
+    var kind: VendorOfferingKind
     var inStock: Bool
+    var availableToday: Bool
+    var stockQuantity: Int?
+    var serviceDurationMinutes: Int?
+    var category: String
 }
 
 struct VendorEarningsEntry: Identifiable, Equatable {
@@ -291,6 +349,7 @@ struct VendorEarningsEntry: Identifiable, Equatable {
     let descriptionKey: String
     let amountRupees: Int
     let timeLabel: String
+    var offeringId: String?
 }
 
 enum VendorMockData {
@@ -299,25 +358,27 @@ enum VendorMockData {
     static let defaultArea: ChennaiArea = .tNagar
 
     static let inventory: [VendorInventoryItem] = [
-        .init(id: "tomato", nameKey: "inventory.item.tomato", priceRupees: 40, unitKey: "inventory.unit.kg", inStock: true),
-        .init(id: "onion", nameKey: "inventory.item.onion", priceRupees: 35, unitKey: "inventory.unit.kg", inStock: true),
-        .init(id: "potato", nameKey: "inventory.item.potato", priceRupees: 30, unitKey: "inventory.unit.kg", inStock: false),
-        .init(id: "spinach", nameKey: "inventory.item.spinach", priceRupees: 20, unitKey: "inventory.unit.bunch", inStock: true),
-        .init(id: "banana", nameKey: "inventory.item.banana", priceRupees: 60, unitKey: "inventory.unit.dozen", inStock: true),
-        .init(id: "coconut", nameKey: "inventory.item.coconut", priceRupees: 35, unitKey: "inventory.unit.each", inStock: true)
+        .init(id: "tomato", nameKey: "inventory.item.tomato", displayName: "Tomatoes", priceRupees: 40, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 40, serviceDurationMinutes: nil, category: "vegetables"),
+        .init(id: "onion", nameKey: "inventory.item.onion", displayName: "Onions", priceRupees: 35, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 25, serviceDurationMinutes: nil, category: "vegetables"),
+        .init(id: "potato", nameKey: "inventory.item.potato", displayName: "Potatoes", priceRupees: 30, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: false, availableToday: false, stockQuantity: 0, serviceDurationMinutes: nil, category: "vegetables"),
+        .init(id: "spinach", nameKey: "inventory.item.spinach", displayName: "Spinach", priceRupees: 20, unitKey: "inventory.unit.bunch", unitLabel: "bunch", kind: .product, inStock: true, availableToday: true, stockQuantity: 18, serviceDurationMinutes: nil, category: "vegetables"),
+        .init(id: "banana", nameKey: "inventory.item.banana", displayName: "Bananas", priceRupees: 60, unitKey: "inventory.unit.dozen", unitLabel: "dozen", kind: .product, inStock: true, availableToday: true, stockQuantity: 12, serviceDurationMinutes: nil, category: "fruits"),
+        .init(id: "coconut", nameKey: "inventory.item.coconut", displayName: "Coconut", priceRupees: 35, unitKey: "inventory.unit.each", unitLabel: "each", kind: .product, inStock: true, availableToday: true, stockQuantity: 30, serviceDurationMinutes: nil, category: "fruits"),
+        .init(id: "ironing_shirt", nameKey: "inventory.item.ironing_shirt", displayName: "T-Shirt Ironing", priceRupees: 20, unitKey: "inventory.unit.each", unitLabel: "each", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 5, category: "ironing"),
+        .init(id: "laundry_pickup", nameKey: "inventory.item.laundry_pickup", displayName: "Laundry Pickup", priceRupees: 200, unitKey: "inventory.unit.each", unitLabel: "bag", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 30, category: "laundry")
     ]
 
     static let earningsEntries: [VendorEarningsEntry] = [
-        .init(id: "e1", descriptionKey: "earnings.entry.vegetables", amountRupees: 320, timeLabel: "9:15 AM"),
-        .init(id: "e2", descriptionKey: "earnings.entry.fruits", amountRupees: 180, timeLabel: "11:40 AM"),
-        .init(id: "e3", descriptionKey: "earnings.entry.milk", amountRupees: 95, timeLabel: "1:05 PM"),
-        .init(id: "e4", descriptionKey: "earnings.entry.flowers", amountRupees: 210, timeLabel: "4:30 PM")
+        .init(id: "e1", descriptionKey: "earnings.entry.vegetables", amountRupees: 320, timeLabel: "9:15 AM", offeringId: "tomato"),
+        .init(id: "e2", descriptionKey: "earnings.entry.fruits", amountRupees: 180, timeLabel: "11:40 AM", offeringId: "banana"),
+        .init(id: "e3", descriptionKey: "earnings.entry.milk", amountRupees: 95, timeLabel: "1:05 PM", offeringId: nil),
+        .init(id: "e4", descriptionKey: "earnings.entry.flowers", amountRupees: 210, timeLabel: "4:30 PM", offeringId: nil)
     ]
 
     static let todaySummary = VendorDaySummary(salesRupees: 805, customers: 18, hours: 5.5)
     static let emptyDaySummary = VendorDaySummary(salesRupees: 0, customers: 0, hours: 0.0)
 
     static func locationLabel(for area: ChennaiArea) -> String {
-        "\(String(localized: String.LocalizationValue(area.labelKey))) · \(String(localized: String.LocalizationValue(area.landmarkKey)))"
+        "\(area.localizedName) · \(area.localizedLandmark)"
     }
 }

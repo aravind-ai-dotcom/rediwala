@@ -1,8 +1,10 @@
+import MapKit
 import SwiftUI
 
 struct CustomerHomeView: View {
     @ObservedObject var viewModel: CustomerHomeViewModel
     @EnvironmentObject private var favorites: FavoritesViewModel
+    @ObservedObject private var geo = GeoContext.shared
 
     private let cardLimit = 3
 
@@ -22,87 +24,94 @@ struct CustomerHomeView: View {
             }
         }
         .background(AppTheme.background.ignoresSafeArea())
-        .navigationTitle(Text("home.dashboard.title"))
-        .navigationBarTitleDisplayMode(viewModel.browseMode == .map ? .inline : .large)
+        .navigationTitle(Text(LocalizedText.resolve("home.dashboard.title", fallback: "My Neighborhood")))
+        .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .sheet(isPresented: $viewModel.showNeedsEditor) {
             NavigationStack {
                 NeedsSelectionView(onDone: { viewModel.showNeedsEditor = false })
             }
-            .presentationDetents([.large])
+            .presentationDetents([.medium, .large])
         }
     }
 
     private var dashboard: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                header
-                todaysNeedsEpicenter
-                bestMatchesSection
-                nearbySection
+            VStack(alignment: .leading, spacing: 16) {
+                mapHero
                 expectedSoonSection
-                myVendorsSection
+                nearbyTimelineSection
+                todaysNeedsCompact
+                if !viewModel.bestMatches.isEmpty {
+                    bestMatchesCompact
+                }
+                watchListSection
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 28)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 24)
         }
-        .scrollBounceBehavior(.basedOnSize)
-        .scrollIndicators(.visible)
+        .scrollIndicators(.hidden)
     }
 
-    private var header: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(LocalizedStringKey(viewModel.greetingKey))
-                    .font(.title3.weight(.medium))
-                    .foregroundStyle(AppTheme.textSecondary)
+    private var mapHero: some View {
+        Button {
+            viewModel.openMap()
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                Map(position: .constant(geo.cameraPosition)) {
+                    ForEach(Array(viewModel.nearbyRightNow.prefix(5))) { seller in
+                        Annotation(seller.name, coordinate: seller.coordinate) {
+                            Circle()
+                                .fill(seller.isEffectivelyLive ? AppTheme.primary : AppTheme.info)
+                                .frame(width: 10, height: 10)
+                        }
+                    }
+                }
+                .mapStyle(.standard)
+                .frame(height: 168)
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .allowsHitTesting(false)
 
-                Text(LocalizedStringKey(viewModel.selectedNeighborhood.nameKey))
-                    .font(.title2.weight(.heavy))
-                    .foregroundStyle(AppTheme.textPrimary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LocalizedStringKey(viewModel.selectedNeighborhood.nameKey))
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.white)
+                    Text("Open map")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                .padding(12)
+                .background(.black.opacity(0.45))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(12)
             }
-
-            Spacer(minLength: 0)
-
-            Button {
-                viewModel.openMap()
-            } label: {
-                Image(systemName: "map.fill")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(AppTheme.primary)
-                    .frame(width: 44, height: 44)
-                    .background(AppTheme.card)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("home.open_map"))
         }
+        .buttonStyle(.plain)
     }
 
-    private var todaysNeedsEpicenter: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("home.what_do_you_need")
-                .font(.title.weight(.heavy))
-                .foregroundStyle(AppTheme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
+    private var todaysNeedsCompact: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Today's Needs")
+                    .font(.headline.weight(.bold))
+                Spacer()
+                Button("Edit") { viewModel.showNeedsEditor = true }
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(AppTheme.info)
+            }
 
             if viewModel.needsStore.activeNeeds.isEmpty {
-                Text("home.todays_needs.empty_hint")
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.textSecondary)
-
                 Button {
                     viewModel.showNeedsEditor = true
                 } label: {
-                    Text("home.choose_todays_needs")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
+                    Text("Choose today's needs")
+                        .font(.subheadline.weight(.bold))
                         .frame(maxWidth: .infinity)
-                        .frame(minHeight: 52)
+                        .frame(minHeight: 44)
+                        .foregroundStyle(.white)
                         .background(AppTheme.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .buttonStyle(.plain)
             } else {
@@ -114,210 +123,174 @@ struct CustomerHomeView: View {
                                 Text(LocalizedStringKey(need.titleKey))
                                     .lineLimit(1)
                             }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(AppTheme.textPrimary)
-                            .padding(.horizontal, 12)
-                            .frame(minHeight: 40)
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .frame(minHeight: 34)
                             .background(AppTheme.card)
-                            .overlay {
-                                Capsule().stroke(AppTheme.primary.opacity(0.35), lineWidth: 1.5)
-                            }
+                            .overlay { Capsule().stroke(AppTheme.primary.opacity(0.3), lineWidth: 1) }
                             .clipShape(Capsule())
                         }
                     }
                 }
+            }
+        }
+    }
 
-                Button {
-                    viewModel.showNeedsEditor = true
+    private var expectedSoonSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Expected Soon")
+                .font(.headline.weight(.bold))
+            let items = Array(viewModel.expectedSoon.prefix(cardLimit))
+            if items.isEmpty {
+                Text("No upcoming arrivals nearby")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else {
+                ForEach(items) { seller in
+                    NavigationLink {
+                        VendorDetailView(vendorID: seller.id)
+                    } label: {
+                        ExpectedSoonRow(seller: seller)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var nearbyTimelineSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Nearby")
+                    .font(.headline.weight(.bold))
+                Spacer()
+                Button("Map") { viewModel.openMap() }
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(AppTheme.info)
+            }
+            let items = Array(viewModel.nearbyRightNow.prefix(cardLimit))
+            if items.isEmpty {
+                Text("No one live nearby right now")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else {
+                ForEach(items) { seller in
+                    NavigationLink {
+                        VendorDetailView(vendorID: seller.id)
+                    } label: {
+                        NearbyTimelineRow(seller: seller) {
+                            viewModel.followStore.track(seller.id)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var bestMatchesCompact: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Best Matches")
+                .font(.headline.weight(.bold))
+            ForEach(Array(viewModel.bestMatches.prefix(2))) { seller in
+                NavigationLink {
+                    VendorDetailView(vendorID: seller.id)
                 } label: {
-                    Text("home.edit_todays_needs")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(AppTheme.info)
+                    HStack(spacing: 10) {
+                        Image(systemName: seller.category.systemImage)
+                            .foregroundStyle(AppTheme.primary)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(seller.name)
+                                .font(.subheadline.weight(.bold))
+                            Text("\(LocalizedStringKey(seller.category.localizationKey)) · \(seller.formattedDistance)")
+                                .font(.caption)
+                                .foregroundStyle(AppTheme.textSecondary)
+                            Text(LocalizedText.resolve("home.why_match", fallback: "Matches today's needs"))
+                                .font(.caption2)
+                                .foregroundStyle(AppTheme.info)
+                        }
+                        Spacer()
+                    }
+                    .padding(12)
+                    .background(AppTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
-    private var bestMatchesSection: some View {
-        vendorRail(
-            titleKey: "home.best_matches",
-            subtitleKey: "home.best_matches.subtitle",
-            sellers: Array(viewModel.bestMatches.prefix(cardLimit)),
-            emptyKey: "home.best_matches.empty",
-            actionTitleKey: viewModel.bestMatches.count > cardLimit ? "home.best_matches.see_all" : nil,
-            action: { viewModel.openMap() }
-        )
-    }
-
-    private var nearbySection: some View {
-        vendorRail(
-            titleKey: "home.nearby_now",
-            subtitleKey: "home.nearby_now.subtitle",
-            sellers: Array(viewModel.nearbyRightNow.prefix(cardLimit)),
-            emptyKey: "home.nearby_now.empty",
-            actionTitleKey: "home.open_map",
-            action: { viewModel.openMap() }
-        )
-    }
-
-    private var expectedSoonSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(
-                titleKey: "home.expected_soon",
-                subtitleKey: "home.expected_soon.subtitle"
-            )
-            let items = Array(viewModel.expectedSoon.prefix(cardLimit))
+    private var watchListSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedText.resolve("watchlist.title", fallback: "Today's Watch List"))
+                .font(.headline.weight(.bold))
+            let items = Array(viewModel.myVendors.prefix(cardLimit))
             if items.isEmpty {
-                Text("home.expected_soon.empty")
-                    .font(.subheadline)
+                Text(LocalizedText.resolve("watchlist.empty", fallback: "Nothing to watch yet"))
+                    .font(.caption)
                     .foregroundStyle(AppTheme.textSecondary)
             } else {
-                VStack(spacing: 10) {
-                    ForEach(items) { seller in
-                        NavigationLink {
-                            VendorDetailView(vendorID: seller.id)
-                        } label: {
-                            ExpectedSoonRow(seller: seller)
+                ForEach(items) { seller in
+                    NavigationLink {
+                        VendorDetailView(vendorID: seller.id)
+                    } label: {
+                        HStack {
+                            Text(seller.name)
+                                .font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text(seller.isEffectivelyLive ? "Live" : "Soon")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(seller.isEffectivelyLive ? AppTheme.primary : AppTheme.info)
                         }
-                        .buttonStyle(.plain)
+                        .padding(12)
+                        .background(AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                }
-            }
-        }
-    }
-
-    private var myVendorsSection: some View {
-        vendorRail(
-            titleKey: "home.my_vendors",
-            subtitleKey: "home.my_vendors.subtitle",
-            sellers: Array(viewModel.myVendors.prefix(cardLimit)),
-            emptyKey: "home.my_vendors.empty",
-            actionTitleKey: viewModel.myVendors.count > cardLimit ? "home.my_vendors.see_all" : nil,
-            action: { viewModel.openMap() }
-        )
-    }
-
-    private func vendorRail(
-        titleKey: String,
-        subtitleKey: String,
-        sellers: [Seller],
-        emptyKey: String,
-        actionTitleKey: String? = nil,
-        action: (() -> Void)? = nil
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(
-                titleKey: LocalizedStringKey(titleKey),
-                subtitleKey: LocalizedStringKey(subtitleKey),
-                actionTitleKey: actionTitleKey.map { LocalizedStringKey($0) },
-                action: action
-            )
-            if sellers.isEmpty {
-                Text(LocalizedStringKey(emptyKey))
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.textSecondary)
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(sellers) { seller in
-                            NavigationLink {
-                                VendorDetailView(vendorID: seller.id)
-                            } label: {
-                                CompactVendorCard(
-                                    seller: seller,
-                                    onTrack: { viewModel.followStore.track(seller.id) }
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
     }
 }
 
-struct CompactVendorCard: View {
+struct NearbyTimelineRow: View {
     let seller: Seller
-    var onTrack: (() -> Void)? = nil
+    var onTrack: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                SellerAvatarView(
-                    name: seller.name,
-                    initials: seller.initials,
-                    assetName: seller.profileImageAssetName,
-                    remoteURL: seller.photoURL,
-                    size: 44,
-                    tint: categoryTint
-                )
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(seller.name)
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(AppTheme.textPrimary)
-                        .lineLimit(1)
-                    Text(LocalizedStringKey(seller.category.localizationKey))
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(AppTheme.textSecondary)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 0)
+        HStack(spacing: 12) {
+            VStack(spacing: 0) {
+                Circle()
+                    .fill(AppTheme.primary)
+                    .frame(width: 8, height: 8)
+                Rectangle()
+                    .fill(AppTheme.primary.opacity(0.25))
+                    .frame(width: 2, height: 28)
             }
+            .padding(.top, 2)
 
-            Text(statusLine)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(seller.isEffectivelyLive ? AppTheme.primary : AppTheme.textSecondary)
-                .lineLimit(2)
-
-            HStack(spacing: 8) {
-                Button {
-                    onTrack?()
-                } label: {
-                    Text("vendor.track")
-                        .font(.caption.weight(.bold))
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 36)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(AppTheme.primary)
-
-                Text("vendor.message")
-                    .font(.caption.weight(.bold))
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 36)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LocalizedStringKey(seller.category.localizationKey))
+                    .font(.subheadline.weight(.bold))
+                Text(seller.streetName
+                      ?? LocalizedText.resolve(seller.landmarkKey, fallback: seller.name))
+                    .font(.caption)
                     .foregroundStyle(AppTheme.textSecondary)
-                    .background(AppTheme.background)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .lineLimit(1)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(seller.formattedDistance)
+                    .font(.caption.weight(.bold))
+                Button("Track") { onTrack?() }
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(AppTheme.primary)
             }
         }
         .padding(12)
-        .frame(width: 220, alignment: .leading)
         .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .accessibilityElement(children: .combine)
-    }
-
-    private var statusLine: String {
-        if seller.isEffectivelyLive {
-            return "\(String(localized: "vendor.status.live")) · \(seller.etaLabel ?? seller.formattedDistance)"
-        }
-        return seller.etaLabel ?? String(localized: "home.expected_within")
-    }
-
-    private var categoryTint: Color {
-        switch seller.categoryGroup {
-        case .freshDaily: return AppTheme.primary
-        case .neighborhoodServices: return AppTheme.info
-        case .homeDelivery: return AppTheme.accent
-        case .recyclingBuyers: return AppTheme.accent
-        case .streetTreats: return AppTheme.accent
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 
@@ -332,7 +305,7 @@ struct ExpectedSoonRow: View {
                     .frame(width: 8, height: 8)
                 Rectangle()
                     .fill(AppTheme.info.opacity(0.25))
-                    .frame(width: 2, height: 30)
+                    .frame(width: 2, height: 28)
             }
             .padding(.top, 2)
 
@@ -346,21 +319,14 @@ struct ExpectedSoonRow: View {
                     Text(seller.name)
                 }
                 .font(.subheadline.weight(.bold))
-                .foregroundStyle(AppTheme.textPrimary)
                 if let stop = seller.routeStops.first(where: { $0.status == .upcoming }) {
-                    Text(LocalizedStringKey(stop.titleKey))
-                        .font(.caption)
-                        .foregroundStyle(AppTheme.textSecondary)
-                        .lineLimit(1)
-                } else {
-                    Text(seller.progressLabel ?? String(localized: "home.expected_within"))
+                    Text(LocalizedText.resolve(stop.titleKey, fallback: "Upcoming stop"))
                         .font(.caption)
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(1)
                 }
             }
-
-            Spacer(minLength: 0)
+            Spacer()
             Text(seller.formattedDistance)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(AppTheme.textSecondary)

@@ -45,7 +45,8 @@ struct VendorProfileView: View {
                     )
                     ProfileRow(
                         titleKey: "profile.area",
-                        value: String(localized: String.LocalizationValue(viewModel.profile.areaKey)),
+                        value: ChennaiArea.allCases.first { $0.labelKey == viewModel.profile.areaKey }?.localizedName
+                            ?? LocalizedText.resolve(viewModel.profile.areaKey, fallback: "Neighborhood"),
                         systemImage: "mappin.and.ellipse"
                     )
                 }

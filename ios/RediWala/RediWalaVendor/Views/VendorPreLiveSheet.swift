@@ -38,7 +38,7 @@ struct VendorPreLiveSheet: View {
             Text("நேரலையில் செல்ல தயாரா?")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(AppTheme.textSecondary)
-            Text(String(localized: String.LocalizationValue(liveSession.selectedOperatingArea.labelKey)))
+            Text(liveSession.selectedOperatingArea.localizedName)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.primary)
         }
@@ -108,7 +108,7 @@ struct VendorPreLiveSheet: View {
                 done: liveSession.hasRoutePrepared
             )
             checklistToggleRow(
-                title: "Inventory / Services Ready",
+                title: LocalizedText.resolve("prep.offerings", fallback: "Today's Offerings"),
                 subtitle: "Confirm today's products/services are ready.",
                 isOn: liveSession.inventoryReady,
                 onToggle: liveSession.markInventoryReady

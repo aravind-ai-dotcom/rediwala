@@ -1,0 +1,46 @@
+---
+description: RediWala 3-30-300 product design system — map-first, minimal, task-first UX
+alwaysApply: true
+---
+
+# RediWala Design System (3-30-300)
+
+Benchmark: Uber, Apple Maps, Google Maps, Uber Eats, Airbnb, WhatsApp — simple, minimal, focused, confident.
+
+RediWala is a **neighborhood operating system**, not a marketplace dashboard.
+
+## 3-30-300 Rule
+
+- **3 seconds:** User immediately understands what this screen is for.
+- **30 seconds:** User completes the primary task without hunting.
+- **300 seconds:** Analytics, history, P&L, trends, and settings live one level deeper.
+
+## Home is operational
+
+- Vendor Home = run **today's business** (map, status, prep, next action).
+- Customer Home = understand **today's neighborhood** (map, expected, nearby, needs, watch list).
+- Do **not** put P&L, weekly earnings, inventory analytics, or performance charts on Home.
+- Business / Earnings / Profile hold deeper work.
+
+## Map is the persistent anchor
+
+- Both apps: map is the constant frame of reference (Uber-like).
+- Cards below the map change by task; the map stays.
+- Support Return to Neighborhood / reset camera via GeoContext — never auto-chase GPS on Home.
+
+## Visual hierarchy
+
+- One primary question per screen.
+- Prefer **font weight, spacing, and icons** over more text, dividers, and labels.
+- Increase whitespace; reduce scrolling.
+- Compact rows/timelines over large cards and paragraphs.
+- Never expose localization keys — always English fallback via `LocalizedText` / `localizedName`.
+
+## Checklist before shipping a screen
+
+1. Can this be removed?
+2. Can this be merged?
+3. Can this become one line?
+4. Can an icon replace text?
+5. Can a card become compact?
+6. Does Home still answer only today's primary task?

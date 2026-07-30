@@ -76,7 +76,7 @@ struct VendorRequestsInboxView: View {
                 Text(request.requestType.title)
                     .font(.headline.weight(.semibold))
                 Spacer()
-                Text(LocalizedStringKey(request.neighborhood.labelKey))
+                Text(request.neighborhood.localizedName)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(AppTheme.textSecondary)
             }

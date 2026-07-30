@@ -16,5 +16,6 @@ final class VendorInventoryViewModel: ObservableObject {
     func toggleStock(for item: VendorInventoryItem) {
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
         items[index].inStock.toggle()
+        items[index].availableToday = items[index].inStock
     }
 }

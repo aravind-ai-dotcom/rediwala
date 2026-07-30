@@ -800,8 +800,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = RediWala;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your customer profile.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Optional: Live GPS mode uses your location. Demo Mode works without it.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your customer profile.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -840,8 +840,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = RediWala;
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your customer profile.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Optional: Live GPS mode uses your location. Demo Mode works without it.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select a profile photo for your customer profile.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -257,7 +257,10 @@ final class VendorLiveSessionViewModel: ObservableObject {
                 self.persistAnnouncement()
             } catch {
                 guard !Task.isCancelled else { return }
-                self.errorMessage = "Announcement saved locally. Cloud sync will retry later."
+                self.errorMessage = LocalizedText.resolve(
+                    "announcement.sync.queued",
+                    fallback: "Saved — will upload when online"
+                )
             }
         }
     }
@@ -487,7 +490,7 @@ final class VendorLiveSessionViewModel: ObservableObject {
             DemandCluster(
                 id: signal.id,
                 neighborhoodId: area.firebaseID,
-                neighborhoodName: String(localized: String.LocalizationValue(area.labelKey)),
+                neighborhoodName: area.localizedName,
                 coordinate: signal.coordinate,
                 customerCount: signal.customerCount,
                 level: DemandLevel.from(customerCount: signal.customerCount),
@@ -528,7 +531,7 @@ final class VendorLiveSessionViewModel: ObservableObject {
         let cluster = DemandCluster(
             id: request.id,
             neighborhoodId: request.neighborhoodId,
-            neighborhoodName: String(localized: String.LocalizationValue(request.neighborhood.labelKey)),
+            neighborhoodName: request.neighborhood.localizedName,
             coordinate: request.approximateCoordinate,
             customerCount: 1,
             level: .low,
@@ -617,7 +620,7 @@ final class VendorLiveSessionViewModel: ObservableObject {
         case .mobile:
             currentLocationText = VendorMockData.locationLabel(for: selectedOperatingArea)
         case .stationary:
-            currentLocationText = "\(String(localized: String.LocalizationValue(selectedOperatingArea.labelKey))) · \(stationaryLandmark)"
+            currentLocationText = "\(selectedOperatingArea.localizedName) · \(stationaryLandmark)"
         case .scheduled:
             if let current = routeStops.first(where: { $0.isCurrent && !$0.isCompleted }) {
                 currentLocationText = current.landmark

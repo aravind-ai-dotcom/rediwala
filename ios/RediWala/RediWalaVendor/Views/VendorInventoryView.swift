@@ -5,29 +5,28 @@ struct VendorInventoryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
-                SectionHeader(
-                    titleKey: "inventory.title",
-                    subtitleKey: "inventory.subtitle"
-                )
+            VStack(alignment: .leading, spacing: 16) {
+                Text(LocalizedText.resolve("offerings.title", fallback: "Today's Offerings"))
+                    .font(.largeTitle.weight(.bold))
+                Text(LocalizedText.resolve("offerings.subtitle", fallback: "Products and services available today"))
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.textSecondary)
 
                 HStack(spacing: 12) {
-                    SummaryCard(
-                        titleKey: "inventory.in_stock",
-                        value: "\(viewModel.inStockCount)",
-                        systemImage: "checkmark.circle.fill",
+                    compactStat(
+                        title: "Ready",
+                        value: "\(viewModel.items.filter(\.availableToday).count)",
                         tint: AppTheme.primary
                     )
-                    SummaryCard(
-                        titleKey: "inventory.total_items",
+                    compactStat(
+                        title: "Total",
                         value: "\(viewModel.items.count)",
-                        systemImage: "basket.fill",
                         tint: AppTheme.accent
                     )
                 }
 
                 ForEach(viewModel.items) { item in
-                    inventoryRow(item)
+                    offeringRow(item)
                 }
             }
             .padding(20)
@@ -36,57 +35,68 @@ struct VendorInventoryView: View {
         .background(AppTheme.background.ignoresSafeArea())
     }
 
-    private func inventoryRow(_ item: VendorInventoryItem) -> some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(LocalizedStringKey(item.nameKey))
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(AppTheme.textPrimary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.85)
+    private func compactStat(title: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+            Text(value)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(tint)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
 
-                HStack(spacing: 8) {
-                    Text("₹\(item.priceRupees)")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(AppTheme.accent)
-                    Text("·")
+    private func offeringRow(_ item: VendorInventoryItem) -> some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(item.displayName)
+                        .font(.headline.weight(.bold))
+                    Text(item.kind.title)
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(AppTheme.info.opacity(0.12))
+                        .foregroundStyle(AppTheme.info)
+                        .clipShape(Capsule())
+                }
+                Text("₹\(item.priceRupees)/\(item.unitLabel)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(AppTheme.accent)
+                if let minutes = item.serviceDurationMinutes {
+                    Text("~\(minutes) min")
+                        .font(.caption)
                         .foregroundStyle(AppTheme.textSecondary)
-                    Text(LocalizedStringKey(item.unitKey))
-                        .font(.subheadline.weight(.medium))
+                } else if let stock = item.stockQuantity {
+                    Text("Stock \(stock)")
+                        .font(.caption)
                         .foregroundStyle(AppTheme.textSecondary)
                 }
             }
-
-            Spacer(minLength: 0)
-
+            Spacer()
             Button {
                 viewModel.toggleStock(for: item)
             } label: {
-                Text(LocalizedStringKey(item.inStock ? "inventory.mark_out" : "inventory.mark_in"))
+                Text(item.availableToday ? "Today" : "Off")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(item.inStock ? AppTheme.danger : AppTheme.primary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .minimumScaleFactor(0.75)
+                    .foregroundStyle(item.availableToday ? AppTheme.primary : AppTheme.textSecondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .frame(minWidth: 88, minHeight: 44)
-                    .background((item.inStock ? AppTheme.danger : AppTheme.primary).opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .background((item.availableToday ? AppTheme.primary : AppTheme.textSecondary).opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(
-                Text(LocalizedStringKey(item.inStock ? "inventory.mark_out" : "inventory.mark_in"))
-            )
         }
-        .padding(16)
+        .padding(14)
         .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
-        .accessibilityElement(children: .contain)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 
 #Preview {
     VendorInventoryView()
-        .environment(\.locale, Locale(identifier: "en"))
 }
