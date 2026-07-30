@@ -2,36 +2,33 @@
 
 Development-only process for synthetic Customer and Vendor accounts.
 
-## Prerequisites
+Full developer workflow (dry run, emulator, remote, ADC): see **`firebase/README.md`**.
 
-1. Firebase project `rediwala-development`
-2. Email/Password provider enabled (also declared in `firebase.json`)
-3. Service account JSON path (never commit the real file)
-4. Deployed RTDB rules from `firebase/database.rules.json`
+## Project location
 
-## Commands
+```text
+/Users/aravind/Developer/RediWala/firebase
+```
+
+## Quick commands
 
 ```bash
-cd firebase
+cd /Users/aravind/Developer/RediWala/firebase
+npm install
+
+# Mode A — dry run (no credentials)
 npm run seed:demo-auth:dry
 
-CONFIRM_DEV_SEED=yes \
-FIREBASE_SERVICE_ACCOUNT_PATH=/absolute/path/to/serviceAccount.json \
-npm run seed:demo-auth
+# Mode B — emulator
+# (start emulators first)
+npm run seed:demo-auth:emulator
+
+# Mode C — remote development
+export FIREBASE_SERVICE_ACCOUNT_PATH=/path/to/service-account.json
+CONFIRM_DEV_SEED=yes npm run seed:demo-auth
 ```
 
-Deploy rules:
+## Accounts
 
-```bash
-npx -y firebase-tools@latest deploy --only database --project rediwala-development
-```
-
-## Summary printed on success
-
-- 5 Customer accounts verified
-- 5 Vendor accounts verified
-- 20 Supporting vendors seeded
-- 2 Neighborhood clusters seeded
-- Live / Scheduled scenarios configured
-
-Passwords are used only for Auth user create/update. They are never written to RTDB.
+See `firebase/src/demoAuthPersonas.js` for the five Customer and five Vendor demo identities.
+Passwords are used only for Auth create/update and are never stored in RTDB.

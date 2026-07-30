@@ -1,7 +1,7 @@
 {
   "name": "rediwala-firebase-seed",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Permanent Realtime Database seed/validation for RediWala (development only)",
   "type": "module",
   "scripts": {
@@ -12,6 +12,13 @@
     "seed:reset": "node seed.js --reset",
     "seed:demo-auth": "node seed-demo-auth.js",
     "seed:demo-auth:dry": "node seed-demo-auth.js --dry-run",
+    "seed:demo-auth:emulator": "node seed-demo-auth.js --emulator",
+    "seed:customers": "node seed-demo-auth.js --customers",
+    "seed:vendors": "node seed-demo-auth.js --vendors --supporting",
+    "seed:scenarios": "node seed-demo-auth.js --scenarios",
+    "seed:reset-demo": "node seed-demo-auth.js --reset --all",
+    "seed:all": "node seed-demo-auth.js --all",
+    "emulators": "cd .. && npx -y firebase-tools@latest emulators:start --only auth,database --project rediwala-development",
     "validate": "node validate.js --local",
     "validate:remote": "node validate.js --remote"
   },
