@@ -14,7 +14,12 @@ final class VendorDemandRepository: ObservableObject {
     private var vendorCategory: String = "vegetables"
 
     func startListening(vendorCategory: String) {
-        guard !isListening else { return }
+        VendorFirebaseBootstrap.configureIfNeeded()
+        guard session.isReady else { return }
+        guard !isListening else {
+            self.vendorCategory = vendorCategory
+            return
+        }
         self.vendorCategory = vendorCategory
         isListening = true
 
@@ -23,6 +28,10 @@ final class VendorDemandRepository: ObservableObject {
             Task { @MainActor [weak self] in
                 self?.applySnapshot(snapshot)
             }
+        } withCancel: { error in
+            #if DEBUG
+            print("customer_interest listener cancelled: \(error.localizedDescription)")
+            #endif
         }
 
         if let cached: [CustomerInterestRequest] = VendorLocalJSONCache.load([CustomerInterestRequest].self, key: VendorCacheKeys.demandClusters) {

@@ -1,173 +1,118 @@
 import SwiftUI
 
-/// Pre-live checklist. One clear path: Go Live. Recording is optional before that.
+/// Lightweight confirmation only — preparation already happened on Home.
 struct VendorPreLiveSheet: View {
     @ObservedObject var liveSession: VendorLiveSessionViewModel
-    /// Primary action — go live now (with existing message if any).
+    let businessName: String
     let onGoLive: () -> Void
-    /// Optional: record a new message first, then go live.
-    let onRecordThenGoLive: () -> Void
     let onCancel: () -> Void
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    header
-                    preparationChecklist
-                    modeSection
-                    messageStatus
-                    actionSection
-                }
-                .padding(20)
+            VStack(alignment: .leading, spacing: 20) {
+                header
+                identityCard
+                preparationStatus
+                workingModeSection
+                Spacer(minLength: 8)
+                actionSection
             }
-            .scrollIndicators(.visible)
+            .padding(20)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cancel", role: .cancel, action: onCancel)
                 }
             }
         }
+        .presentationDetents([.medium, .large])
         .interactiveDismissDisabled(liveSession.state == .preparing)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Ready to Go Live?")
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Start Your Day")
                 .font(.largeTitle.weight(.heavy))
-            Text("நேரலையில் செல்ல தயாரா?")
-                .font(.title3.weight(.semibold))
+            Text("Confirm once — then go live.")
+                .font(.subheadline)
                 .foregroundStyle(AppTheme.textSecondary)
-            Text(liveSession.selectedOperatingArea.localizedName)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(AppTheme.primary)
         }
     }
 
-    private var modeSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("How are you working today?")
-                .font(.headline.weight(.bold))
-            ForEach(VendorServiceMode.allCases) { mode in
-                Button {
-                    liveSession.serviceMode = mode
-                } label: {
-                    HStack {
-                        Image(systemName: mode.icon)
-                            .foregroundStyle(AppTheme.primary)
-                        VStack(alignment: .leading) {
-                            Text(mode.title).font(.body.weight(.semibold))
-                            Text(mode.tamilTitle).font(.caption).foregroundStyle(AppTheme.textSecondary)
-                        }
-                        Spacer()
-                        if liveSession.serviceMode == mode {
-                            Image(systemName: "checkmark.circle.fill").foregroundStyle(AppTheme.primary)
-                        }
-                    }
-                    .padding(12)
-                    .background(AppTheme.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .disabled(liveSession.state == .preparing)
-            }
-        }
-    }
-
-    private var messageStatus: some View {
-        HStack(spacing: 12) {
-            Image(systemName: liveSession.announcement == nil ? "mic.slash" : "mic.fill")
-                .font(.title3)
-                .foregroundStyle(liveSession.announcement == nil ? AppTheme.textSecondary : AppTheme.primary)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(liveSession.announcement == nil ? "No message yet" : "Message ready")
-                    .font(.subheadline.weight(.bold))
-                Text(
-                    liveSession.announcement == nil
-                        ? "You can go live without one, or record first."
-                        : "Will use your saved message when you go live."
-                )
-                .font(.caption)
-                .foregroundStyle(AppTheme.textSecondary)
-            }
-            Spacer()
-        }
-        .padding(12)
-        .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-
-    private var preparationChecklist: some View {
+    private var identityCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Today's Preparation")
-                .font(.headline.weight(.bold))
-
-            checklistRow(
-                title: "Today's Route",
-                subtitle: liveSession.hasRoutePrepared ? "Route is set for your neighborhood loop." : "Plan or add stops before going live.",
-                done: liveSession.hasRoutePrepared
-            )
-            checklistToggleRow(
-                title: LocalizedText.resolve("prep.offerings", fallback: "Today's Offerings"),
-                subtitle: "Confirm today's products/services are ready.",
-                isOn: liveSession.inventoryReady,
-                onToggle: liveSession.markInventoryReady
-            )
-            checklistRow(
-                title: "Announcement Ready",
-                subtitle: liveSession.hasAnnouncementPrepared ? "Recorded announcement available." : "Record announcement before going live.",
-                done: liveSession.hasAnnouncementPrepared
-            )
-            checklistToggleRow(
-                title: "Operating Hours Confirmed",
-                subtitle: "Confirm today's working window is correct.",
-                isOn: liveSession.operatingHoursConfirmed,
-                onToggle: liveSession.markOperatingHoursConfirmed
-            )
+            identityRow(title: "Business", value: businessName)
+            identityRow(title: "Neighborhood", value: liveSession.selectedOperatingArea.localizedName)
+            identityRow(title: "Business Type", value: liveSession.vendorCategory.englishTitle)
         }
-        .padding(12)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func checklistRow(title: String, subtitle: String, done: Bool) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: done ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(done ? AppTheme.primary : AppTheme.textSecondary)
-                .font(.title3)
+    private func identityRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+            Spacer()
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
+    private var preparationStatus: some View {
+        HStack(spacing: 12) {
+            Image(systemName: liveSession.isPreparationChecklistComplete
+                  ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                .font(.title2)
+                .foregroundStyle(liveSession.isPreparationChecklistComplete ? AppTheme.primary : AppTheme.accent)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                Text(subtitle)
-                    .font(.caption)
+                Text("Preparation")
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(AppTheme.textSecondary)
+                Text(liveSession.preparationStatusSummary)
+                    .font(.subheadline.weight(.semibold))
             }
             Spacer()
         }
+        .padding(14)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func checklistToggleRow(
-        title: String,
-        subtitle: String,
-        isOn: Bool,
-        onToggle: @escaping (Bool) -> Void
-    ) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Toggle(isOn: Binding(get: { isOn }, set: onToggle)) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(AppTheme.textSecondary)
+    private var workingModeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Working Mode")
+                .font(.headline.weight(.bold))
+            HStack(spacing: 8) {
+                ForEach(VendorServiceMode.allCases) { mode in
+                    Button {
+                        liveSession.selectServiceMode(mode)
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: mode.icon)
+                                .font(.body.weight(.semibold))
+                            Text(mode.title)
+                                .font(.caption2.weight(.bold))
+                                .multilineTextAlignment(.center)
+                        }
+                        .foregroundStyle(liveSession.serviceMode == mode ? Color.white : AppTheme.textPrimary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(liveSession.serviceMode == mode ? AppTheme.primary : AppTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(liveSession.state == .preparing)
                 }
             }
-            .toggleStyle(.switch)
         }
     }
 
     private var actionSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             if liveSession.state == .preparing {
                 HStack(spacing: 10) {
                     ProgressView()
@@ -175,12 +120,10 @@ struct VendorPreLiveSheet: View {
                         .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
             }
 
-            // One primary button — always goes live.
             PrimaryButton(
-                titleKey: liveSession.announcement == nil ? "Go Live Now" : "Go Live with Message",
+                titleKey: "Go Live",
                 systemImage: "antenna.radiowaves.left.and.right",
                 isEnabled: liveSession.canStartLive,
                 prominent: true
@@ -188,19 +131,9 @@ struct VendorPreLiveSheet: View {
                 onGoLive()
             }
 
-            // Optional: record first, then go live automatically after save.
-            PrimaryButton(
-                titleKey: liveSession.announcement == nil ? "Record Message, Then Go Live" : "Record New Message, Then Go Live",
-                systemImage: "mic.fill",
-                style: .accent,
-                isEnabled: liveSession.hasRoutePrepared && liveSession.inventoryReady && liveSession.operatingHoursConfirmed
-            ) {
-                onRecordThenGoLive()
-            }
-
-            Text(liveSession.isPreparationChecklistComplete
-                 ? "Customers nearby will see you as LIVE."
-                 : "Complete the checklist to enable Go Live.")
+            Text(liveSession.canStartLive
+                 ? "Customers nearby will see you as ONLINE."
+                 : "Finish preparation on Home, then return here.")
                 .font(.caption)
                 .foregroundStyle(AppTheme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)

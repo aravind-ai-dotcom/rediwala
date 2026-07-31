@@ -1,19 +1,21 @@
 import Foundation
 import Security
 
-enum VendorIdentityStore {
-    private static let vendorIDKey = "vendor.firebase.id"
-    private static let service = "com.rediwala.vendor"
+/// Identity helpers are intentionally nonisolated — safe for default-arg / background call sites.
+/// With SWIFT_DEFAULT_ACTOR_ISOLATION=MainActor, static storage must also be nonisolated.
+enum VendorIdentityStore: Sendable {
+    nonisolated private static let vendorIDKey = "vendor.firebase.id"
+    nonisolated private static let service = "com.rediwala.vendor"
 
     /// Demo pilot vendor ID aligned with Firebase seed / synthetic Murugan.
-    static let demoVendorID = "murugan"
+    nonisolated static let demoVendorID = "murugan"
 
-    static var vendorID: String {
+    nonisolated static var vendorID: String {
         get { load(key: vendorIDKey) ?? demoVendorID }
         set { save(newValue, key: vendorIDKey) }
     }
 
-    static func resolveVendorID(displayName: String) -> String {
+    nonisolated static func resolveVendorID(displayName: String) -> String {
         let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if trimmed.contains("murugan") { return "murugan" }
         if trimmed.contains("lakshmi") && trimmed.contains("flower") { return "lakshmi" }
@@ -23,7 +25,7 @@ enum VendorIdentityStore {
         return demoVendorID
     }
 
-    static func clear() {
+    nonisolated static func clear() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: vendorIDKey,
@@ -32,7 +34,7 @@ enum VendorIdentityStore {
         SecItemDelete(query as CFDictionary)
     }
 
-    private static func load(key: String) -> String? {
+    nonisolated private static func load(key: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
@@ -49,7 +51,7 @@ enum VendorIdentityStore {
         return value
     }
 
-    private static func save(_ value: String, key: String) {
+    nonisolated private static func save(_ value: String, key: String) {
         let data = Data(value.utf8)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

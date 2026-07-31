@@ -1,35 +1,47 @@
 import SwiftUI
 
 struct SplashView: View {
+    @State private var opacity = 0.0
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 18) {
             Spacer()
 
-            Text("🛺")
-                .font(.system(size: 72))
+            Image("BrandMark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 112, height: 112)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .shadow(color: .black.opacity(0.08), radius: 16, y: 8)
                 .accessibilityHidden(true)
 
-            Text("app.name")
+            Text(LocalizedText.resolve("app.name", fallback: "RediWala"))
                 .font(.largeTitle.weight(.heavy))
                 .foregroundStyle(AppTheme.primary)
-                .tracking(1.5)
+                .tracking(0.8)
 
-            Text("app.tagline")
+            Text(LocalizedText.resolve("app.tagline", fallback: "Reach your neighborhood."))
                 .font(.title3.weight(.medium))
                 .foregroundStyle(AppTheme.textSecondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 32)
 
             ProgressView()
                 .controlSize(.large)
                 .tint(AppTheme.primary)
-                .padding(.top, 28)
-                .accessibilityLabel(Text("accessibility.loading"))
+                .padding(.top, 24)
+                .accessibilityLabel(Text(LocalizedText.resolve("accessibility.loading", fallback: "Loading")))
 
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppTheme.background.ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
+        .opacity(opacity)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.55)) {
+                opacity = 1
+            }
+        }
     }
 }
 

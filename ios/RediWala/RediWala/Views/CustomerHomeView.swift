@@ -5,12 +5,14 @@ struct CustomerHomeView: View {
     @ObservedObject var viewModel: CustomerHomeViewModel
     @EnvironmentObject private var favorites: FavoritesViewModel
     @ObservedObject private var geo = GeoContext.shared
+    /// When false, map opens via tab; hero still present but doesn't switch browse mode.
+    var showsMapInline: Bool = true
 
     private let cardLimit = 3
 
     var body: some View {
         Group {
-            if viewModel.browseMode == .map {
+            if showsMapInline, viewModel.browseMode == .map {
                 CustomerMapView(
                     viewModel: viewModel.mapViewModel,
                     favorites: favorites,
@@ -39,6 +41,7 @@ struct CustomerHomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 mapHero
+                neighborhoodStatusStrip
                 expectedSoonSection
                 nearbyTimelineSection
                 todaysNeedsCompact
@@ -54,16 +57,40 @@ struct CustomerHomeView: View {
         .scrollIndicators(.hidden)
     }
 
+    private var neighborhoodStatusStrip: some View {
+        let status = NeighborhoodAvailability.overall(
+            liveCount: viewModel.nearbyRightNow.count,
+            expectedCount: viewModel.expectedSoon.count
+        )
+        return HStack(spacing: 10) {
+            Circle()
+                .fill(status.color)
+                .frame(width: 10, height: 10)
+            Text(status.label)
+                .font(.subheadline.weight(.bold))
+            Spacer()
+            Text(geo.neighborhood.displayName)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
     private var mapHero: some View {
         Button {
-            viewModel.openMap()
+            if showsMapInline {
+                viewModel.openMap()
+            }
         } label: {
             ZStack(alignment: .bottomLeading) {
                 Map(position: .constant(geo.cameraPosition)) {
                     ForEach(Array(viewModel.nearbyRightNow.prefix(5))) { seller in
                         Annotation(seller.name, coordinate: seller.coordinate) {
                             Circle()
-                                .fill(seller.isEffectivelyLive ? AppTheme.primary : AppTheme.info)
+                                .fill(NeighborhoodAvailability.status(for: seller).color)
                                 .frame(width: 10, height: 10)
                         }
                     }
@@ -74,10 +101,10 @@ struct CustomerHomeView: View {
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(LocalizedStringKey(viewModel.selectedNeighborhood.nameKey))
+                    Text(LocalizedText.resolve(viewModel.selectedNeighborhood.nameKey, fallback: viewModel.selectedNeighborhood.displayName))
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.white)
-                    Text("Open map")
+                    Text(showsMapInline ? "Open map" : "Your neighborhood")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.9))
                 }
@@ -88,6 +115,7 @@ struct CustomerHomeView: View {
             }
         }
         .buttonStyle(.plain)
+        .disabled(!showsMapInline)
     }
 
     private var todaysNeedsCompact: some View {
@@ -118,19 +146,20 @@ struct CustomerHomeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(viewModel.needsStore.activeNeeds) { need in
-                            HStack(spacing: 6) {
+                            HStack(spacing: 5) {
                                 Image(systemName: need.systemImage)
-                                Text(LocalizedStringKey(need.titleKey))
+                                    .font(.caption2.weight(.semibold))
+                                Text(LocalizedText.resolve(need.titleKey, fallback: need.titleKey.replacingOccurrences(of: "need.", with: "").capitalized))
+                                    .font(.caption2.weight(.semibold))
                                     .lineLimit(1)
                             }
-                            .font(.caption.weight(.semibold))
                             .padding(.horizontal, 10)
-                            .frame(minHeight: 34)
+                            .padding(.vertical, 6)
                             .background(AppTheme.card)
-                            .overlay { Capsule().stroke(AppTheme.primary.opacity(0.3), lineWidth: 1) }
                             .clipShape(Capsule())
                         }
                     }
+                    .padding(.vertical, 2)
                 }
             }
         }
@@ -170,9 +199,9 @@ struct CustomerHomeView: View {
             }
             let items = Array(viewModel.nearbyRightNow.prefix(cardLimit))
             if items.isEmpty {
-                Text("No one live nearby right now")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.textSecondary)
+                Text("Nobody nearby")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.danger)
             } else {
                 ForEach(items) { seller in
                     NavigationLink {
@@ -203,7 +232,7 @@ struct CustomerHomeView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(seller.name)
                                 .font(.subheadline.weight(.bold))
-                            Text("\(LocalizedStringKey(seller.category.localizationKey)) · \(seller.formattedDistance)")
+                            Text("\(LocalizedText.resolve(seller.category.localizationKey, fallback: seller.category.rawValue.capitalized)) · \(seller.formattedDistance)")
                                 .font(.caption)
                                 .foregroundStyle(AppTheme.textSecondary)
                             Text(LocalizedText.resolve("home.why_match", fallback: "Matches today's needs"))
@@ -259,19 +288,20 @@ struct NearbyTimelineRow: View {
     var onTrack: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 12) {
+        let status = NeighborhoodAvailability.status(for: seller)
+        return HStack(spacing: 12) {
             VStack(spacing: 0) {
                 Circle()
-                    .fill(AppTheme.primary)
+                    .fill(status.color)
                     .frame(width: 8, height: 8)
                 Rectangle()
-                    .fill(AppTheme.primary.opacity(0.25))
+                    .fill(status.color.opacity(0.25))
                     .frame(width: 2, height: 28)
             }
             .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(seller.category.localizationKey))
+                Text(LocalizedText.resolve(seller.category.localizationKey, fallback: seller.category.rawValue.capitalized))
                     .font(.subheadline.weight(.bold))
                 Text(seller.streetName
                       ?? LocalizedText.resolve(seller.landmarkKey, fallback: seller.name))
@@ -281,8 +311,13 @@ struct NearbyTimelineRow: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 4) {
-                Text(seller.formattedDistance)
+                Text(CustomerPlaceStore.shared.proximityPhrase(
+                    meters: seller.distanceMeters,
+                    etaLabel: seller.etaLabel,
+                    isLive: seller.isEffectivelyLive
+                ))
                     .font(.caption.weight(.bold))
+                    .foregroundStyle(status.color)
                 Button("Track") { onTrack?() }
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(AppTheme.primary)
@@ -298,23 +333,30 @@ struct ExpectedSoonRow: View {
     let seller: Seller
 
     var body: some View {
-        HStack(spacing: 12) {
+        let status = NeighborhoodAvailability.expectedSoon
+        return HStack(spacing: 12) {
             VStack(spacing: 0) {
                 Circle()
-                    .fill(AppTheme.info)
+                    .fill(status.color)
                     .frame(width: 8, height: 8)
                 Rectangle()
-                    .fill(AppTheme.info.opacity(0.25))
+                    .fill(status.color.opacity(0.25))
                     .frame(width: 2, height: 28)
             }
             .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(seller.routeStops.first(where: { $0.status == .upcoming })?.timeLabel ?? "—")
+                Text(seller.etaLabel
+                      ?? seller.routeStops.first(where: { $0.status == .upcoming })?.timeLabel
+                      ?? CustomerPlaceStore.shared.proximityPhrase(
+                        meters: seller.distanceMeters,
+                        etaLabel: nil,
+                        isLive: false
+                      ))
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(AppTheme.info)
+                    .foregroundStyle(status.color)
                 HStack(spacing: 4) {
-                    Text(LocalizedStringKey(seller.category.localizationKey))
+                    Text(LocalizedText.resolve(seller.category.localizationKey, fallback: seller.category.rawValue.capitalized))
                     Text("·")
                     Text(seller.name)
                 }
@@ -327,9 +369,6 @@ struct ExpectedSoonRow: View {
                 }
             }
             Spacer()
-            Text(seller.formattedDistance)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(AppTheme.textSecondary)
         }
         .padding(12)
         .background(AppTheme.card)

@@ -3,6 +3,7 @@ import SwiftUI
 
 struct VendorWorkingMapView: View {
     @ObservedObject var liveSession: VendorLiveSessionViewModel
+    var showsCloseButton: Bool = true
     @StateObject private var mapModel = VendorMapViewModel()
     @Environment(\.dismiss) private var dismiss
 
@@ -24,11 +25,13 @@ struct VendorWorkingMapView: View {
                     bottomPanel
                 }
             }
-            .navigationTitle("map.area.title")
+            .navigationTitle(LocalizedText.resolve("map.area.title", fallback: "Neighborhood Map"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("common.close") { dismiss() }
+                if showsCloseButton {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(LocalizedText.resolve("common.close", fallback: "Close")) { dismiss() }
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -127,15 +130,24 @@ struct VendorWorkingMapView: View {
         } else if !liveSession.routeRecommendations.isEmpty {
             recommendationsCard
                 .padding()
-        } else if let cluster = liveSession.demandClusters.first {
-            clusterPreview(cluster)
+        } else if !liveSession.demandClusters.isEmpty {
+            clusterPreview(liveSession.demandClusters[0])
+                .padding()
+        } else {
+            Text("Your circuit will appear here with customer spots.")
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.textSecondary)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(AppTheme.card.opacity(0.96))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .padding()
         }
     }
 
     private var recommendationsCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("demand.tips.title")
+            Text(LocalizedText.resolve("demand.tips.title", fallback: "Nearby interest"))
                 .font(.headline.weight(.bold))
             ForEach(liveSession.routeRecommendations.prefix(2)) { rec in
                 HStack {
@@ -145,7 +157,7 @@ struct VendorWorkingMapView: View {
                     Spacer()
                     if let clusterID = rec.clusterID,
                        let cluster = liveSession.demandClusters.first(where: { $0.id == clusterID }) {
-                        Button("route.add_stop") {
+                        Button(LocalizedText.resolve("route.add_stop", fallback: "Add detour")) {
                             liveSession.insertClusterAfterCurrent(cluster)
                         }
                         .buttonStyle(.borderedProminent)
@@ -162,23 +174,25 @@ struct VendorWorkingMapView: View {
     private func clusterPreview(_ cluster: DemandCluster) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(cluster.peopleWaitingText)
+                Text("\(cluster.customerCount) customers waiting")
                     .font(.headline.weight(.bold))
                 Spacer()
+                Text(cluster.level.emoji)
             }
-            Text(cluster.neighborhoodName)
+            Text(cluster.productHints.joined(separator: " · "))
                 .font(.subheadline.weight(.semibold))
-            if !cluster.productHints.isEmpty {
-                Text(cluster.productHints.joined(separator: " · "))
+            if let window = cluster.preferredTimeWindow {
+                Text(window)
                     .font(.caption)
                     .foregroundStyle(AppTheme.textSecondary)
             }
             HStack {
-                Button("map.look") {
+                Button(LocalizedText.resolve("map.look", fallback: "Look")) {
                     mapModel.selectedItem = .cluster(cluster)
+                    mapModel.centerOnCluster(cluster)
                 }
                 .buttonStyle(.bordered)
-                Button("route.add_stop") {
+                Button(LocalizedText.resolve("route.add_stop", fallback: "Add detour")) {
                     liveSession.addDemandCluster(cluster)
                 }
                 .buttonStyle(.borderedProminent)
@@ -275,31 +289,39 @@ private struct VendorBusinessMapLayer: View, Equatable {
     @MapContentBuilder
     private var vendorAnnotation: some MapContent {
         let coordinate = vendorCoordinate
-        Annotation("business.map.you", coordinate: coordinate) {
-            VStack(spacing: 4) {
-                Circle()
-                    .fill(AppTheme.primary)
-                    .frame(width: 38, height: 38)
-                    .overlay {
-                        Image(systemName: snapshot.serviceMode.icon)
-                            .foregroundStyle(.white)
-                    }
-                Text(snapshot.isLive ? "LIVE" : "Ready")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(AppTheme.card)
-                    .clipShape(Capsule())
+            Annotation("", coordinate: coordinate) {
+                VStack(spacing: 4) {
+                    Circle()
+                        .fill(AppTheme.primary)
+                        .frame(width: 38, height: 38)
+                        .overlay {
+                            Image(systemName: snapshot.serviceMode.icon)
+                                .foregroundStyle(.white)
+                        }
+                    Text(snapshot.isLive ? "LIVE" : "Ready")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(AppTheme.card)
+                        .clipShape(Capsule())
+                }
             }
-        }
     }
 
     @MapContentBuilder
     private var routeMarkers: some MapContent {
-        ForEach(snapshot.routeStops) { stop in
-            Marker(stop.title, coordinate: stop.coordinate.mapCoordinate)
-                .tint(stop.isCurrent ? AppTheme.primary : (stop.isCompleted ? .gray : AppTheme.info))
-                .tag(VendorMapSelection.stop(stop))
+        ForEach(Array(snapshot.routeStops.enumerated()), id: \.element.id) { index, stop in
+            Annotation(stop.title, coordinate: stop.coordinate.mapCoordinate) {
+                ZStack {
+                    Circle()
+                        .fill(stop.isCurrent ? AppTheme.primary : (stop.isCompleted ? Color.gray : AppTheme.info))
+                        .frame(width: 28, height: 28)
+                    Text(stop.source == "circuit_return" ? "↺" : "\(index + 1)")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.white)
+                }
+            }
+            .tag(VendorMapSelection.stop(stop))
         }
     }
 

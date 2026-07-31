@@ -12,20 +12,20 @@ struct VendorLoginView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("RediWala Vendor")
+                    Text("RediWala")
                         .font(.largeTitle.weight(.heavy))
                         .foregroundStyle(AppTheme.primary)
-                    Text("auth.vendor.headline")
+                    Text(LocalizedText.resolve("auth.vendor.headline", fallback: "Reach your neighborhood."))
                         .font(.title2.weight(.bold))
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text("auth.vendor.subtitle")
+                    Text(LocalizedText.resolve("auth.vendor.subtitle", fallback: "Every street is an opportunity."))
                         .font(.body)
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 .padding(.top, 24)
 
                 VStack(spacing: 14) {
-                    TextField(String(localized: "auth.email"), text: $email)
+                    TextField(LocalizedText.resolve("auth.email", fallback: "Email"), text: $email)
                         .textContentType(.username)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
@@ -34,7 +34,7 @@ struct VendorLoginView: View {
                         .background(AppTheme.card)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-                    SecureField(String(localized: "auth.password"), text: $password)
+                    SecureField(LocalizedText.resolve("auth.password", fallback: "Password"), text: $password)
                         .textContentType(.password)
                         .padding(16)
                         .background(AppTheme.card)
@@ -57,7 +57,7 @@ struct VendorLoginView: View {
                         if case .loading = firebaseSession.readiness {
                             ProgressView().tint(.white)
                         }
-                        Text("auth.sign_in")
+                        Text(LocalizedText.resolve("auth.sign_in", fallback: "Sign In"))
                             .font(.headline.weight(.bold))
                     }
                     .frame(maxWidth: .infinity)
@@ -67,14 +67,8 @@ struct VendorLoginView: View {
                 .tint(AppTheme.primary)
                 .disabled(email.isEmpty || password.isEmpty)
 
-                Button("auth.forgot_password") {}
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(AppTheme.textSecondary)
-                    .disabled(true)
-                    .opacity(0.7)
-
                 #if DEBUG
-                Button("auth.use_demo_account") {
+                Button(LocalizedText.resolve("auth.use_demo_account", fallback: "Use demo persona")) {
                     showDemoAccounts = true
                 }
                 .font(.subheadline.weight(.bold))
@@ -101,24 +95,61 @@ struct VendorDemoAccountPickerSheet: View {
 
     var body: some View {
         NavigationStack {
-            List(accounts) { account in
-                Button {
-                    onSelect(account)
-                } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(account.shortLabel)
-                            .font(.headline)
-                        Text(account.email)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                VStack(spacing: 12) {
+                    Image("BrandMark")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    Text("RediWala Vendor")
+                        .font(.title2.weight(.heavy))
+                        .foregroundStyle(AppTheme.primary)
+                    Text("One tap launches a complete demo context")
+                        .font(.subheadline)
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+                .background(Color.white)
+
+                List(accounts) { account in
+                    Button {
+                        onSelect(account)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(AppTheme.accent.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                                .overlay {
+                                    Text(String(account.shortLabel.prefix(1)))
+                                        .font(.headline.weight(.bold))
+                                        .foregroundStyle(AppTheme.accent)
+                                }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(account.shortLabel)
+                                    .font(.headline.weight(.bold))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Text(account.displayName)
+                                    .font(.caption)
+                                    .foregroundStyle(AppTheme.textSecondary)
+                                    .lineLimit(1)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        .padding(.vertical, 4)
                     }
-                    .padding(.vertical, 4)
                 }
             }
-            .navigationTitle("auth.demo_accounts")
+            .navigationTitle(LocalizedText.resolve("auth.demo_accounts", fallback: "Demo Personas"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("common.done") { dismiss() }
+                    Button(LocalizedText.resolve("common.done", fallback: "Done")) { dismiss() }
                 }
             }
         }

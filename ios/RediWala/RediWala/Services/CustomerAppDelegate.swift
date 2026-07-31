@@ -1,14 +1,13 @@
 import FirebaseCore
 import UIKit
 
+@objc(CustomerAppDelegate)
 final class CustomerAppDelegate: NSObject, UIApplicationDelegate {
-    func application(
+    nonisolated func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
+        FirebaseDatabaseConfig.configureIfNeeded()
         return true
     }
 }

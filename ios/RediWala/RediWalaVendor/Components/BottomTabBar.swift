@@ -13,11 +13,10 @@ struct BottomTabBar: View {
                 } label: {
                     VStack(spacing: 6) {
                         Image(systemName: tab.systemImage)
-                            .font(.system(size: 22, weight: .semibold))
-                        Text(LocalizedStringKey(tab.titleKey))
-                            .font(.caption.weight(.semibold))
-                            .lineLimit(2)
-                            .multilineTextAlignment(.center)
+                            .font(.system(size: 20, weight: .semibold))
+                        Text(LocalizedText.resolve(tab.titleKey, fallback: tab.englishTitle))
+                            .font(.caption2.weight(.semibold))
+                            .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }
                     .foregroundStyle(selected == tab ? AppTheme.primary : AppTheme.textSecondary)
@@ -26,11 +25,11 @@ struct BottomTabBar: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text(LocalizedStringKey(tab.titleKey)))
+                .accessibilityLabel(Text(LocalizedText.resolve(tab.titleKey, fallback: tab.englishTitle)))
                 .accessibilityAddTraits(selected == tab ? .isSelected : [])
             }
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 4)
         .padding(.top, 10)
         .padding(.bottom, 6)
         .background(AppTheme.card)

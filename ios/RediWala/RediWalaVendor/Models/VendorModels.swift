@@ -220,27 +220,80 @@ enum VendorCategory: String, CaseIterable, Identifiable, Codable {
     case milk
     case fish
     case bakery
+    case foodTruck
+    case ironing
+    case laundry
+    case cable
+    case templeFlowers
+    case tailor
 
     var id: String { rawValue }
 
     var titleKey: String { "category.\(rawValue)" }
 
+    var englishTitle: String {
+        switch self {
+        case .vegetables: return "Vegetables"
+        case .fruits: return "Fruits"
+        case .flowers: return "Flowers"
+        case .milk: return "Milk Delivery"
+        case .fish: return "Fish"
+        case .bakery: return "Bakery"
+        case .foodTruck: return "Food Truck"
+        case .ironing: return "Ironing"
+        case .laundry: return "Laundry"
+        case .cable: return "Cable Collection"
+        case .templeFlowers: return "Temple Flowers"
+        case .tailor: return "Tailor"
+        }
+    }
+
+    /// Business-specific label for today's catalog.
+    var offeringsTitle: String {
+        switch self {
+        case .vegetables, .fruits, .fish, .bakery: return "Products"
+        case .flowers, .templeFlowers: return "Flowers"
+        case .foodTruck: return "Menu"
+        case .ironing, .laundry, .tailor: return "Services"
+        case .cable: return "Collections"
+        case .milk: return "Today's Delivery"
+        }
+    }
+
     var systemImage: String {
         switch self {
-        case .vegetables: return "leaf.fill"
+        case .vegetables: return "basket.fill"
         case .fruits: return "carrot.fill"
-        case .flowers: return "camera.macro"
-        case .milk: return "cup.and.saucer.fill"
+        case .flowers: return "leaf.fill"
+        case .templeFlowers: return "camera.macro"
+        case .milk: return "waterbottle.fill"
         case .fish: return "fish.fill"
         case .bakery: return "birthday.cake.fill"
+        case .foodTruck: return "box.truck.fill"
+        case .ironing: return "tshirt.fill"
+        case .laundry: return "washer.fill"
+        case .cable: return "tv.fill"
+        case .tailor: return "scissors"
         }
     }
 
     var tintName: String {
         switch self {
-        case .vegetables, .fish: return "primary"
-        case .fruits, .bakery: return "accent"
-        case .flowers, .milk: return "info"
+        case .vegetables, .fish, .laundry: return "primary"
+        case .fruits, .bakery, .foodTruck, .ironing: return "accent"
+        case .flowers, .milk, .templeFlowers, .cable, .tailor: return "info"
+        }
+    }
+
+    /// Sensible default working mode for this business type.
+    var defaultServiceMode: VendorServiceMode {
+        switch self {
+        case .foodTruck, .ironing, .tailor, .bakery:
+            return .stationary
+        case .milk, .laundry, .cable:
+            return .scheduled
+        case .vegetables, .fruits, .flowers, .fish, .templeFlowers:
+            return .mobile
         }
     }
 }
@@ -290,23 +343,36 @@ struct VendorProfile: Equatable {
 
 enum VendorTab: Hashable, CaseIterable {
     case home
-    case inventory
+    case map
+    case messages
     case earnings
     case profile
 
     var titleKey: String {
         switch self {
         case .home: return "tab.home"
-        case .inventory: return "tab.inventory"
+        case .map: return "tab.map"
+        case .messages: return "tab.messages"
         case .earnings: return "tab.business"
         case .profile: return "tab.profile"
         }
     }
 
+    var englishTitle: String {
+        switch self {
+        case .home: return "Home"
+        case .map: return "Map"
+        case .messages: return "Messages"
+        case .earnings: return "Business"
+        case .profile: return "Profile"
+        }
+    }
+
     var systemImage: String {
         switch self {
-        case .home: return "map.fill"
-        case .inventory: return "basket.fill"
+        case .home: return "house.fill"
+        case .map: return "map.fill"
+        case .messages: return "bubble.left.and.bubble.right.fill"
         case .earnings: return "chart.bar.fill"
         case .profile: return "person.crop.circle.fill"
         }
@@ -329,19 +395,24 @@ enum VendorOfferingKind: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-struct VendorInventoryItem: Identifiable, Equatable {
+struct VendorInventoryItem: Identifiable, Equatable, Codable {
     let id: String
     let nameKey: String
-    let displayName: String
-    let priceRupees: Int
+    var displayName: String
+    var priceRupees: Int
     let unitKey: String
-    let unitLabel: String
+    var unitLabel: String
     var kind: VendorOfferingKind
     var inStock: Bool
     var availableToday: Bool
     var stockQuantity: Int?
     var serviceDurationMinutes: Int?
     var category: String
+    var notes: String?
+
+    var rateCardLabel: String {
+        "₹\(priceRupees)/\(unitLabel)"
+    }
 }
 
 struct VendorEarningsEntry: Identifiable, Equatable {
@@ -358,22 +429,79 @@ enum VendorMockData {
     static let defaultArea: ChennaiArea = .tNagar
 
     static let inventory: [VendorInventoryItem] = [
-        .init(id: "tomato", nameKey: "inventory.item.tomato", displayName: "Tomatoes", priceRupees: 40, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 40, serviceDurationMinutes: nil, category: "vegetables"),
-        .init(id: "onion", nameKey: "inventory.item.onion", displayName: "Onions", priceRupees: 35, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 25, serviceDurationMinutes: nil, category: "vegetables"),
-        .init(id: "potato", nameKey: "inventory.item.potato", displayName: "Potatoes", priceRupees: 30, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: false, availableToday: false, stockQuantity: 0, serviceDurationMinutes: nil, category: "vegetables"),
-        .init(id: "spinach", nameKey: "inventory.item.spinach", displayName: "Spinach", priceRupees: 20, unitKey: "inventory.unit.bunch", unitLabel: "bunch", kind: .product, inStock: true, availableToday: true, stockQuantity: 18, serviceDurationMinutes: nil, category: "vegetables"),
-        .init(id: "banana", nameKey: "inventory.item.banana", displayName: "Bananas", priceRupees: 60, unitKey: "inventory.unit.dozen", unitLabel: "dozen", kind: .product, inStock: true, availableToday: true, stockQuantity: 12, serviceDurationMinutes: nil, category: "fruits"),
-        .init(id: "coconut", nameKey: "inventory.item.coconut", displayName: "Coconut", priceRupees: 35, unitKey: "inventory.unit.each", unitLabel: "each", kind: .product, inStock: true, availableToday: true, stockQuantity: 30, serviceDurationMinutes: nil, category: "fruits"),
-        .init(id: "ironing_shirt", nameKey: "inventory.item.ironing_shirt", displayName: "T-Shirt Ironing", priceRupees: 20, unitKey: "inventory.unit.each", unitLabel: "each", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 5, category: "ironing"),
-        .init(id: "laundry_pickup", nameKey: "inventory.item.laundry_pickup", displayName: "Laundry Pickup", priceRupees: 200, unitKey: "inventory.unit.each", unitLabel: "bag", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 30, category: "laundry")
+        // Vegetables
+        .init(id: "tomato", nameKey: "inventory.item.tomato", displayName: "Tomatoes", priceRupees: 35, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 40, serviceDurationMinutes: nil, category: "vegetables", notes: "Fresh morning stock"),
+        .init(id: "onion", nameKey: "inventory.item.onion", displayName: "Onions", priceRupees: 40, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 25, serviceDurationMinutes: nil, category: "vegetables", notes: nil),
+        .init(id: "potato", nameKey: "inventory.item.potato", displayName: "Potatoes", priceRupees: 45, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 30, serviceDurationMinutes: nil, category: "vegetables", notes: nil),
+        .init(id: "spinach", nameKey: "inventory.item.spinach", displayName: "Spinach", priceRupees: 20, unitKey: "inventory.unit.bunch", unitLabel: "bunch", kind: .product, inStock: true, availableToday: true, stockQuantity: 18, serviceDurationMinutes: nil, category: "vegetables", notes: nil),
+        .init(id: "carrot", nameKey: "inventory.item.carrot", displayName: "Carrots", priceRupees: 50, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 15, serviceDurationMinutes: nil, category: "vegetables", notes: nil),
+        // Fruits
+        .init(id: "banana", nameKey: "inventory.item.banana", displayName: "Bananas", priceRupees: 60, unitKey: "inventory.unit.dozen", unitLabel: "dozen", kind: .product, inStock: true, availableToday: true, stockQuantity: 12, serviceDurationMinutes: nil, category: "fruits", notes: nil),
+        .init(id: "coconut", nameKey: "inventory.item.coconut", displayName: "Coconut", priceRupees: 35, unitKey: "inventory.unit.each", unitLabel: "each", kind: .product, inStock: true, availableToday: true, stockQuantity: 30, serviceDurationMinutes: nil, category: "fruits", notes: nil),
+        .init(id: "mango", nameKey: "inventory.item.mango", displayName: "Mangoes", priceRupees: 120, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 10, serviceDurationMinutes: nil, category: "fruits", notes: "Seasonal"),
+        // Flowers / Temple
+        .init(id: "jasmine", nameKey: "inventory.item.jasmine", displayName: "Jasmine", priceRupees: 30, unitKey: "inventory.unit.string", unitLabel: "string", kind: .product, inStock: true, availableToday: true, stockQuantity: 40, serviceDurationMinutes: nil, category: "flowers", notes: "Temple fresh"),
+        .init(id: "rose", nameKey: "inventory.item.rose", displayName: "Roses", priceRupees: 50, unitKey: "inventory.unit.bunch", unitLabel: "bunch", kind: .product, inStock: true, availableToday: true, stockQuantity: 20, serviceDurationMinutes: nil, category: "flowers", notes: nil),
+        .init(id: "garland", nameKey: "inventory.item.garland", displayName: "Temple Garland", priceRupees: 80, unitKey: "inventory.unit.each", unitLabel: "each", kind: .product, inStock: true, availableToday: true, stockQuantity: 15, serviceDurationMinutes: nil, category: "templeFlowers", notes: nil),
+        .init(id: "lotus", nameKey: "inventory.item.lotus", displayName: "Lotus", priceRupees: 40, unitKey: "inventory.unit.each", unitLabel: "each", kind: .product, inStock: true, availableToday: true, stockQuantity: 12, serviceDurationMinutes: nil, category: "templeFlowers", notes: nil),
+        // Ironing
+        .init(id: "ironing_shirt", nameKey: "inventory.item.ironing_shirt", displayName: "T-Shirt", priceRupees: 20, unitKey: "inventory.unit.each", unitLabel: "each", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 5, category: "ironing", notes: nil),
+        .init(id: "ironing_bedsheet", nameKey: "inventory.item.ironing_bedsheet", displayName: "Bedsheet", priceRupees: 80, unitKey: "inventory.unit.each", unitLabel: "each", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 15, category: "ironing", notes: nil),
+        .init(id: "ironing_pant", nameKey: "inventory.item.ironing_pant", displayName: "Pants", priceRupees: 25, unitKey: "inventory.unit.each", unitLabel: "each", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 8, category: "ironing", notes: nil),
+        // Laundry
+        .init(id: "laundry_pickup", nameKey: "inventory.item.laundry_pickup", displayName: "Laundry Pickup", priceRupees: 200, unitKey: "inventory.unit.each", unitLabel: "bag", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 30, category: "laundry", notes: "Same-day return"),
+        .init(id: "laundry_wash", nameKey: "inventory.item.laundry_wash", displayName: "Wash & Fold", priceRupees: 150, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 60, category: "laundry", notes: nil),
+        // Milk
+        .init(id: "milk_packet", nameKey: "inventory.item.milk", displayName: "Milk Packet", priceRupees: 30, unitKey: "inventory.unit.each", unitLabel: "packet", kind: .product, inStock: true, availableToday: true, stockQuantity: 50, serviceDurationMinutes: nil, category: "milk", notes: "Morning delivery"),
+        .init(id: "curd", nameKey: "inventory.item.curd", displayName: "Curd", priceRupees: 40, unitKey: "inventory.unit.each", unitLabel: "cup", kind: .product, inStock: true, availableToday: true, stockQuantity: 20, serviceDurationMinutes: nil, category: "milk", notes: nil),
+        // Food truck
+        .init(id: "dosa", nameKey: "inventory.item.dosa", displayName: "Dosa", priceRupees: 60, unitKey: "inventory.unit.each", unitLabel: "plate", kind: .product, inStock: true, availableToday: true, stockQuantity: 40, serviceDurationMinutes: 10, category: "foodTruck", notes: nil),
+        .init(id: "filter_coffee", nameKey: "inventory.item.coffee", displayName: "Filter Coffee", priceRupees: 25, unitKey: "inventory.unit.each", unitLabel: "cup", kind: .product, inStock: true, availableToday: true, stockQuantity: 60, serviceDurationMinutes: 5, category: "foodTruck", notes: nil),
+        // Cable / Tailor / Fish / Bakery
+        .init(id: "cable_monthly", nameKey: "inventory.item.cable", displayName: "Monthly Collection", priceRupees: 300, unitKey: "inventory.unit.each", unitLabel: "home", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 10, category: "cable", notes: nil),
+        .init(id: "hem", nameKey: "inventory.item.hem", displayName: "Pant Hem", priceRupees: 80, unitKey: "inventory.unit.each", unitLabel: "pair", kind: .service, inStock: true, availableToday: true, stockQuantity: nil, serviceDurationMinutes: 20, category: "tailor", notes: nil),
+        .init(id: "fish_seervai", nameKey: "inventory.item.fish", displayName: "Seer Fish", priceRupees: 450, unitKey: "inventory.unit.kg", unitLabel: "kg", kind: .product, inStock: true, availableToday: true, stockQuantity: 8, serviceDurationMinutes: nil, category: "fish", notes: "Morning catch"),
+        .init(id: "bread", nameKey: "inventory.item.bread", displayName: "Bread", priceRupees: 40, unitKey: "inventory.unit.each", unitLabel: "loaf", kind: .product, inStock: true, availableToday: true, stockQuantity: 20, serviceDurationMinutes: nil, category: "bakery", notes: nil)
     ]
 
+    static func offerings(for category: VendorCategory) -> [VendorInventoryItem] {
+        let key = category.rawValue
+        // Temple flowers share flower catalog when specific items are thin.
+        let aliases: [String]
+        switch category {
+        case .templeFlowers: aliases = ["templeFlowers", "flowers"]
+        case .flowers: aliases = ["flowers"]
+        default: aliases = [key]
+        }
+        let filtered = inventory.filter { aliases.contains($0.category) }
+        // Never fall back across unrelated businesses (no ironing for vegetable sellers).
+        return filtered
+    }
+
     static let earningsEntries: [VendorEarningsEntry] = [
-        .init(id: "e1", descriptionKey: "earnings.entry.vegetables", amountRupees: 320, timeLabel: "9:15 AM", offeringId: "tomato"),
-        .init(id: "e2", descriptionKey: "earnings.entry.fruits", amountRupees: 180, timeLabel: "11:40 AM", offeringId: "banana"),
-        .init(id: "e3", descriptionKey: "earnings.entry.milk", amountRupees: 95, timeLabel: "1:05 PM", offeringId: nil),
-        .init(id: "e4", descriptionKey: "earnings.entry.flowers", amountRupees: 210, timeLabel: "4:30 PM", offeringId: nil)
+        .init(id: "e1", descriptionKey: "Tomatoes · 4 kg", amountRupees: 140, timeLabel: "9:15 AM", offeringId: "tomato"),
+        .init(id: "e2", descriptionKey: "Potatoes · 3 kg", amountRupees: 135, timeLabel: "11:40 AM", offeringId: "potato"),
+        .init(id: "e3", descriptionKey: "Onions · 2 kg", amountRupees: 80, timeLabel: "1:05 PM", offeringId: "onion"),
+        .init(id: "e4", descriptionKey: "Spinach · 3 bunches", amountRupees: 60, timeLabel: "4:30 PM", offeringId: "spinach")
     ]
+
+    static func earningsEntries(for category: VendorCategory) -> [VendorEarningsEntry] {
+        let ids = Set(offerings(for: category).map(\.id))
+        let matched = earningsEntries.filter { entry in
+            guard let offeringId = entry.offeringId else { return false }
+            return ids.contains(offeringId)
+        }
+        if !matched.isEmpty { return matched }
+        return offerings(for: category).prefix(3).enumerated().map { index, item in
+            VendorEarningsEntry(
+                id: "gen_\(item.id)",
+                descriptionKey: "\(item.displayName) · sale",
+                amountRupees: item.priceRupees * max(1, 2 - index),
+                timeLabel: ["9:15 AM", "11:40 AM", "4:30 PM"][index % 3],
+                offeringId: item.id
+            )
+        }
+    }
 
     static let todaySummary = VendorDaySummary(salesRupees: 805, customers: 18, hours: 5.5)
     static let emptyDaySummary = VendorDaySummary(salesRupees: 0, customers: 0, hours: 0.0)

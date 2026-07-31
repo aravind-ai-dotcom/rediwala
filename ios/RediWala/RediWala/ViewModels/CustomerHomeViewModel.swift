@@ -86,6 +86,8 @@ final class CustomerHomeViewModel: ObservableObject {
         return Array(nearbyRightNow.prefix(3))
     }
 
+    var watchList: [Seller] { myVendors }
+
     private var visibleSellers: [Seller] {
         let scope = geo.queryScope()
         return GeoScopedQuery.filter(

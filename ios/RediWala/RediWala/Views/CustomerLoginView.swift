@@ -75,7 +75,7 @@ struct CustomerLoginView: View {
                     .opacity(0.7)
 
                 #if DEBUG
-                Button("auth.use_demo_account") {
+                Button(LocalizedText.resolve("auth.use_demo_account", fallback: "Use demo persona")) {
                     showDemoAccounts = true
                 }
                 .font(.subheadline.weight(.bold))
@@ -93,37 +93,3 @@ struct CustomerLoginView: View {
         .background(AppTheme.background.ignoresSafeArea())
     }
 }
-
-#if DEBUG
-struct DemoAccountPickerSheet: View {
-    let accounts: [DemoAuthCatalog.Account]
-    let onSelect: (DemoAuthCatalog.Account) -> Void
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List(accounts) { account in
-                Button {
-                    onSelect(account)
-                } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(account.shortLabel)
-                            .font(.headline)
-                        Text(account.email)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-            }
-            .navigationTitle("auth.demo_accounts")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("common.done") { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-}
-#endif

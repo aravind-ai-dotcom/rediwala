@@ -5,9 +5,9 @@ alwaysApply: true
 
 # RediWala Design System (3-30-300)
 
-Benchmark: Uber, Apple Maps, Google Maps, Uber Eats, Airbnb, WhatsApp — simple, minimal, focused, confident.
+Benchmark: Uber, Apple Maps, Google Maps, Airbnb, WhatsApp, Apple Wallet — intentional, minimal, confident, human.
 
-RediWala is a **neighborhood operating system**, not a marketplace dashboard.
+RediWala is a **location intelligence platform for neighborhood commerce**, not a marketplace dashboard and not a supermarket competitor.
 
 ## 3-30-300 Rule
 
@@ -15,26 +15,36 @@ RediWala is a **neighborhood operating system**, not a marketplace dashboard.
 - **30 seconds:** User completes the primary task without hunting.
 - **300 seconds:** Analytics, history, P&L, trends, and settings live one level deeper.
 
+## Brand & language
+
+- Sibling Customer / Vendor icons — professional iOS quality, no rickshaw/cartoon placeholders.
+- Splash: white/neutral, BrandMark, short line — Customer “Know what's coming.” / Vendor “Reach your neighborhood.”
+- Prefer neighborhood language over American slogans.
+- Never expose localization keys — always English fallback via `LocalizedText` / `localizedName`.
+
 ## Home is operational
 
-- Vendor Home = run **today's business** (map, status, prep, next action).
-- Customer Home = understand **today's neighborhood** (map, expected, nearby, needs, watch list).
-- Do **not** put P&L, weekly earnings, inventory analytics, or performance charts on Home.
-- Business / Earnings / Profile hold deeper work.
+- Vendor Home = map, status, Today's Prep (tappable), next action.
+- Customer Home = map, availability status, expected, nearby, needs chips, watch list.
+- Do **not** put P&L or charts on Home. Business tab holds Today's Take-In.
+
+## Navigation
+
+- Prefer: Home · Map · Messages · Business/Watch · Profile.
+- Offerings open from prep (or Business), not as Home clutter.
 
 ## Map is the persistent anchor
 
-- Both apps: map is the constant frame of reference (Uber-like).
 - Cards below the map change by task; the map stays.
-- Support Return to Neighborhood / reset camera via GeoContext — never auto-chase GPS on Home.
+- Micro-routes stay inside one neighborhood — never mix distant places.
+- ETA matters more than distance. Traffic-light status: Available / Expected Soon / Nobody nearby.
 
 ## Visual hierarchy
 
 - One primary question per screen.
-- Prefer **font weight, spacing, and icons** over more text, dividers, and labels.
+- Prefer **font weight, spacing, and icons** over more text, borders, and labels.
 - Increase whitespace; reduce scrolling.
-- Compact rows/timelines over large cards and paragraphs.
-- Never expose localization keys — always English fallback via `LocalizedText` / `localizedName`.
+- Photo: tap image → choose/remove. Announcement sync: Uploading / Waiting / Uploaded.
 
 ## Checklist before shipping a screen
 
@@ -44,3 +54,4 @@ RediWala is a **neighborhood operating system**, not a marketplace dashboard.
 4. Can an icon replace text?
 5. Can a card become compact?
 6. Does Home still answer only today's primary task?
+7. Would Uber/Maps feel calmer than this?

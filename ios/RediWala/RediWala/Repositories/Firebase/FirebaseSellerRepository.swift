@@ -108,9 +108,12 @@ final class FirebaseSellerRepository: ObservableObject, SellerRepository, Favori
         if favoriteIDs.contains(id) {
             favoriteIDs.remove(id)
             nowFavorite = false
+            CustomerRelationshipStore.shared.removeFavorite(vendorID: id)
         } else {
             favoriteIDs.insert(id)
             nowFavorite = true
+            let category = sellersByID[id]?.category
+            CustomerRelationshipStore.shared.ensureFavorite(vendorID: id, category: category)
         }
         persistFavoritesLocally()
         await syncFavorite(id: id, isFavorite: nowFavorite)

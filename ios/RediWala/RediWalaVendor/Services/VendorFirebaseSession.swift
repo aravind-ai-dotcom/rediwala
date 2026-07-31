@@ -20,16 +20,16 @@ final class VendorFirebaseSession: ObservableObject {
     @Published private(set) var readiness: Readiness = .idle
     @Published private(set) var userProfile: DemoUserProfile?
 
-    static let databaseURL = "https://rediwala-development-default-rtdb.asia-southeast1.firebasedatabase.app"
+    static let databaseURL = VendorFirebaseBootstrap.databaseURL
 
     private lazy var auth = Auth.auth()
 
     private init() {
-        Self.configureIfNeeded()
+        VendorFirebaseBootstrap.configureIfNeeded()
     }
 
     var database: Database {
-        Self.configureIfNeeded()
+        VendorFirebaseBootstrap.configureIfNeeded()
         return Database.database(url: Self.databaseURL)
     }
 
@@ -48,10 +48,7 @@ final class VendorFirebaseSession: ObservableObject {
     }
 
     static func configureIfNeeded() {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
-        Database.database(url: databaseURL).goOnline()
+        VendorFirebaseBootstrap.configureIfNeeded()
     }
 
     /// Restore email session if present; otherwise wait at login.

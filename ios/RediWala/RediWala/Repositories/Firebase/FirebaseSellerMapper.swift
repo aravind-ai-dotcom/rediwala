@@ -94,9 +94,26 @@ enum FirebaseSellerMapper {
             apartmentComplex: location?["apartmentComplex"] as? String,
             streetName: location?["streetName"] as? String,
             todaysMessagePreview: (announcement?["transcriptEnglish"] as? String),
-            etaLabel: isLive ? "Nearby now" : nil,
+            etaLabel: Self.etaLabel(
+                isLive: isLive,
+                distanceMeters: distance,
+                presenceExpiresAt: presenceExpiresAt
+            ),
             presenceExpiresAt: presenceExpiresAt
         )
+    }
+
+    private static func etaLabel(isLive: Bool, distanceMeters: Int, presenceExpiresAt: Date?) -> String? {
+        if isLive {
+            let minutes = max(3, min(45, distanceMeters / 40))
+            if distanceMeters < 180 { return "Around the corner" }
+            return "\(minutes) min"
+        }
+        if let presenceExpiresAt, presenceExpiresAt > Date() {
+            let minutes = max(5, Int(presenceExpiresAt.timeIntervalSinceNow / 60))
+            return "\(minutes) min"
+        }
+        return nil
     }
 
     static func mapRouteStops(_ route: [String: Any]?) -> [RouteStop] {

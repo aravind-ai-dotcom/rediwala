@@ -71,6 +71,10 @@ struct VendorDetailView: View {
         .task {
             isLoading = true
             seller = await favorites.repository.fetchSeller(id: vendorID)
+            CustomerRecentlyViewedStore.shared.record(vendorID: vendorID)
+            if favorites.isFavorite(vendorID) {
+                CustomerRelationshipStore.shared.recordInteraction(vendorID: vendorID)
+            }
             isLoading = false
         }
     }

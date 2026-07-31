@@ -65,11 +65,26 @@ final class VendorMapViewModel: ObservableObject {
     }
 
     func refreshRoute(stops: [VendorRouteStopPlan]) {
+        // Instant circuit preview from waypoints while road routing resolves.
+        let active = stops.filter { !$0.isCompleted }
+        if active.count >= 2 {
+            var preview = active.map(\.coordinate)
+            if let first = preview.first, let last = preview.last,
+               first.latitude != last.latitude || first.longitude != last.longitude {
+                preview.append(first)
+            }
+            routePolyline = preview
+        } else {
+            routePolyline = active.map(\.coordinate)
+        }
+
         routeRefreshTask?.cancel()
         routeRefreshTask = Task {
             let line = await VendorRouteDirectionService.shared.polyline(for: stops)
             guard !Task.isCancelled else { return }
-            routePolyline = line
+            if line.count >= 2 {
+                routePolyline = line
+            }
             if let first = stops.first {
                 VendorGeoContext.shared.zoomToRoute(center: first.coordinate.mapCoordinate)
             }

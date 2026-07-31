@@ -8,9 +8,9 @@ struct VendorHomeView: View {
         case workingMap
         case myDay
         case recorder
-        case billCustomer
         case requests
         case hoursEditor
+        case offerings
 
         var id: Int {
             switch self {
@@ -18,9 +18,9 @@ struct VendorHomeView: View {
             case .workingMap: return 1
             case .myDay: return 2
             case .recorder: return 3
-            case .billCustomer: return 4
-            case .requests: return 5
-            case .hoursEditor: return 6
+            case .requests: return 4
+            case .hoursEditor: return 5
+            case .offerings: return 6
             }
         }
     }
@@ -34,37 +34,32 @@ struct VendorHomeView: View {
 
     private let vendorID = VendorIdentityStore.vendorID
 
+    private var isLiveSurface: Bool {
+        liveSession.state == .live || liveSession.state == .preparing || liveSession.state == .stopping
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                mapHero
-                statusStrip
+                brandedHeader
+
                 if case .failed(let message) = liveSession.state {
                     errorBanner(message, tint: AppTheme.danger)
                 } else if let error = liveSession.errorMessage {
                     errorBanner(error, tint: AppTheme.accent)
                 }
 
-                if liveSession.state == .live || liveSession.state == .preparing || liveSession.state == .stopping {
+                contextualLocationSection
+
+                if isLiveSurface {
                     liveCompactDashboard
                 } else {
                     preparationSection
-                    nextActionCard
-                }
-
-                if liveSession.state == .live {
-                    PrimaryButton(
-                        titleKey: "money.collect.title",
-                        systemImage: "indianrupeesign.circle.fill",
-                        isEnabled: true,
-                        prominent: true
-                    ) {
-                        activeSheet = .billCustomer
-                    }
+                    goLiveAction
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 8)
+            .padding(.top, 4)
             .padding(.bottom, 20)
         }
         .scrollIndicators(.hidden)
@@ -76,16 +71,13 @@ struct VendorHomeView: View {
             case .preLive:
                 VendorPreLiveSheet(
                     liveSession: liveSession,
+                    businessName: businessDisplayName,
                     onGoLive: {
                         activeSheet = nil
                         Task { @MainActor in
                             try? await Task.sleep(for: .milliseconds(200))
                             liveSession.prepareAndGoLive()
                         }
-                    },
-                    onRecordThenGoLive: {
-                        liveSession.markGoLiveAfterRecording()
-                        activeSheet = .recorder
                     },
                     onCancel: {
                         liveSession.clearGoLiveAfterRecording()
@@ -118,21 +110,25 @@ struct VendorHomeView: View {
                         liveSession.clearGoLiveAfterRecording()
                     }
                 }
-            case .billCustomer:
-                VendorCollectMoneyView(
-                    vendorID: vendorID,
-                    vendorName: viewModel.vendorName,
-                    businessName: "\(viewModel.vendorName) Vegetables"
-                ) { _ in refreshBusinessSummary() }
             case .requests:
                 VendorRequestsInboxView(liveSession: liveSession)
             case .hoursEditor:
                 VendorHoursEditorSheet(liveSession: liveSession) {
-                    liveSession.markOperatingHoursConfirmed(true)
                     activeSheet = nil
+                }
+            case .offerings:
+                NavigationStack {
+                    VendorInventoryView(category: liveSession.vendorCategory) {
+                        liveSession.markInventoryReady(true)
+                        activeSheet = nil
+                    }
                 }
             }
         }
+    }
+
+    private var businessDisplayName: String {
+        "\(viewModel.vendorName) \(liveSession.vendorCategory.englishTitle)"
     }
 
     private func refreshBusinessSummary() {
@@ -140,32 +136,154 @@ struct VendorHomeView: View {
         viewModel.refreshSummary(vendorID: vendorID, liveHours: hours)
     }
 
-    // MARK: - Map as persistent anchor
+    // MARK: - Branded header
 
-    private var mapHero: some View {
+    private var brandedHeader: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                Image("BrandMark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 36, height: 36)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("RediWala")
+                        .font(.title3.weight(.heavy))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text("Vendor")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+
+                Spacer(minLength: 8)
+
+                statusBadge
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(viewModel.vendorName)
+                    .font(.title.weight(.heavy))
+                    .foregroundStyle(AppTheme.textPrimary)
+
+                HStack(spacing: 8) {
+                    Label(liveSession.selectedOperatingArea.localizedName, systemImage: "mappin.and.ellipse")
+                    Text("·")
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Label(liveSession.vendorCategory.englishTitle, systemImage: liveSession.vendorCategory.systemImage)
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+                .lineLimit(1)
+
+                HStack(spacing: 8) {
+                    Text(liveSession.serviceMode.title)
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(AppTheme.background)
+                        .clipShape(Capsule())
+
+                    if isLiveSurface {
+                        Text(liveSession.liveDurationText)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(AppTheme.primary)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var statusBadge: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(isLiveSurface ? AppTheme.primary : AppTheme.textSecondary.opacity(0.45))
+                .frame(width: 8, height: 8)
+            Text(isLiveSurface ? "Online" : "Offline")
+                .font(.caption.weight(.bold))
+        }
+        .foregroundStyle(isLiveSurface ? AppTheme.primary : AppTheme.textSecondary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            (isLiveSurface ? AppTheme.primary : AppTheme.textSecondary).opacity(0.12)
+        )
+        .clipShape(Capsule())
+        .accessibilityLabel(Text(isLiveSurface ? "Online" : "Offline"))
+    }
+
+    // MARK: - Contextual location (mode-driven)
+
+    @ViewBuilder
+    private var contextualLocationSection: some View {
+        switch liveSession.serviceMode {
+        case .mobile:
+            mobileRouteMapHero
+        case .stationary:
+            stationaryLocationCard
+        case .scheduled:
+            scheduledTimelineCard
+        }
+    }
+
+    private var mobileRouteMapHero: some View {
         Button {
             activeSheet = .workingMap
         } label: {
             ZStack(alignment: .bottomLeading) {
                 Map(position: .constant(geo.cameraPosition)) {
-                    Annotation(viewModel.vendorName, coordinate: geo.coordinate) {
-                        Circle()
-                            .fill(liveSession.state == .live ? AppTheme.primary : AppTheme.info)
-                            .frame(width: 14, height: 14)
+                    let circuit = circuitCoordinates
+                    if circuit.count >= 2 {
+                        MapPolyline(coordinates: circuit)
+                            .stroke(AppTheme.primary, lineWidth: 3)
+                    }
+                    ForEach(liveSession.routeStops.filter { !$0.isCompleted }.prefix(8)) { stop in
+                        Annotation(stop.title, coordinate: stop.coordinate.mapCoordinate) {
+                            Circle()
+                                .fill(stop.isCurrent ? AppTheme.primary : AppTheme.info)
+                                .frame(width: stop.isCurrent ? 12 : 8, height: stop.isCurrent ? 12 : 8)
+                        }
+                    }
+                    if isLiveSurface {
+                        ForEach(liveSession.demandClusters.prefix(4)) { cluster in
+                            Annotation("\(cluster.customerCount)", coordinate: cluster.coordinate.mapCoordinate) {
+                                Text("\(cluster.customerCount)")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(.white)
+                                    .padding(5)
+                                    .background(AppTheme.accent)
+                                    .clipShape(Circle())
+                            }
+                        }
                     }
                 }
                 .mapStyle(.standard)
-                .frame(height: 180)
+                .frame(height: 220)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(viewModel.vendorName)
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
-                    Text(liveSession.selectedOperatingArea.localizedName)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.9))
+                    if let current = liveSession.currentStop {
+                        Text("Next · \(current.title)")
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(.white)
+                        if let eta = etaLabel(for: current) {
+                            Text(eta)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white.opacity(0.9))
+                        }
+                    } else {
+                        Text("Route map")
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(.white)
+                    }
+                    Text("Open map")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.85))
                 }
                 .padding(12)
                 .background(.black.opacity(0.45))
@@ -174,93 +292,224 @@ struct VendorHomeView: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("map.area.title"))
+        .accessibilityLabel(Text("Route map"))
     }
 
-    private var statusStrip: some View {
-        HStack(spacing: 10) {
-            Circle()
-                .fill(liveSession.state == .live ? AppTheme.primary : AppTheme.textSecondary.opacity(0.4))
-                .frame(width: 10, height: 10)
-            Text(liveSession.state == .live ? "Live" : "Offline")
-                .font(.subheadline.weight(.bold))
-            Spacer()
-            Text(liveSession.selectedOperatingArea.localizedName)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(AppTheme.textSecondary)
-            if liveSession.state == .live {
-                Text(liveSession.liveDurationText)
+    private var stationaryLocationCard: some View {
+        Button {
+            activeSheet = .workingMap
+        } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(AppTheme.primary.opacity(0.12))
+                        .frame(width: 64, height: 64)
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(AppTheme.primary)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Current location")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Text(liveSession.selectedOperatingArea.localizedName)
+                        .font(.headline.weight(.bold))
+                    Text(liveSession.stationaryLandmark.isEmpty
+                         ? liveSession.currentLocationText
+                         : liveSession.stationaryLandmark)
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            .padding(14)
+            .background(AppTheme.card)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var scheduledTimelineCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Today's Schedule")
+                    .font(.headline.weight(.bold))
+                Spacer()
+                Button("Edit") { activeSheet = .myDay }
                     .font(.caption.weight(.bold))
                     .foregroundStyle(AppTheme.primary)
             }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(AppTheme.card)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
 
-    private var preparationSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedText.resolve("prep.title", fallback: "Today's Prep"))
-                .font(.title3.weight(.bold))
-
-            prepRow(
-                done: liveSession.hasRoutePrepared,
-                title: LocalizedText.resolve("prep.route", fallback: "Today's Route"),
-                subtitle: routeSubtitle
-            ) { activeSheet = .myDay }
-
-            prepRow(
-                done: liveSession.inventoryReady,
-                title: LocalizedText.resolve("prep.offerings", fallback: "Today's Offerings"),
-                subtitle: liveSession.inventoryReady ? "Ready for today" : "Mark what's available"
-            ) {
-                liveSession.markInventoryReady(true)
-                onSelectTab(.inventory)
+            let upcoming = liveSession.routeStops.filter { !$0.isCompleted }.prefix(4)
+            if upcoming.isEmpty {
+                Text("Add stops for today's rounds")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+            } else {
+                ForEach(Array(upcoming)) { stop in
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(spacing: 0) {
+                            Circle()
+                                .fill(stop.isCurrent ? AppTheme.primary : AppTheme.info)
+                                .frame(width: 10, height: 10)
+                            if stop.id != upcoming.last?.id {
+                                Rectangle()
+                                    .fill(AppTheme.textSecondary.opacity(0.25))
+                                    .frame(width: 2, height: 28)
+                            }
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(stop.title)
+                                .font(.subheadline.weight(.semibold))
+                            Text(etaLabel(for: stop) ?? stop.landmark)
+                                .font(.caption)
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        Spacer()
+                        if stop.isCurrent {
+                            Text("Now")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(AppTheme.primary)
+                        }
+                    }
+                }
             }
-
-            prepRow(
-                done: liveSession.hasAnnouncementPrepared,
-                title: LocalizedText.resolve("prep.announcement", fallback: "Announcement"),
-                subtitle: announcementSubtitle
-            ) { activeSheet = .recorder }
-
-            prepRow(
-                done: liveSession.operatingHoursConfirmed,
-                title: LocalizedText.resolve("prep.hours", fallback: "Operating Hours"),
-                subtitle: hoursSubtitle
-            ) { activeSheet = .hoursEditor }
         }
         .padding(14)
         .background(AppTheme.card)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
-    private var routeSubtitle: String {
-        if liveSession.routeStops.isEmpty { return "Add stops" }
-        let remaining = liveSession.routeStops.filter { !$0.isCompleted }.count
-        return "\(remaining) stops · \(liveSession.selectedOperatingArea.localizedName)"
+    private var circuitCoordinates: [CLLocationCoordinate2D] {
+        let active = liveSession.routeStops.filter { !$0.isCompleted }
+        var coords = active.map(\.coordinate.mapCoordinate)
+        if let first = coords.first, let last = coords.last,
+           first.latitude != last.latitude || first.longitude != last.longitude {
+            coords.append(first)
+        }
+        return coords
+    }
+
+    private func etaLabel(for stop: VendorRouteStopPlan) -> String? {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return "ETA \(formatter.string(from: stop.arrivalTime))"
+    }
+
+    // MARK: - Level 2 · Preparation
+
+    private var preparationSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedText.resolve("prep.title", fallback: "Preparation"))
+                .font(.title3.weight(.bold))
+
+            Text("Edit everything here. Confirmation happens once.")
+                .font(.caption)
+                .foregroundStyle(AppTheme.textSecondary)
+
+            prepRow(
+                icon: liveSession.serviceMode.prepRouteIcon,
+                done: liveSession.hasRouteOrLocationPrepared,
+                title: liveSession.serviceMode.prepRouteTitle,
+                subtitle: routeOrLocationSubtitle
+            ) {
+                if liveSession.serviceMode == .stationary {
+                    activeSheet = .workingMap
+                } else {
+                    activeSheet = .myDay
+                }
+            }
+
+            prepRow(
+                icon: "basket.fill",
+                done: liveSession.inventoryReady,
+                title: LocalizedText.resolve("prep.offerings", fallback: "Today's Offerings"),
+                subtitle: liveSession.inventoryReady ? "Ready for today" : "Mark what's available"
+            ) {
+                activeSheet = .offerings
+            }
+
+            prepRow(
+                icon: "mic.fill",
+                done: liveSession.hasAnnouncementPrepared,
+                title: LocalizedText.resolve("prep.announcement", fallback: "Announcement"),
+                subtitle: announcementSubtitle
+            ) {
+                activeSheet = .recorder
+            }
+
+            prepRow(
+                icon: "clock.fill",
+                done: liveSession.operatingHoursConfirmed,
+                title: LocalizedText.resolve("prep.hours", fallback: "Operating Hours"),
+                subtitle: hoursSubtitle
+            ) {
+                activeSheet = .hoursEditor
+            }
+        }
+        .padding(14)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var routeOrLocationSubtitle: String {
+        switch liveSession.serviceMode {
+        case .stationary:
+            return liveSession.selectedOperatingArea.localizedName
+        case .mobile, .scheduled:
+            if liveSession.routeStops.isEmpty { return "Add stops" }
+            let remaining = liveSession.routeStops.filter { !$0.isCompleted }.count
+            if let current = liveSession.routeStops.first(where: \.isCurrent)?.title {
+                return "Next: \(current) · \(remaining) left"
+            }
+            return "\(remaining) stops · \(liveSession.selectedOperatingArea.localizedName)"
+        }
     }
 
     private var announcementSubtitle: String {
-        if let announcement = liveSession.announcement {
-            return LocalizedText.resolve("announcement.sync.uploaded", fallback: "Uploaded")
-                + " · \(announcement.durationSeconds)s"
+        guard let announcement = liveSession.announcement else {
+            return "Optional · Record today's message"
         }
-        return "Record today's message"
+        let status: String
+        switch liveSession.announcementSyncState {
+        case .uploading:
+            status = LocalizedText.resolve("announcement.sync.uploading", fallback: "Uploading…")
+        case .waitingForConnection:
+            status = LocalizedText.resolve("announcement.sync.queued", fallback: "Waiting for connection…")
+        case .uploaded:
+            status = LocalizedText.resolve("announcement.sync.uploaded", fallback: "Uploaded")
+        case .idle:
+            status = announcement.storagePath == nil
+                ? LocalizedText.resolve("announcement.sync.queued", fallback: "Waiting for connection…")
+                : LocalizedText.resolve("announcement.sync.uploaded", fallback: "Uploaded")
+        }
+        return "\(status) · \(announcement.durationSeconds)s"
     }
 
     private var hoursSubtitle: String {
-        liveSession.operatingHoursConfirmed ? "Confirmed for today" : "Set today's window"
+        if liveSession.operatingHoursConfirmed {
+            return liveSession.operatingHoursDisplayText
+        }
+        return "Set today's open window"
     }
 
-    private func prepRow(done: Bool, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
+    /// Consistent pattern: Icon · Title · State · Disclosure
+    private func prepRow(
+        icon: String,
+        done: Bool,
+        title: String,
+        subtitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                Image(systemName: done ? "checkmark.circle.fill" : icon)
                     .foregroundStyle(done ? AppTheme.primary : AppTheme.textSecondary)
                     .font(.title3)
+                    .frame(width: 28)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(.subheadline.weight(.semibold))
                     Text(subtitle).font(.caption).foregroundStyle(AppTheme.textSecondary)
@@ -270,17 +519,16 @@ struct VendorHomeView: View {
                     .font(.caption.weight(.bold))
                     .foregroundStyle(AppTheme.textSecondary)
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 
-    private var nextActionCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizedText.resolve("home.next_action", fallback: "Next Action"))
-                .font(.headline.weight(.bold))
+    // MARK: - Level 3 · Primary action
 
+    private var goLiveAction: some View {
+        VStack(alignment: .leading, spacing: 12) {
             if !liveSession.isFirebaseReady {
                 HStack(spacing: 8) {
                     ProgressView()
@@ -291,7 +539,7 @@ struct VendorHomeView: View {
             }
 
             PrimaryButton(
-                titleKey: "home.go_live",
+                titleKey: "Go Live",
                 systemImage: "antenna.radiowaves.left.and.right",
                 isEnabled: liveSession.canStartLive,
                 prominent: true
@@ -300,33 +548,80 @@ struct VendorHomeView: View {
             }
 
             Text(liveSession.isPreparationChecklistComplete
-                 ? "Ready — customers nearby will see you."
-                 : "Finish Today's Prep to go live.")
+                 ? "One confirmation · then customers can find you."
+                 : liveSession.preparationStatusSummary)
                 .font(.caption)
                 .foregroundStyle(AppTheme.textSecondary)
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
+    // MARK: - Live dashboard (mode-adaptive)
+
     private var liveCompactDashboard: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Live")
+                Text("Live now")
                     .font(.title3.weight(.heavy))
+                Spacer()
+                Text("\(liveSession.waitingCustomersCount) waiting")
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(AppTheme.primary)
-                Spacer()
-                Text(liveSession.serviceMode.title)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(AppTheme.textSecondary)
             }
-            Text(liveSession.currentLocationText)
-                .font(.subheadline.weight(.semibold))
-            HStack {
-                Label(liveSession.liveDurationText, systemImage: "clock")
-                Spacer()
-                Label(liveSession.presenceExpiresText, systemImage: "hourglass")
+
+            switch liveSession.serviceMode {
+            case .mobile:
+                if let current = liveSession.currentStop {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Now")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(AppTheme.textSecondary)
+                        Text(current.title)
+                            .font(.title2.weight(.bold))
+                        if let next = liveSession.nextStop {
+                            Text("Next · \(next.title)")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(AppTheme.info)
+                        }
+                    }
+                }
+            case .stationary:
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Serving from")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Text(liveSession.selectedOperatingArea.localizedName)
+                        .font(.title2.weight(.bold))
+                    Text(liveSession.stationaryLandmark.isEmpty
+                         ? liveSession.currentLocationText
+                         : liveSession.stationaryLandmark)
+                        .font(.subheadline)
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+            case .scheduled:
+                if let current = liveSession.currentStop {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Current stop")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(AppTheme.textSecondary)
+                        Text(current.title)
+                            .font(.title2.weight(.bold))
+                        if let eta = etaLabel(for: current) {
+                            Text(eta)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(AppTheme.info)
+                        }
+                    }
+                }
             }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(AppTheme.textSecondary)
+
+            HStack(spacing: 10) {
+                liveStat(title: "On air", value: liveSession.liveDurationText)
+                liveStat(title: "Messages", value: "\(liveSession.openRequestCount)")
+            }
 
             if liveSession.showPresencePrompt {
                 VStack(alignment: .leading, spacing: 8) {
@@ -338,31 +633,153 @@ struct VendorHomeView: View {
                             .tint(AppTheme.primary)
                         Button("Extend") { liveSession.extendPresence(byMinutes: 60) }
                             .buttonStyle(.bordered)
-                        Button("Go Offline", role: .destructive) { liveSession.stopLive() }
-                            .buttonStyle(.bordered)
                     }
                     .font(.caption.weight(.semibold))
                 }
-                .padding(10)
+                .padding(12)
                 .background(AppTheme.accent.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
 
-            HStack(spacing: 8) {
-                Button("Map") { activeSheet = .workingMap }
-                    .buttonStyle(.borderedProminent)
-                    .tint(AppTheme.primary)
-                Button("Route") { activeSheet = .myDay }
-                    .buttonStyle(.bordered)
-                Button("Stop", role: .destructive) { liveSession.stopLive() }
-                    .buttonStyle(.bordered)
-                    .disabled(!liveSession.canStopLive)
+            if liveSession.serviceMode != .stationary, let top = liveSession.demandClusters.first {
+                Button {
+                    activeSheet = .workingMap
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(top.customerCount) customers nearby")
+                                .font(.subheadline.weight(.bold))
+                            Text(top.productHints.prefix(2).joined(separator: " · "))
+                                .font(.caption)
+                                .foregroundStyle(AppTheme.textSecondary)
+                        }
+                        Spacer()
+                        Text("Detour")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(AppTheme.primary)
+                    }
+                    .padding(14)
+                    .background(AppTheme.accent.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
-            .font(.caption.weight(.semibold))
+
+            Text("Core actions")
+                .font(.headline.weight(.bold))
+                .padding(.top, 4)
+
+            LazyVGrid(
+                columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)],
+                spacing: 12
+            ) {
+                liveActionTile(
+                    title: liveSession.serviceMode == .scheduled ? "Schedule" : (liveSession.serviceMode == .stationary ? "Location" : "Map"),
+                    subtitle: liveSession.serviceMode == .scheduled ? "Stops & arrivals" : "Neighborhood view",
+                    systemImage: liveSession.serviceMode == .scheduled ? "calendar" : "map.fill",
+                    tint: AppTheme.primary
+                ) {
+                    if liveSession.serviceMode == .scheduled {
+                        activeSheet = .myDay
+                    } else {
+                        activeSheet = .workingMap
+                    }
+                }
+
+                liveActionTile(
+                    title: liveSession.serviceMode == .stationary ? "Area" : "Route",
+                    subtitle: liveSession.serviceMode == .stationary ? "Where you stand" : "Edit today's path",
+                    systemImage: liveSession.serviceMode == .stationary ? "mappin.circle.fill" : "point.topleft.down.to.point.bottomright.curvepath",
+                    tint: AppTheme.info
+                ) {
+                    if liveSession.serviceMode == .stationary {
+                        activeSheet = .workingMap
+                    } else {
+                        activeSheet = .myDay
+                    }
+                }
+
+                liveActionTile(
+                    title: "Messages",
+                    subtitle: liveSession.openRequestCount > 0
+                        ? "\(liveSession.openRequestCount) open"
+                        : "Customer requests",
+                    systemImage: "bubble.left.and.bubble.right.fill",
+                    tint: AppTheme.accent
+                ) {
+                    onSelectTab(.messages)
+                }
+
+                liveActionTile(
+                    title: "Business",
+                    subtitle: "Sales & collect",
+                    systemImage: "chart.bar.fill",
+                    tint: AppTheme.primary
+                ) {
+                    onSelectTab(.earnings)
+                }
+            }
+
+            PrimaryButton(
+                titleKey: "Stop Live",
+                systemImage: "stop.fill",
+                style: .danger,
+                isEnabled: liveSession.canStopLive,
+                prominent: true
+            ) {
+                liveSession.stopLive()
+            }
         }
-        .padding(14)
+        .padding(16)
         .background(AppTheme.card)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func liveActionTile(
+        title: String,
+        subtitle: String,
+        systemImage: String,
+        tint: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(tint)
+                Text(title)
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(AppTheme.textPrimary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 108, alignment: .topLeading)
+            .padding(14)
+            .background(AppTheme.background)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(tint.opacity(0.18), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func liveStat(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(AppTheme.textSecondary)
+            Text(value)
+                .font(.subheadline.weight(.bold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(10)
+        .background(AppTheme.background)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private func errorBanner(_ message: String, tint: Color) -> some View {
@@ -376,19 +793,26 @@ struct VendorHomeView: View {
     }
 }
 
-/// Inline hours confirmation — no separate deep screen.
+/// Inline hours — shows Open window, not just "Confirmed".
 struct VendorHoursEditorSheet: View {
     @ObservedObject var liveSession: VendorLiveSessionViewModel
     var onDone: () -> Void
-    @State private var openHour = Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
-    @State private var closeHour = Calendar.current.date(bySettingHour: 13, minute: 0, second: 0, of: Date()) ?? Date()
+    @State private var openHour: Date
+    @State private var closeHour: Date
+
+    init(liveSession: VendorLiveSessionViewModel, onDone: @escaping () -> Void) {
+        self.liveSession = liveSession
+        self.onDone = onDone
+        _openHour = State(initialValue: Self.date(fromMinutes: liveSession.todayOpenMinutes))
+        _closeHour = State(initialValue: Self.date(fromMinutes: liveSession.todayCloseMinutes))
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 DatePicker("Open", selection: $openHour, displayedComponents: .hourAndMinute)
                 DatePicker("Close", selection: $closeHour, displayedComponents: .hourAndMinute)
-                Text("\(Self.fmt.string(from: openHour)) – \(Self.fmt.string(from: closeHour))")
+                Text(previewLabel)
                     .font(.headline.weight(.bold))
                     .foregroundStyle(AppTheme.primary)
             }
@@ -396,7 +820,10 @@ struct VendorHoursEditorSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        liveSession.markOperatingHoursConfirmed(true)
+                        liveSession.setOperatingHours(
+                            openMinutes: Self.minutes(from: openHour),
+                            closeMinutes: Self.minutes(from: closeHour)
+                        )
                         onDone()
                     }
                 }
@@ -405,11 +832,29 @@ struct VendorHoursEditorSheet: View {
         .presentationDetents([.medium])
     }
 
+    private var previewLabel: String {
+        let open = Self.fmt.string(from: openHour)
+        let close = Self.fmt.string(from: closeHour)
+        return "Open \(open) – \(close)"
+    }
+
     private static let fmt: DateFormatter = {
         let f = DateFormatter()
         f.timeStyle = .short
         return f
     }()
+
+    private static func date(fromMinutes minutes: Int) -> Date {
+        var components = DateComponents()
+        components.hour = minutes / 60
+        components.minute = minutes % 60
+        return Calendar.current.date(from: components) ?? Date()
+    }
+
+    private static func minutes(from date: Date) -> Int {
+        let comps = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+    }
 }
 
 #Preview {

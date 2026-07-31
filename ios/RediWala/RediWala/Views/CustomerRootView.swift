@@ -14,11 +14,26 @@ struct CustomerRootView: View {
             switch selectedTab {
             case .home:
                 NavigationStack {
-                    CustomerHomeView(viewModel: homeViewModel)
+                    CustomerHomeView(viewModel: homeViewModel, showsMapInline: false)
                 }
-            case .favorites:
+            case .map:
                 NavigationStack {
-                    FavoritesView()
+                    CustomerMapView(
+                        viewModel: homeViewModel.mapViewModel,
+                        favorites: favorites,
+                        followStore: homeViewModel.followStore,
+                        needsStore: homeViewModel.needsStore,
+                        onShowList: { selectedTab = .home },
+                        onReturnHome: { homeViewModel.returnHomeArea() }
+                    )
+                }
+            case .messages:
+                NavigationStack {
+                    CustomerMessagesView()
+                }
+            case .watchlist:
+                NavigationStack {
+                    CustomerWatchListView(viewModel: homeViewModel)
                 }
             case .profile:
                 NavigationStack {
@@ -32,6 +47,7 @@ struct CustomerRootView: View {
                 .background(AppTheme.card.ignoresSafeArea(edges: .bottom))
         }
         .background(AppTheme.background.ignoresSafeArea())
+        .task { await homeViewModel.load() }
     }
 }
 

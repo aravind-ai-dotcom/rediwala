@@ -30,12 +30,23 @@ struct FavoritesView: View {
                                 NavigationLink {
                                     VendorDetailView(vendorID: seller.id)
                                 } label: {
-                                    SellerCard(
-                                        seller: seller,
-                                        isFavorite: true,
-                                        showsFavoriteButton: false,
-                                        onFavoriteToggle: {}
-                                    )
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(
+                                            CustomerRelationshipStore.shared.label(
+                                                for: seller.id,
+                                                category: seller.category
+                                            )
+                                        )
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(AppTheme.info)
+
+                                        SellerCard(
+                                            seller: seller,
+                                            isFavorite: true,
+                                            showsFavoriteButton: false,
+                                            onFavoriteToggle: {}
+                                        )
+                                    }
                                 }
                                 .buttonStyle(.plain)
 
@@ -48,7 +59,7 @@ struct FavoritesView: View {
                                         .frame(width: 44, height: 44)
                                 }
                                 .buttonStyle(.borderless)
-                                .padding(.top, 8)
+                                .padding(.top, 28)
                                 .padding(.trailing, 8)
                                 .accessibilityLabel(Text("vendorDetail.removeFavorite"))
                             }

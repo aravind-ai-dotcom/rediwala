@@ -42,6 +42,7 @@ final class VendorProfileViewModel: ObservableObject {
                 photoLocalPath: savedPath
             )
         }
+        Task { await retryPendingPhotoUploadIfNeeded() }
     }
 
     func updateLanguageKey(_ key: String) {
@@ -76,16 +77,30 @@ final class VendorProfileViewModel: ObservableObject {
             photoUploadProgress = 1
             profile.photoLocalPath = path
             if let data = resized.jpegData(compressionQuality: 0.78) {
-                Task {
-                    do {
-                        _ = try await VendorFirebaseService.shared.uploadProfilePhoto(data, vendorID: vendorID)
-                    } catch {
-                        photoErrorMessage = "Photo saved locally. Cloud upload will retry later."
-                    }
+                do {
+                    _ = try await VendorFirebaseService.shared.uploadProfilePhoto(data, vendorID: vendorID)
+                    VendorProfilePhotoStore.markPending(false, for: vendorID)
+                    photoErrorMessage = nil
+                } catch {
+                    photoErrorMessage = "Photo saved on this device. Waiting for connection…"
                 }
             }
         } catch {
             photoErrorMessage = "Photo selection failed. Please retry."
+        }
+    }
+
+    func retryPendingPhotoUploadIfNeeded() async {
+        guard VendorProfilePhotoStore.hasPendingUpload(for: vendorID),
+              let data = VendorProfilePhotoStore.jpegData(for: vendorID) else { return }
+        isUploadingPhoto = true
+        defer { isUploadingPhoto = false }
+        do {
+            _ = try await VendorFirebaseService.shared.uploadProfilePhoto(data, vendorID: vendorID)
+            VendorProfilePhotoStore.markPending(false, for: vendorID)
+            photoErrorMessage = nil
+        } catch {
+            photoErrorMessage = "Photo saved on this device. Waiting for connection…"
         }
     }
 

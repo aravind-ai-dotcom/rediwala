@@ -20,22 +20,36 @@ final class VendorRouteDirectionService {
             return activeStops.map(\.coordinate)
         }
 
-        let cacheKey = activeStops.map { "\($0.id):\($0.coordinate.latitude),\($0.coordinate.longitude)" }.joined(separator: "|")
+        // Close circuit: ensure path returns to the first waypoint.
+        var circuit = activeStops
+        if let first = activeStops.first, let last = activeStops.last,
+           first.coordinate.latitude != last.coordinate.latitude
+            || first.coordinate.longitude != last.coordinate.longitude {
+            circuit.append(first)
+        }
+
+        let cacheKey = circuit.map { "\($0.id):\($0.coordinate.latitude),\($0.coordinate.longitude)" }.joined(separator: "|")
         if let cached = polylineCache[cacheKey] { return cached }
 
         var merged: [CodableCoordinate] = []
-        for index in 0..<(activeStops.count - 1) {
-            let from = activeStops[index].coordinate.mapCoordinate
-            let to = activeStops[index + 1].coordinate.mapCoordinate
+        for index in 0..<(circuit.count - 1) {
+            let from = circuit[index].coordinate.mapCoordinate
+            let to = circuit[index + 1].coordinate.mapCoordinate
             let segment = await fetchSegment(from: from, to: to)
             if merged.isEmpty {
                 merged.append(contentsOf: segment)
             } else if let first = segment.first, let last = merged.last,
-                      first.latitude == last.latitude, first.longitude == last.longitude {
+                      abs(first.latitude - last.latitude) < 0.00001,
+                      abs(first.longitude - last.longitude) < 0.00001 {
                 merged.append(contentsOf: segment.dropFirst())
             } else {
                 merged.append(contentsOf: segment)
             }
+        }
+
+        // Immediate straight-line fallback so the circuit is visible while MKDirections loads.
+        if merged.count < 2 {
+            merged = circuit.map(\.coordinate)
         }
 
         polylineCache[cacheKey] = merged

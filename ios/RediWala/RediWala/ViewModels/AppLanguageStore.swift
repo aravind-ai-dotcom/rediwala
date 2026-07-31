@@ -27,5 +27,6 @@ final class AppLanguageStore: ObservableObject {
 
     private func persistLanguage() {
         UserDefaults.standard.set(language.rawValue, forKey: storageKey)
+        CustomerPreferenceSyncService.scheduleSync()
     }
 }

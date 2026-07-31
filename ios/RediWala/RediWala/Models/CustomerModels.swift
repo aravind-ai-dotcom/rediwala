@@ -44,6 +44,25 @@ enum PilotNeighborhood: String, CaseIterable, Identifiable, Codable {
     var nameKey: String { "neighborhood.\(rawValue)" }
     var tamilNameKey: String { "neighborhood.\(rawValue).ta_label" }
 
+    var displayName: String {
+        switch self {
+        case .tNagar: return "T. Nagar"
+        case .westMambalam: return "West Mambalam"
+        case .thiruvanmiyur: return "Thiruvanmiyur"
+        case .adyar: return "Adyar"
+        case .velachery: return "Velachery"
+        case .besantNagar: return "Besant Nagar"
+        case .annaNagar: return "Anna Nagar"
+        case .kodambakkam: return "Kodambakkam"
+        case .ashokNagar: return "Ashok Nagar"
+        case .mylapore: return "Mylapore"
+        case .triplicane: return "Triplicane"
+        case .saidapet: return "Saidapet"
+        case .ecr: return "ECR"
+        case .omr: return "OMR"
+        }
+    }
+
     /// Real Chennai neighborhood centers (WGS84).
     var coordinate: CLLocationCoordinate2D {
         switch self {
@@ -200,17 +219,17 @@ enum SellerCategory: String, CaseIterable, Identifiable, Codable {
 
     var systemImage: String {
         switch self {
-        case .vegetables: return "leaf.fill"
+        case .vegetables: return "basket.fill"
         case .fruits: return "carrot.fill"
-        case .flowers: return "camera.macro"
-        case .milk: return "cup.and.saucer.fill"
+        case .flowers: return "leaf.fill"
+        case .milk: return "waterbottle.fill"
         case .fish: return "fish.fill"
         case .bakery: return "birthday.cake.fill"
-        case .knifeSharpening: return "scissors"
+        case .knifeSharpening: return "diamond.fill"
         case .cobbler: return "hammer.fill"
         case .tailor: return "scissors"
         case .sofaRepair: return "sofa.fill"
-        case .ironing: return "flame.fill"
+        case .ironing: return "tshirt.fill"
         case .laundry: return "washer.fill"
         case .cableBill: return "tv.fill"
         case .householdRepair: return "wrench.and.screwdriver.fill"

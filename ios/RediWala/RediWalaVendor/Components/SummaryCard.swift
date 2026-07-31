@@ -28,7 +28,7 @@ struct SummaryCard: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.65)
 
-            Text(LocalizedStringKey(titleKey))
+            Text(LocalizedText.resolve(titleKey, fallback: englishFallback(for: titleKey)))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(AppTheme.textSecondary)
                 .lineLimit(2)
@@ -40,6 +40,18 @@ struct SummaryCard: View {
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
         .shadow(color: .black.opacity(0.05), radius: 8, y: 3)
         .accessibilityElement(children: .combine)
+    }
+
+    private func englishFallback(for key: String) -> String {
+        switch key {
+        case "earnings.today_total": return "Today's Take-In"
+        case "summary.customers": return "Customers Served"
+        case "summary.hours": return "Hours Worked"
+        case "summary.average_sale": return "Average Sale"
+        case "summary.top_item": return "Top Selling"
+        case "summary.sales": return "Sales"
+        default: return key.split(separator: ".").last.map(String.init)?.replacingOccurrences(of: "_", with: " ").capitalized ?? key
+        }
     }
 }
 

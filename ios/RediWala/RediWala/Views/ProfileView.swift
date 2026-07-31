@@ -7,6 +7,8 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject private var languageStore: AppLanguageStore
     @ObservedObject private var geo = GeoContext.shared
+    @ObservedObject private var placeStore = CustomerPlaceStore.shared
+    @ObservedObject private var notifications = CustomerNotificationPreferenceStore.shared
     @State private var selectedPhotoItem: PhotosPickerItem?
 
     private var displayName: String {
@@ -28,8 +30,9 @@ struct ProfileView: View {
                             size: 96
                         )
 
+                        let photoButtonTitle = viewModel.photoLocalPath == nil ? "Add photo" : "Edit"
                         PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
-                            Text("profile.add_photo")
+                            Text(photoButtonTitle)
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 10)
@@ -42,8 +45,7 @@ struct ProfileView: View {
                     }
                     .frame(height: 110)
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel(Text("profile.add_photo"))
-                    .accessibilityHint(Text("profile.add_photo.hint"))
+                    .accessibilityLabel(Text(LocalizedText.resolve("profile.add_photo", fallback: "Profile photo")))
 
                     Text(displayName)
                         .font(.largeTitle.weight(.heavy))
@@ -60,27 +62,25 @@ struct ProfileView: View {
                             .foregroundStyle(AppTheme.danger)
                     }
 
-                    HStack(spacing: 10) {
-                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                            Label(
-                                viewModel.photoLocalPath == nil ? "Add Photo" : "Replace Photo",
-                                systemImage: "photo.fill"
-                            )
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(AppTheme.primary)
-
-                        Button("Remove", role: .destructive) {
+                    if viewModel.photoLocalPath != nil {
+                        Button("Remove photo", role: .destructive) {
                             viewModel.removePhoto()
                         }
-                        .buttonStyle(.bordered)
-                        .disabled(viewModel.photoLocalPath == nil)
+                        .font(.caption.weight(.semibold))
                     }
                 }
                 .padding(.top, 8)
 
                 geoContextCard
+
+                placeContextCard
+
+                if let sync = viewModel.photoSyncLabel {
+                    Text(sync)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.info)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
                 VStack(spacing: 12) {
                     ProfileRow(
@@ -99,6 +99,35 @@ struct ProfileView: View {
                         systemImage: "mappin.and.ellipse"
                     )
                 }
+
+                Toggle(isOn: $notifications.areEnabled) {
+                    Label("Notifications", systemImage: "bell.fill")
+                        .font(.title3.weight(.bold))
+                }
+                .padding(16)
+                .background(AppTheme.card)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+
+                NavigationLink {
+                    PersonDirectoryView()
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "person.2.fill")
+                            .font(.title3.weight(.bold))
+                        Text("People")
+                            .font(.title3.weight(.bold))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+                    .foregroundStyle(AppTheme.textPrimary)
+                    .padding(16)
+                    .frame(minHeight: AppTheme.minTap)
+                    .background(AppTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+                }
+                .buttonStyle(.plain)
 
                 NavigationLink {
                     SettingsView()
@@ -186,6 +215,41 @@ struct ProfileView: View {
             Text(geo.mode.subtitle)
                 .font(.caption)
                 .foregroundStyle(AppTheme.textSecondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.card)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCorner, style: .continuous))
+    }
+
+    private var placeContextCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Recommendations for")
+                .font(.headline.weight(.bold))
+            Text("Vendors are described relative to this place.")
+                .font(.caption)
+                .foregroundStyle(AppTheme.textSecondary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(CustomerPlaceKind.allCases) { place in
+                        Button {
+                            placeStore.activePlace = place
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: place.systemImage)
+                                Text(place.title)
+                            }
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .foregroundStyle(placeStore.activePlace == place ? Color.white : AppTheme.textPrimary)
+                            .background(placeStore.activePlace == place ? AppTheme.primary : AppTheme.background)
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)

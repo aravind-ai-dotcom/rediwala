@@ -76,16 +76,21 @@ enum CustomerNeedItem: String, CaseIterable, Identifiable, Codable {
 
     var systemImage: String {
         switch self {
-        case .vegetables: return "leaf.fill"
-        case .fruits, .bananas, .coconut, .tenderCoconut: return "carrot.fill"
-        case .flowers: return "camera.macro"
+        case .vegetables: return "basket.fill"
+        case .fruits, .bananas, .coconut: return "carrot.fill"
+        case .tenderCoconut: return "circle.fill"
+        case .flowers: return "leaf.fill"
         case .freshFish: return "fish.fill"
-        case .milk, .eggs: return "cup.and.saucer.fill"
-        case .tea, .breakfast: return "mug.fill"
-        case .snacks, .foodTruck, .kulfi: return "box.truck.fill"
-        case .knifeSharpening, .tailor: return "scissors"
+        case .milk: return "waterbottle.fill"
+        case .eggs: return "circle.inset.filled"
+        case .tea: return "mug.fill"
+        case .breakfast: return "fork.knife"
+        case .snacks, .kulfi: return "snowflake"
+        case .foodTruck: return "box.truck.fill"
+        case .knifeSharpening: return "diamond.fill"
+        case .tailor: return "scissors"
         case .cobbler: return "hammer.fill"
-        case .ironing: return "flame.fill"
+        case .ironing: return "tshirt.fill"
         case .laundryPickup: return "washer.fill"
         case .sofaRepair, .repairs, .householdRepair: return "wrench.and.screwdriver.fill"
         case .recyclingPickup, .plasticCollection, .scrapBuyer: return "arrow.3.trianglepath"
@@ -217,6 +222,7 @@ final class CustomerNeedsStore: ObservableObject {
     private func persistToday() {
         UserDefaults.standard.set(selected.map(\.rawValue).sorted(), forKey: todayKey)
         UserDefaults.standard.set(Self.dayStamp(), forKey: dayStampKey)
+        CustomerPreferenceSyncService.scheduleSync()
     }
 
     private func persistCompleted() {
@@ -365,6 +371,7 @@ final class CustomerVendorFollowStore: ObservableObject {
         if let data = try? JSONEncoder().encode(records) {
             UserDefaults.standard.set(data, forKey: key)
         }
+        CustomerPreferenceSyncService.scheduleSync()
     }
 }
 

@@ -244,8 +244,8 @@ enum SyntheticChennaiData {
         ),
         make(
             id: "ramesh_plastic",
-            name: "Ramesh",
-            businessName: "Ramesh Plastic & Paper",
+            name: "Hussain",
+            businessName: "Hussain Plastic Pickup",
             category: .plastic,
             neighborhood: .tNagar,
             landmarkKey: "landmark.pondy_bazaar",
@@ -356,8 +356,8 @@ enum SyntheticChennaiData {
         ),
         make(
             id: "lakshmi_peanuts",
-            name: "Lakshmi",
-            businessName: nil,
+            name: "Thenmozhi",
+            businessName: "Thenmozhi Peanuts",
             category: .peanuts,
             neighborhood: .westMambalam,
             landmarkKey: "landmark.mambalam_railway",
@@ -378,8 +378,8 @@ enum SyntheticChennaiData {
         ),
         make(
             id: "murugan_fruits",
-            name: "Murugan",
-            businessName: "Murugan Fruit Cart",
+            name: "Inban",
+            businessName: "Inban Fruit Cart",
             category: .fruits,
             neighborhood: .tNagar,
             landmarkKey: "landmark.panagal_park",

@@ -45,6 +45,7 @@ final class CustomerNeighborhoodStore: ObservableObject {
 
     private func persist() {
         UserDefaults.standard.set(homeNeighborhood.rawValue, forKey: key)
+        CustomerPreferenceSyncService.scheduleSync()
     }
 }
 

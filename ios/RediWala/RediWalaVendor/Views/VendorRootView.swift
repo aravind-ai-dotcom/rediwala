@@ -17,7 +17,10 @@ struct VendorRootView: View {
             area: onboardingState.area
         ))
         _profileViewModel = StateObject(wrappedValue: VendorProfileViewModel(onboarding: onboardingState, vendorID: vendorID))
-        _liveSessionViewModel = StateObject(wrappedValue: VendorLiveSessionViewModel(vendorId: vendorID))
+        _liveSessionViewModel = StateObject(wrappedValue: VendorLiveSessionViewModel(
+            vendorId: vendorID,
+            category: onboardingState.category
+        ))
     }
 
     var body: some View {
@@ -29,10 +32,16 @@ struct VendorRootView: View {
                     liveSession: liveSessionViewModel,
                     onSelectTab: { selectedTab = $0 }
                 )
-            case .inventory:
-                VendorInventoryView()
+            case .map:
+                VendorWorkingMapView(liveSession: liveSessionViewModel, showsCloseButton: false)
+            case .messages:
+                VendorMessagesView(liveSession: liveSessionViewModel)
             case .earnings:
-                VendorEarningsView()
+                VendorEarningsView(
+                    vendorName: onboardingState.vendorName,
+                    businessName: "\(onboardingState.vendorName) \(onboardingState.category.englishTitle)",
+                    category: onboardingState.category
+                )
             case .profile:
                 VendorProfileView(viewModel: profileViewModel)
                     .onAppear {
@@ -51,8 +60,13 @@ struct VendorRootView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .onAppear {
             homeViewModel.applyOnboarding(onboardingState)
+            liveSessionViewModel.applyVendorCategory(onboardingState.category)
             liveSessionViewModel.updateOperatingArea(onboardingState.area)
             liveSessionViewModel.setProfilePhotoPath(profileViewModel.profile.photoLocalPath)
+            liveSessionViewModel.seedOperatingHours(
+                openMinutes: onboardingState.workingHours.startMinutes,
+                closeMinutes: onboardingState.workingHours.endMinutes
+            )
         }
         .onChange(of: profileViewModel.profile.photoLocalPath) { _, newPath in
             liveSessionViewModel.setProfilePhotoPath(newPath)

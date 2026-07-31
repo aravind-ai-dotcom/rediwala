@@ -161,9 +161,7 @@ final class VendorAnnouncementViewModel: NSObject, ObservableObject {
     }
 
     private func recordingURL(vendorID: String) -> URL {
-        let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        return directory.appendingPathComponent("vendor_\(vendorID)_announcement.m4a")
+        VendorAnnouncementStore.audioURL(for: vendorID)
     }
 }
 

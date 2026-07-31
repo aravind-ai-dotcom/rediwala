@@ -31,6 +31,17 @@ final class VendorLiveSessionViewModel: ObservableObject {
     @Published var profilePhotoLocalPath: String?
     @Published var inventoryReady = false
     @Published var operatingHoursConfirmed = false
+    @Published var todayOpenMinutes: Int = 8 * 60
+    @Published var todayCloseMinutes: Int = 13 * 60
+    @Published private(set) var announcementSyncState: AnnouncementSyncState = .idle
+    @Published private(set) var vendorCategory: VendorCategory = .vegetables
+
+    enum AnnouncementSyncState: Equatable {
+        case idle
+        case uploading
+        case uploaded
+        case waitingForConnection
+    }
 
     private var livePrepareTask: Task<Void, Never>?
     private var stopTask: Task<Void, Never>?
@@ -46,18 +57,26 @@ final class VendorLiveSessionViewModel: ObservableObject {
     private let firebaseSession = VendorFirebaseSession.shared
     private var cancellables = Set<AnyCancellable>()
 
-    init(vendorId: String) {
+    init(vendorId: String, category: VendorCategory = .vegetables) {
         self.vendorId = vendorId
+        self.vendorCategory = category
+        self.serviceMode = Self.loadPreferredMode(for: vendorId) ?? category.defaultServiceMode
         self.announcement = VendorAnnouncementStore.load(for: vendorId)
+        if let loaded = self.announcement {
+            announcementSyncState = loaded.storagePath == nil ? .waitingForConnection : .uploaded
+        }
         self.profilePhotoLocalPath = VendorProfilePhotoStore.loadPath(for: vendorId)
         if let interval = announcement?.playbackIntervalMinutes {
             broadcastIntervalMinutes = interval
         }
+        self.demandClusters = Self.demoClusters(for: selectedOperatingArea, category: category)
+        restorePrepFlagsIfNeeded()
         restorePersistedSessionIfNeeded()
         updateLocationText()
         geocodeOperatingArea()
         geocodeRouteStops()
         bindDemandRepository()
+        Task { await retryPendingAnnouncementUploadIfNeeded() }
 
         firebaseSession.objectWillChange
             .sink { [weak self] _ in
@@ -75,10 +94,6 @@ final class VendorLiveSessionViewModel: ObservableObject {
         announcementUploadTask?.cancel()
         routeSyncTask?.cancel()
         geocodeTask?.cancel()
-    }
-
-    var vendorCategory: VendorCategory {
-        .vegetables
     }
 
     var isFirebaseReady: Bool {
@@ -134,12 +149,57 @@ final class VendorLiveSessionViewModel: ObservableObject {
         routeStops.contains { !$0.isCompleted }
     }
 
+    /// Stationary vendors need a place, not a multi-stop circuit.
+    var hasLocationPrepared: Bool {
+        !selectedOperatingArea.englishName.isEmpty
+    }
+
+    var hasRouteOrLocationPrepared: Bool {
+        serviceMode.requiresRoute ? hasRoutePrepared : hasLocationPrepared
+    }
+
     var hasAnnouncementPrepared: Bool {
         announcement != nil
     }
 
+    /// Preparation happens on Home. Announcement is optional — never block Go Live.
     var isPreparationChecklistComplete: Bool {
-        hasRoutePrepared && inventoryReady && hasAnnouncementPrepared && operatingHoursConfirmed
+        hasRouteOrLocationPrepared && inventoryReady && operatingHoursConfirmed
+    }
+
+    var preparationStatusSummary: String {
+        if isPreparationChecklistComplete {
+            let extras = hasAnnouncementPrepared ? " · Announcement ready" : ""
+            return "Prep complete\(extras)"
+        }
+        var missing: [String] = []
+        if !hasRouteOrLocationPrepared {
+            missing.append(serviceMode.prepRouteTitle)
+        }
+        if !inventoryReady { missing.append("Offerings") }
+        if !operatingHoursConfirmed { missing.append("Hours") }
+        return "Still need: \(missing.joined(separator: ", "))"
+    }
+
+    var currentStop: VendorRouteStopPlan? {
+        routeStops.first(where: { $0.isCurrent && !$0.isCompleted })
+            ?? routeStops.first(where: { !$0.isCompleted })
+    }
+
+    var nextStop: VendorRouteStopPlan? {
+        guard let current = currentStop,
+              let idx = routeStops.firstIndex(where: { $0.id == current.id }) else {
+            return routeStops.first(where: { !$0.isCompleted })
+        }
+        return routeStops.dropFirst(idx + 1).first(where: { !$0.isCompleted })
+    }
+
+    var waitingCustomersCount: Int {
+        demandClusters.reduce(0) { $0 + $1.customerCount }
+    }
+
+    var openRequestCount: Int {
+        customerRequests.filter { $0.status == .open }.count
     }
 
     private static let shortTime: DateFormatter = {
@@ -241,27 +301,45 @@ final class VendorLiveSessionViewModel: ObservableObject {
     func updateAnnouncement(_ draft: VendorAnnouncementDraft?) {
         announcement = draft
         if draft != nil {
-            // Recording an announcement completes the preparation checkpoint.
+            announcementSyncState = .uploading
             objectWillChange.send()
+        } else {
+            announcementSyncState = .idle
         }
         persistAnnouncement()
         scheduleBroadcastIfNeeded()
         guard let draft else { return }
         announcementUploadTask?.cancel()
         announcementUploadTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                let synced = try await self.firebase.saveAnnouncement(draft, vendorID: self.vendorId)
-                guard !Task.isCancelled else { return }
-                self.announcement = synced
-                self.persistAnnouncement()
-            } catch {
-                guard !Task.isCancelled else { return }
-                self.errorMessage = LocalizedText.resolve(
-                    "announcement.sync.queued",
-                    fallback: "Saved — will upload when online"
-                )
+            await self?.uploadAnnouncement(draft)
+        }
+    }
+
+    func retryPendingAnnouncementUploadIfNeeded() async {
+        guard let draft = announcement, draft.storagePath == nil else {
+            if announcement?.storagePath != nil {
+                announcementSyncState = .uploaded
             }
+            return
+        }
+        announcementSyncState = .uploading
+        await uploadAnnouncement(draft)
+    }
+
+    private func uploadAnnouncement(_ draft: VendorAnnouncementDraft) async {
+        do {
+            let synced = try await firebase.saveAnnouncement(draft, vendorID: vendorId)
+            guard !Task.isCancelled else { return }
+            announcement = synced
+            announcementSyncState = synced.storagePath == nil ? .waitingForConnection : .uploaded
+            persistAnnouncement()
+        } catch {
+            guard !Task.isCancelled else { return }
+            announcementSyncState = .waitingForConnection
+            errorMessage = LocalizedText.resolve(
+                "announcement.sync.queued",
+                fallback: "Waiting for connection…"
+            )
         }
     }
 
@@ -271,10 +349,55 @@ final class VendorLiveSessionViewModel: ObservableObject {
 
     func markInventoryReady(_ value: Bool) {
         inventoryReady = value
+        persistPrepFlags()
     }
 
     func markOperatingHoursConfirmed(_ value: Bool) {
         operatingHoursConfirmed = value
+        persistPrepFlags()
+    }
+
+    func setOperatingHours(openMinutes: Int, closeMinutes: Int) {
+        todayOpenMinutes = openMinutes
+        todayCloseMinutes = max(closeMinutes, openMinutes + 30)
+        operatingHoursConfirmed = true
+        persistPrepFlags()
+    }
+
+    func seedOperatingHours(openMinutes: Int, closeMinutes: Int) {
+        todayOpenMinutes = openMinutes
+        todayCloseMinutes = max(closeMinutes, openMinutes + 30)
+    }
+
+    private func persistPrepFlags() {
+        VendorBusinessDayStore.savePrep(
+            inventoryReady: inventoryReady,
+            hoursConfirmed: operatingHoursConfirmed,
+            openMinutes: todayOpenMinutes,
+            closeMinutes: todayCloseMinutes,
+            vendorID: vendorId
+        )
+    }
+
+    private func restorePrepFlagsIfNeeded() {
+        guard let prep = VendorBusinessDayStore.loadPrep(vendorID: vendorId) else { return }
+        inventoryReady = prep.inventoryReady
+        operatingHoursConfirmed = prep.hoursConfirmed
+        todayOpenMinutes = prep.open
+        todayCloseMinutes = prep.close
+    }
+
+    var operatingHoursDisplayText: String {
+        let open = Self.shortTime.string(from: Self.date(fromMinutes: todayOpenMinutes))
+        let close = Self.shortTime.string(from: Self.date(fromMinutes: todayCloseMinutes))
+        return "Open \(open) – \(close)"
+    }
+
+    private static func date(fromMinutes minutes: Int) -> Date {
+        var components = DateComponents()
+        components.hour = minutes / 60
+        components.minute = minutes % 60
+        return Calendar.current.date(from: components) ?? Date()
     }
 
     func planMyRoute() {
@@ -384,9 +507,40 @@ final class VendorLiveSessionViewModel: ObservableObject {
         selectedOperatingArea = area
         VendorGeoContext.shared.selectArea(area, recenter: true)
         routeStops = VendorServiceModeDemoData.defaultStops(for: area)
+        demandClusters = Self.demoClusters(for: area, category: vendorCategory)
         geocodeOperatingArea()
         geocodeRouteStops()
         updateLocationText()
+        refreshRecommendations()
+    }
+
+    func applyVendorCategory(_ category: VendorCategory) {
+        vendorCategory = category
+        switch state {
+        case .offline, .failed:
+            serviceMode = Self.loadPreferredMode(for: vendorId) ?? category.defaultServiceMode
+        case .preparing, .live, .stopping:
+            break
+        }
+        demandClusters = Self.demoClusters(for: selectedOperatingArea, category: category)
+        refreshRecommendations()
+        if firebaseSession.isReady {
+            demandRepository.startListening(vendorCategory: category.rawValue)
+        }
+    }
+
+    func selectServiceMode(_ mode: VendorServiceMode) {
+        serviceMode = mode
+        UserDefaults.standard.set(mode.rawValue, forKey: Self.preferredModeKey(for: vendorId))
+    }
+
+    private static func preferredModeKey(for vendorId: String) -> String {
+        "vendor.preferred_service_mode.\(vendorId)"
+    }
+
+    private static func loadPreferredMode(for vendorId: String) -> VendorServiceMode? {
+        guard let raw = UserDefaults.standard.string(forKey: preferredModeKey(for: vendorId)) else { return nil }
+        return VendorServiceMode(rawValue: raw)
     }
 
     func centerMapTarget() -> CodableCoordinate {
@@ -398,11 +552,11 @@ final class VendorLiveSessionViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] clusters in
                 guard let self else { return }
-                let base = clusters.isEmpty ? Self.demoClusters(for: self.selectedOperatingArea) : clusters
-                self.demandClusters = base.filter {
-                    $0.neighborhood == self.selectedOperatingArea
-                }
-                self.demandSignals = clusters.map { cluster in
+                let scoped = clusters.filter { $0.neighborhood == self.selectedOperatingArea }
+                self.demandClusters = scoped.isEmpty
+                    ? Self.demoClusters(for: self.selectedOperatingArea, category: self.vendorCategory)
+                    : scoped
+                self.demandSignals = self.demandClusters.map { cluster in
                     VendorDemandSignal(
                         id: cluster.id,
                         title: "\(cluster.customerCount) customers · \(cluster.neighborhoodName)",
@@ -461,11 +615,29 @@ final class VendorLiveSessionViewModel: ObservableObject {
     private func geocodeRouteStops() {
         Task {
             var updated = routeStops
+            let center = selectedOperatingArea.seedCoordinate.mapCoordinate
             for index in updated.indices {
                 let stop = updated[index]
-                if let coord = await VendorGeocodingService.shared.coordinate(placeName: stop.title, near: stop.neighborhood) {
+                // Keep circuit return pinned to the start coordinate.
+                if stop.source == "circuit_return", let first = updated.first {
+                    updated[index].coordinate = first.coordinate
+                    continue
+                }
+                guard let coord = await VendorGeocodingService.shared.coordinate(
+                    placeName: stop.title,
+                    near: stop.neighborhood
+                ) else { continue }
+                let meters = CLLocation(latitude: center.latitude, longitude: center.longitude)
+                    .distance(from: CLLocation(latitude: coord.latitude, longitude: coord.longitude))
+                // Only accept geocodes that stay inside the neighborhood (~1.6 km).
+                if meters < 1600 {
                     updated[index].coordinate = coord
                 }
+            }
+            // Re-close loop after geocoding.
+            if let first = updated.first,
+               let returnIdx = updated.firstIndex(where: { $0.source == "circuit_return" }) {
+                updated[returnIdx].coordinate = first.coordinate
             }
             routeStops = updated
             scheduleRouteSync()
@@ -485,21 +657,8 @@ final class VendorLiveSessionViewModel: ObservableObject {
         }
     }
 
-    private static func demoClusters(for area: ChennaiArea) -> [DemandCluster] {
-        VendorServiceModeDemoData.demandSignals.map { signal in
-            DemandCluster(
-                id: signal.id,
-                neighborhoodId: area.firebaseID,
-                neighborhoodName: area.localizedName,
-                coordinate: signal.coordinate,
-                customerCount: signal.customerCount,
-                level: DemandLevel.from(customerCount: signal.customerCount),
-                categories: [signal.category.rawValue],
-                productHints: [signal.subtitle],
-                preferredTimeWindow: signal.preferredTimeWindow,
-                signalTypes: [signal.signalType]
-            )
-        }
+    private static func demoClusters(for area: ChennaiArea, category: VendorCategory = .vegetables) -> [DemandCluster] {
+        VendorServiceModeDemoData.demoDemandClusters(for: area, category: category)
     }
 
     func markStopCompleted(_ stopID: String) {

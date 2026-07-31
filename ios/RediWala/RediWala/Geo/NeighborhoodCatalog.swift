@@ -32,7 +32,7 @@ enum NeighborhoodCatalog {
 
     /// Demo onboarding short list — Chennai pilot set.
     static var demoOnboarding: [NeighborhoodDefinition] {
-        [
+        let ids = [
             "west_mambalam",
             "thiruvanmiyur",
             "adyar",
@@ -41,7 +41,9 @@ enum NeighborhoodCatalog {
             "besant_nagar",
             "anna_nagar",
             "ashok_nagar"
-        ].compactMap(neighborhood(id:))
+        ]
+        // Avoid `compactMap(neighborhood(id:))` method reference — it trips MainActor isolation.
+        return ids.compactMap { neighborhood(id: $0) }
     }
 
     static var defaultDemoNeighborhood: NeighborhoodDefinition {

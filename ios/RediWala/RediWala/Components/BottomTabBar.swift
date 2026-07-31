@@ -1,36 +1,53 @@
 import SwiftUI
 
-enum CustomerTab: Hashable {
+enum CustomerTab: Hashable, CaseIterable {
     case home
-    case favorites
+    case map
+    case messages
+    case watchlist
     case profile
+
+    var title: String {
+        switch self {
+        case .home: return LocalizedText.resolve("tab.home", fallback: "Home")
+        case .map: return LocalizedText.resolve("tab.map", fallback: "Map")
+        case .messages: return LocalizedText.resolve("tab.messages", fallback: "Messages")
+        case .watchlist: return LocalizedText.resolve("tab.watchlist", fallback: "Watch")
+        case .profile: return LocalizedText.resolve("tab.profile", fallback: "Profile")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .home: return "house.fill"
+        case .map: return "map.fill"
+        case .messages: return "bubble.left.and.bubble.right.fill"
+        case .watchlist: return "eye.fill"
+        case .profile: return "person.crop.circle.fill"
+        }
+    }
 }
 
 struct BottomTabBar: View {
     @Binding var selected: CustomerTab
 
-    private let items: [(CustomerTab, LocalizedStringKey, String)] = [
-        (.home, "tab.home", "house.fill"),
-        (.favorites, "tab.favorites", "heart.fill"),
-        (.profile, "tab.profile", "person.crop.circle.fill")
-    ]
-
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(items, id: \.0) { tab, titleKey, icon in
+            ForEach(CustomerTab.allCases, id: \.self) { tab in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         selected = tab
                     }
                 } label: {
                     VStack(spacing: 6) {
-                        Image(systemName: icon)
-                            .font(.system(size: 22, weight: .semibold))
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 20, weight: .semibold))
                             .symbolEffect(.bounce, value: selected == tab)
-                        Text(titleKey)
-                            .font(.caption.weight(.semibold))
+                        Text(tab.title)
+                            .font(.caption2.weight(.semibold))
                             .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
                     .foregroundStyle(selected == tab ? AppTheme.primary : AppTheme.textSecondary)
                     .frame(maxWidth: .infinity)
@@ -41,7 +58,7 @@ struct BottomTabBar: View {
                 .accessibilityAddTraits(selected == tab ? [.isButton, .isSelected] : .isButton)
             }
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 4)
         .padding(.top, 10)
         .padding(.bottom, 6)
         .background(AppTheme.card)

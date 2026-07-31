@@ -2,34 +2,43 @@ import FirebaseCore
 import FirebaseDatabase
 import Foundation
 
-/// Chennai pilot RTDB lives in asia-southeast1; the plist omits `DATABASE_URL`.
-enum FirebaseDatabaseConfig {
-    static let databaseURL = "https://rediwala-development-default-rtdb.asia-southeast1.firebasedatabase.app"
+/// RTDB for `rediwala-development` lives at the default `.firebaseio.com` host.
+/// Setting `FirebaseOptions.databaseURL` before `configure` prevents the SDK from
+/// opening a wrong-region default socket (and killing the connection).
+///
+/// Methods are `nonisolated` so AppDelegate / early bootstrap work under
+/// SWIFT_DEFAULT_ACTOR_ISOLATION=MainActor.
+enum FirebaseDatabaseConfig: Sendable {
+    nonisolated static let databaseURL = "https://rediwala-development-default-rtdb.firebaseio.com"
 
-    static func configureIfNeeded() {
+    nonisolated static func configureIfNeeded() {
         if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
+            if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+               let options = FirebaseOptions(contentsOfFile: path) {
+                options.databaseURL = databaseURL
+                FirebaseApp.configure(options: options)
+            } else {
+                FirebaseApp.configure()
+            }
         }
-        // Open the RTDB socket early so post-Auth profile reads are not "client offline".
+        // Always talk to the explicit regional URL — never rely on an unset plist key.
         Database.database(url: databaseURL).goOnline()
     }
 
-    static var database: Database {
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
+    nonisolated static var database: Database {
+        configureIfNeeded()
         let db = Database.database(url: databaseURL)
         db.goOnline()
         return db
     }
 
-    static var root: DatabaseReference {
+    nonisolated static var root: DatabaseReference {
         database.reference()
     }
 
     /// One-shot reads fail with "client offline" when the WebSocket is not up yet
     /// (common right after Auth sign-in). Retry with a short connection wait.
-    static func getData(
+    nonisolated static func getData(
         at reference: DatabaseReference,
         attempts: Int = 6
     ) async throws -> DataSnapshot {
@@ -55,20 +64,19 @@ enum FirebaseDatabaseConfig {
         )
     }
 
-    static func isOfflineError(_ error: Error) -> Bool {
+    nonisolated static func isOfflineError(_ error: Error) -> Bool {
         let ns = error as NSError
         let message = ns.localizedDescription.lowercased()
         if message.contains("client offline") || message.contains("network error") {
             return true
         }
-        // FIRDatabaseErrorCode.networkError == 1
         if ns.domain == "com.firebase.core" || ns.domain.contains("FirebaseDatabase") {
             return ns.code == 1
         }
         return false
     }
 
-    private static func waitForConnection(timeoutSeconds: Double) async throws {
+    nonisolated private static func waitForConnection(timeoutSeconds: Double) async throws {
         let connectedRef = database.reference(withPath: ".info/connected")
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             final class State: @unchecked Sendable {
@@ -92,7 +100,6 @@ enum FirebaseDatabaseConfig {
                     lock.unlock()
                 }
 
-                /// Resume at most once, always after releasing the lock.
                 func complete(_ result: Result<Void, Error>) {
                     lock.lock()
                     guard !finished else {

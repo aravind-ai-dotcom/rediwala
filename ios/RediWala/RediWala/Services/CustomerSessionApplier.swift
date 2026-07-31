@@ -34,6 +34,8 @@ enum CustomerSessionApplier {
             UserDefaults.standard.removeObject(forKey: "customer.apartment.metadata.v1")
         }
 
+        await CustomerPreferenceSyncService.pullSettings(uid: profile.uid)
+
         CustomerOnboardingStore.markLanguageChosen()
         CustomerOnboardingStore.markCompleted()
     }

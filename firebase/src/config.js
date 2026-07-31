@@ -7,7 +7,7 @@ export const ALLOWED_PROJECT_IDS = Object.freeze(["rediwala-development"]);
 
 export const DEFAULT_DATABASE_URL =
   process.env.FIREBASE_DATABASE_URL ||
-  "https://rediwala-development-default-rtdb.asia-southeast1.firebasedatabase.app";
+  "https://rediwala-development-default-rtdb.firebaseio.com";
 
 /** Current permanent schema roots written by the seed utility. */
 export const SEED_ROOT_KEYS = Object.freeze([

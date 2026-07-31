@@ -1,13 +1,16 @@
 import SwiftUI
-import FirebaseCore
 import UIKit
 
+/// Keep UIApplicationDelegate visible to UIKit / Firebase swizzling.
+/// Default MainActor isolation hides protocol conformance from the ObjC runtime —
+/// mark the delegate entry point nonisolated and configure Firebase immediately.
+@objc(VendorAppDelegate)
 final class VendorAppDelegate: NSObject, UIApplicationDelegate {
-    func application(
+    nonisolated func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        VendorFirebaseSession.configureIfNeeded()
+        VendorFirebaseBootstrap.configureIfNeeded()
         return true
     }
 }
@@ -19,8 +22,8 @@ struct RediWalaVendorApp: App {
     @StateObject private var languageStore: AppLanguageStore
 
     init() {
-        // Configure before any Auth/Database access from ContentView / session singleton.
-        VendorFirebaseSession.configureIfNeeded()
+        // First line — before ContentView / session singletons touch Auth or RTDB.
+        VendorFirebaseBootstrap.configureIfNeeded()
         _languageStore = StateObject(wrappedValue: AppLanguageStore())
     }
 

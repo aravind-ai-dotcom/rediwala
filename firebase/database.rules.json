@@ -19,38 +19,38 @@
     },
 
     "vendors": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!data.exists() || data.child('ownerUid').val() == auth.uid || !data.child('ownerUid').exists())"
       }
     },
     "vendor_status": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_locations": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_routes": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendor_announcements": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
     "vendorLiveSessions": {
+      ".read": "auth != null",
       "$vendorId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!root.child('vendors').child($vendorId).child('ownerUid').exists() || root.child('vendors').child($vendorId).child('ownerUid').val() == auth.uid || root.child('users').child(auth.uid).child('isDemoAccount').val() == true)"
       }
     },
@@ -74,12 +74,13 @@
       }
     },
     "customer_interest": {
+      ".read": "auth != null",
       "$requestId": {
-        ".read": "auth != null",
         ".write": "auth != null && (!data.exists() || data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)"
       }
     },
     "customerRequests": {
+      ".read": "auth != null",
       "$requestId": {
         ".read": "auth != null && (data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)",
         ".write": "auth != null && (!data.exists() || data.child('customerId').val() == auth.uid || root.child('vendors').child(data.child('vendorId').val()).child('ownerUid').val() == auth.uid)"

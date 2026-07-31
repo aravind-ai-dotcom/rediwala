@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UIKit
 
 struct VendorProfileView: View {
     @ObservedObject var viewModel: VendorProfileViewModel
@@ -10,13 +11,31 @@ struct VendorProfileView: View {
         ScrollView {
             VStack(spacing: AppTheme.sectionSpacing) {
                 VStack(spacing: 12) {
-                    ZStack {
-                        profilePhotoView
-                        photoBadge
+                    let photoPath = viewModel.profile.photoLocalPath
+                    let photoButtonTitle = photoPath == nil ? "Add photo" : "Edit photo"
+                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                        ZStack(alignment: .bottom) {
+                            profilePhotoView(path: photoPath)
+                            Text(photoButtonTitle)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(AppTheme.primary.opacity(0.92))
+                                .clipShape(Capsule())
+                                .offset(y: 8)
+                        }
+                        .frame(height: 110)
                     }
-                    .frame(height: 100)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel(Text("profile.add_photo"))
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(LocalizedText.resolve("profile.add_photo", fallback: "Profile photo")))
+
+                    if photoPath != nil {
+                        Button("Remove photo", role: .destructive) {
+                            viewModel.removePhoto()
+                        }
+                        .font(.caption.weight(.semibold))
+                    }
 
                     Text(viewModel.profile.name)
                         .font(.largeTitle.weight(.heavy))
@@ -29,13 +48,13 @@ struct VendorProfileView: View {
                 VStack(spacing: 12) {
                     ProfileRow(
                         titleKey: "profile.language",
-                        value: String(localized: String.LocalizationValue(viewModel.profile.languageKey)),
+                        value: LocalizedText.resolve(viewModel.profile.languageKey, fallback: "English"),
                         systemImage: "globe"
                     )
                     ProfileRow(titleKey: "profile.phone", value: viewModel.profile.phone, systemImage: "phone.fill")
                     ProfileRow(
                         titleKey: "profile.category",
-                        value: String(localized: String.LocalizationValue(viewModel.profile.categoryKey)),
+                        value: LocalizedText.resolve(viewModel.profile.categoryKey, fallback: "Business"),
                         systemImage: "leaf.fill"
                     )
                     ProfileRow(
@@ -53,7 +72,7 @@ struct VendorProfileView: View {
 
                 if viewModel.isUploadingPhoto {
                     ProgressView(value: viewModel.photoUploadProgress) {
-                        Text("Uploading photo…")
+                        Text("Uploading…")
                             .font(.caption.weight(.semibold))
                     }
                 }
@@ -62,22 +81,6 @@ struct VendorProfileView: View {
                         .font(.footnote)
                         .foregroundStyle(AppTheme.danger)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                HStack(spacing: 10) {
-                    let photoButtonTitle = viewModel.profile.photoLocalPath == nil ? "Select Photo" : "Replace Photo"
-                    PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
-                        Label(photoButtonTitle, systemImage: "photo.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(AppTheme.primary)
-
-                    Button("Remove", role: .destructive) {
-                        viewModel.removePhoto()
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(viewModel.profile.photoLocalPath == nil)
                 }
 
                 LargeActionButton(
@@ -92,7 +95,7 @@ struct VendorProfileView: View {
                 Button {
                     firebaseSession.signOut()
                 } label: {
-                    Text("auth.sign_out")
+                    Text(LocalizedText.resolve("auth.sign_out", fallback: "Sign Out"))
                         .font(.headline.weight(.bold))
                         .foregroundStyle(AppTheme.danger)
                         .frame(maxWidth: .infinity)
@@ -112,12 +115,13 @@ struct VendorProfileView: View {
         .task(id: selectedPhotoItem) {
             guard selectedPhotoItem != nil else { return }
             await viewModel.applySelectedPhotoItem(selectedPhotoItem)
+            selectedPhotoItem = nil
         }
     }
 
     @ViewBuilder
-    private var profilePhotoView: some View {
-        if let path = viewModel.profile.photoLocalPath,
+    private func profilePhotoView(path: String?) -> some View {
+        if let path,
            let uiImage = UIImage(contentsOfFile: path) {
             Image(uiImage: uiImage)
                 .resizable()
@@ -125,22 +129,15 @@ struct VendorProfileView: View {
                 .frame(width: 96, height: 96)
                 .clipShape(Circle())
         } else {
-            Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 88))
-                .foregroundStyle(AppTheme.primary)
-                .accessibilityHidden(true)
+            Circle()
+                .fill(AppTheme.primary.opacity(0.12))
+                .frame(width: 96, height: 96)
+                .overlay {
+                    Image(systemName: "camera.fill")
+                        .font(.title2)
+                        .foregroundStyle(AppTheme.primary)
+                }
         }
-    }
-
-    private var photoBadge: some View {
-        Text("profile.add_photo")
-            .font(.caption.weight(.bold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(AppTheme.primary.opacity(0.92))
-            .clipShape(Capsule())
-            .offset(y: 36)
     }
 }
 
